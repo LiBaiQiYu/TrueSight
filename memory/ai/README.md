@@ -18,6 +18,8 @@
 
 `pre-push` 只检查当前 `HEAD` 是否包含 `memory/ai/state.md`，防止有人用 `--no-verify` 跳过记忆更新。
 
+Hook 优先使用仓库内的 `runtime/python/python.exe`；没有时回退 `python3` / `python`。
+
 ## 首次启用（每台设备一次）
 
 在项目根目录执行：

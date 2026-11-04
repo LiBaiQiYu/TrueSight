@@ -5,7 +5,14 @@ set -e
 ROOT=$(git rev-parse --show-toplevel) || exit 0
 PY="$ROOT/runtime/python/python.exe"
 if [ ! -f "$PY" ]; then
-  PY=python
+  if command -v python3 >/dev/null 2>&1; then
+    PY=python3
+  elif command -v python >/dev/null 2>&1; then
+    PY=python
+  else
+    echo "memory: 找不到 Python 3，无法更新 AI 记忆快照。" >&2
+    exit 1
+  fi
 fi
 
 "$PY" "$ROOT/tools/memory/update.py" || exit 1
