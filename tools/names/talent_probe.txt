@@ -1,0 +1,31 @@
+每英雄天赋数量分布: {8: 127}
+天赋 type 分布: {2: 1016}
+缺中文名数量: 0 []
+含占位符数量: 959
+  占位符 ('npc_dota_hero_antimage', 'special_bonus_hp_regen_3', '+{s:value} 生命恢复', '+{s:value} Health Regen')
+  占位符 ('npc_dota_hero_antimage', 'special_bonus_unique_antimage_manavoid_aoe', '+{s:bonus_mana_void_aoe_radius} 法力虚空范围', '+{s:bonus_mana_void_aoe_radius} Mana Void Radius')
+  占位符 ('npc_dota_hero_antimage', 'special_bonus_unique_antimage_5', '+{s:bonus_move_slow_min}%/{s:bonus_move_slow_max}% 绝人之路最低/最高减速', '+{s:bonus_move_slow_min}%/{s:bonus_move_slow_max}% Persecutor Min/Max Movement Slow')
+  占位符 ('npc_dota_hero_antimage', 'special_bonus_unique_antimage_6', '+{s:bonus_mana_void_damage_per_mana} 法力虚空伤害系数', '+{s:bonus_mana_void_damage_per_mana} Mana Void Damage Multiplier')
+  占位符 ('npc_dota_hero_antimage', 'special_bonus_unique_antimage_3', '+{s:bonus_AbilityCastRange} 闪烁施法距离', '+{s:bonus_AbilityCastRange} Blink Cast Range')
+  占位符 ('npc_dota_hero_antimage', 'special_bonus_unique_antimage_8', '+{s:bonus_mana_void_ministun}秒 法力虚空眩晕', '+{s:bonus_mana_void_ministun}s Mana Void Stun')
+  占位符 ('npc_dota_hero_antimage', 'special_bonus_unique_antimage', '-{s:bonus_AbilityCooldown}秒 闪烁冷却', '-{s:bonus_AbilityCooldown}s Blink Cooldown')
+  占位符 ('npc_dota_hero_antimage', 'special_bonus_unique_antimage_2', '-{s:bonus_AbilityCooldown}秒 法力虚空冷却', '-{s:bonus_AbilityCooldown}s Mana Void Cooldown')
+全属性相关天赋: 4
+   ('npc_dota_hero_life_stealer', 'special_bonus_all_stats_4', '+{s:value} 全属性', '+{s:value} All Attributes')
+   ('npc_dota_hero_magnataur', 'special_bonus_unique_magnus_reverse_polarity_stats', '两极反转每击中一名英雄+{s:bonus_stats_per_stack} 全属性', '+{s:bonus_stats_per_stack} All Attributes per hero hit with Reverse Polarity')
+   ('npc_dota_hero_terrorblade', 'special_bonus_all_stats_10', '+{s:value} 全属性', '+{s:value} All Attributes')
+   ('npc_dota_hero_arc_warden', 'special_bonus_unique_arc_warden_8', '+{s:bonus_all_attribute_bonus_per_stack} 神符灌注全属性', '+{s:bonus_all_attribute_bonus_per_stack} Runic Infusion All Attributes Bonus')
+
+斧王天赋明细:
+  special_bonus_unique_axe_culling_blade_speed_duration | zh: +{s:bonus_speed_duration}秒 淘汰之刃斩杀后效果 | en: +{s:bonus_speed_duration}s Culling Blade Kill Buff Bonus Duration | special_values: []
+  special_bonus_unique_axe_8 | zh: 每个战斗饥渴+{s:bonus_speed_bonus}% 移速 | en: +{s:bonus_speed_bonus}% Movement Speed per active Battle Hunger | special_values: []
+  special_bonus_unique_axe | zh: +{s:bonus_damage_per_second} 战斗饥渴每秒伤害 | en: +{s:bonus_damage_per_second} Battle Hunger Damage Per Second | special_values: []
+  special_bonus_unique_axe_7 | zh: +{s:bonus_bonus_armor} 狂战士之吼护甲 | en: +{s:bonus_bonus_armor} Berserker's Call Armor | special_values: []
+  special_bonus_strength_15 | zh: +{s:value} 力量 | en: +{s:value} Strength | special_values: [{"name": "value", "values_float": [15], "is_percentage": false, "heading_loc": "", "bonuses": [], "values_shard": [], "values_scepter": [], "facet_bonus": {"name": "", "values": [
+  special_bonus_unique_axe_4 | zh: +{s:bonus_damage} 反击螺旋伤害 | en: +{s:bonus_damage} Counter Helix Damage | special_values: []
+  special_bonus_unique_axe_2 | zh: +{s:bonus_radius} 狂战士之吼范围 | en: +{s:bonus_radius} Berserker's Call AoE | special_values: []
+  special_bonus_unique_axe_5 | zh: +{s:bonus_damage} 淘汰之刃伤害 | en: +{s:bonus_damage} Culling Blade Damage | special_values: []
+
+OpenDota hero_abilities 天赋示例: [{"name": "special_bonus_unique_axe_culling_blade_speed_duration", "level": 1}, {"name": "special_bonus_unique_axe_8", "level": 1}, {"name": "special_bonus_unique_axe", "level": 2}]
+OpenDota 天赋 dname 示例: {"special_bonus_attributes": null, "special_bonus_undefined": "Pending Replacement", "special_bonus_hp_100": "+100 Health"}
+OpenDota 天赋条目数: 1750 其中有英文名: 1747

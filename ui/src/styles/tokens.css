@@ -1,0 +1,447 @@
+:root {
+  --font: "Inter", -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+
+  --sidebar-w: 225px;
+
+  /* TrueSight 品牌标识（祖母绿晶体，跨主题保持品牌色） */
+  --brand-ink-grad: linear-gradient(180deg, #ffffff 0%, #f1f8f5 52%, #bccdc6 100%);
+  --brand-accent-grad: linear-gradient(180deg, #b6ffd2 0%, #2ee88a 44%, #00b45f 100%);
+  --brand-glow: rgba(34, 220, 130, 0.42);
+
+  /* TrueSight dark (default) */
+  --accent: #22c55e;
+  --accent-hi: #86efac;
+  --accent-deep: #0b8f4d;
+  --accent-text: #a7f3d0;
+  --accent-soft: rgba(34, 197, 94, 0.16);
+  --accent-line: rgba(134, 239, 172, 0.34);
+  --accent-glow: rgba(34, 197, 94, 0.45);
+  --good-text: #86efac;
+
+  --radiant: #4ade80;
+  --dire: #f87171;
+
+  --facet-a: rgba(167, 243, 208, 0.16);
+  --facet-b: rgba(16, 185, 129, 0.1);
+  --facet-line: rgba(134, 239, 172, 0.18);
+
+  --bg: #08130f;
+  --bg-deep: #050d0a;
+  --sidebar-bg: rgba(9, 22, 16, 0.88);
+  --card-bg: rgba(13, 30, 22, 0.8);
+  --card-solid: #0f241a;
+  --input-bg: rgba(4, 14, 9, 0.62);
+  --input-bg-solid: #0a1811;
+  --line: rgba(134, 239, 172, 0.16);
+  --line-strong: rgba(134, 239, 172, 0.34);
+  --text: #e9f8ef;
+  --text-dim: #a9c9b9;
+  --text-mute: #749183;
+  --hover: rgba(163, 255, 205, 0.06);
+  --stop: rgba(255, 255, 255, 0.3);
+  --shadow: 0 18px 44px rgba(0, 0, 0, 0.46);
+  --toggle-bg: rgba(8, 20, 14, 0.72);
+  --toggle-active: rgba(34, 197, 94, 0.28);
+  --art-opacity: 1;
+  --danger-text: #ffb4b4;
+
+  --app-bg: linear-gradient(180deg, #0c2018 0%, #081711 46%, #050f0b 100%);
+  --ridge-far: #0d2318;
+  --ridge-near: #071710;
+  --ridge-rim: rgba(134, 239, 172, 0.18);
+  --stars-opacity: 0.75;
+  --horizon-bg:
+    radial-gradient(40% 60% at 50% 108%, rgba(163, 230, 53, 0.24), transparent 72%),
+    radial-gradient(60% 80% at 78% 100%, rgba(16, 185, 129, 0.18), transparent 70%),
+    linear-gradient(180deg, transparent 0%, rgba(16, 185, 129, 0.1) 45%, rgba(4, 20, 13, 0.55) 100%);
+  --vignette-bg: radial-gradient(120% 95% at 50% 0%, transparent 42%, rgba(3, 10, 7, 0.62) 100%);
+  --glow-a: radial-gradient(circle, rgba(16, 185, 129, 0.32), transparent 68%);
+  --glow-b: radial-gradient(circle, rgba(163, 230, 53, 0.22), transparent 66%);
+  --rune-filter: drop-shadow(0 0 34px rgba(34, 197, 94, 0.4));
+  --ray-color: rgba(163, 230, 53, 0.07);
+
+  --avatar-bg: linear-gradient(150deg, #16352a, #0c1f18);
+  --gem-hi: #d1fae5;
+  --gem-mid: #34d399;
+  --gem-lo: #065f46;
+  --gem-stroke: #a7f3d0;
+  --gem-eye: #e7fff4;
+  --gem-pupil: #042f1f;
+  --gem-facet: rgba(167, 243, 208, 0.24);
+  --rune-bright: rgba(167, 243, 208, 0.12);
+  --mascot-body: #4fd1a1;
+  --mascot-light: #d1fae5;
+  --mascot-ink: #052e1b;
+  --rune-fill: rgba(16, 185, 129, 0.07);
+  --rune-stroke: rgba(110, 231, 183, 0.34);
+  --rune-facet: rgba(167, 243, 208, 0.08);
+  --rune-dark: rgba(6, 78, 59, 0.35);
+  --rune-inner: rgba(110, 231, 183, 0.26);
+
+  --blur: 14px;
+  --sidebar-blur: 16px;
+
+  --btn-grad: linear-gradient(180deg, #2dd4a6, #12a05c 55%, #0b8f4d);
+  --btn-shadow: 0 8px 22px rgba(16, 185, 129, 0.36);
+  --nav-grad: linear-gradient(180deg, #17976a 0%, #0c6b46 100%);
+  --nav-text: #f2fff8;
+  --nav-shadow: 0 8px 20px rgba(4, 120, 87, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  --seg-grad: linear-gradient(180deg, #17976a 0%, #0c6b46 100%);
+  --seg-text: #f2fff8;
+  --seg-shadow: 0 3px 10px rgba(4, 120, 87, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  --slider-grad: linear-gradient(90deg, #0b8f4d, #34d399);
+  --slider-max-grad: linear-gradient(
+    90deg,
+    #06b6d4 0%,
+    #10b981 25%,
+    #a3e635 50%,
+    #10b981 75%,
+    #06b6d4 100%
+  );
+  --slider-text-grad: linear-gradient(90deg, #a7f3d0, #34d399 55%, #a3e635);
+  --slider-glow: rgba(34, 197, 94, 0.35);
+  --slider-max-glow: 0 0 18px rgba(34, 197, 94, 0.6), 0 0 38px rgba(163, 230, 53, 0.26);
+  --thumb-glow: 0 0 0 5px rgba(34, 197, 94, 0.18), 0 0 18px rgba(52, 211, 153, 0.85),
+    0 2px 10px rgba(0, 0, 0, 0.35);
+  --sparkle-glow: 0 0 8px rgba(255, 255, 255, 1), 0 0 14px rgba(167, 243, 208, 0.9);
+  --selected-glow: 0 0 0 2px var(--accent-soft), 0 6px 18px rgba(16, 185, 129, 0.35);
+  --progress-grad: linear-gradient(90deg, #17976a, #34d399);
+  --progress-stream-grad: linear-gradient(
+    90deg,
+    rgba(52, 211, 153, 0.18),
+    #34d399 45%,
+    rgba(52, 211, 153, 0.18)
+  );
+
+  color-scheme: dark;
+}
+
+:root[data-theme="truesight"][data-mode="light"] {
+  --brand-ink-grad: linear-gradient(180deg, #0f3526 0%, #1d4a38 55%, #44705c 100%);
+  --brand-accent-grad: linear-gradient(180deg, #2fe892 0%, #06b56a 45%, #04763f 100%);
+  --brand-glow: rgba(16, 185, 129, 0.28);
+
+  --accent: #22c55e;
+  --accent-hi: #86efac;
+  --accent-deep: #0b8f4d;
+  --accent-text: #0b8f4d;
+  --accent-soft: rgba(34, 197, 94, 0.16);
+  --accent-line: rgba(5, 150, 105, 0.28);
+  --accent-glow: rgba(34, 197, 94, 0.35);
+  --good-text: #0b7a45;
+
+  --radiant: #22c55e;
+  --dire: #ef4444;
+
+  --facet-a: rgba(5, 150, 105, 0.08);
+  --facet-b: rgba(16, 185, 129, 0.07);
+  --facet-line: rgba(5, 150, 105, 0.14);
+
+  --bg: #f0fbf4;
+  --bg-deep: #e2f6e9;
+  --sidebar-bg: rgba(255, 255, 255, 0.76);
+  --card-bg: rgba(255, 255, 255, 0.86);
+  --card-solid: #ffffff;
+  --input-bg: rgba(255, 255, 255, 0.92);
+  --input-bg-solid: #ffffff;
+  --line: rgba(5, 150, 105, 0.16);
+  --line-strong: rgba(5, 150, 105, 0.3);
+  --text: #0d2a1d;
+  --text-dim: #4c6f5d;
+  --text-mute: #86a595;
+  --hover: rgba(5, 150, 105, 0.07);
+  --stop: rgba(13, 42, 29, 0.26);
+  --shadow: 0 16px 40px rgba(6, 78, 59, 0.14);
+  --toggle-bg: rgba(255, 255, 255, 0.82);
+  --toggle-active: rgba(34, 197, 94, 0.18);
+  --art-opacity: 0.42;
+  --danger-text: #b42318;
+
+  --app-bg: linear-gradient(180deg, #e8f8ef 0%, #f2fcf6 46%, #e4f5ec 100%);
+  --ridge-far: #d5f0e1;
+  --ridge-near: #c4ead6;
+  --ridge-rim: rgba(5, 150, 105, 0.18);
+  --stars-opacity: 0.25;
+  --horizon-bg:
+    radial-gradient(40% 60% at 50% 108%, rgba(163, 230, 53, 0.18), transparent 72%),
+    radial-gradient(60% 80% at 78% 100%, rgba(16, 185, 129, 0.14), transparent 70%),
+    linear-gradient(180deg, transparent 0%, rgba(16, 185, 129, 0.08) 45%, rgba(214, 244, 228, 0.55) 100%);
+  --vignette-bg: radial-gradient(120% 95% at 50% 0%, transparent 45%, rgba(214, 240, 226, 0.5) 100%);
+  --glow-a: radial-gradient(circle, rgba(16, 185, 129, 0.2), transparent 68%);
+  --glow-b: radial-gradient(circle, rgba(163, 230, 53, 0.16), transparent 66%);
+  --rune-filter: drop-shadow(0 0 34px rgba(34, 197, 94, 0.3));
+  --ray-color: rgba(163, 230, 53, 0.06);
+
+  --avatar-bg: linear-gradient(150deg, #e8f8f0, #d3efdf);
+  --gem-hi: #d1fae5;
+  --gem-mid: #34d399;
+  --gem-lo: #065f46;
+  --gem-stroke: #a7f3d0;
+  --gem-eye: #e7fff4;
+  --gem-pupil: #042f1f;
+  --gem-facet: rgba(167, 243, 208, 0.24);
+  --rune-bright: rgba(167, 243, 208, 0.12);
+  --mascot-body: #4fd1a1;
+  --mascot-light: #d1fae5;
+  --mascot-ink: #052e1b;
+  --rune-fill: rgba(16, 185, 129, 0.07);
+  --rune-stroke: rgba(110, 231, 183, 0.34);
+  --rune-facet: rgba(167, 243, 208, 0.08);
+  --rune-dark: rgba(6, 78, 59, 0.35);
+  --rune-inner: rgba(110, 231, 183, 0.26);
+
+  --blur: 16px;
+  --sidebar-blur: 18px;
+
+  --btn-grad: linear-gradient(180deg, #2dd4a6, #12a05c 55%, #0b8f4d);
+  --btn-shadow: 0 8px 22px rgba(16, 185, 129, 0.36);
+  --nav-grad: linear-gradient(180deg, #17976a 0%, #0c6b46 100%);
+  --nav-text: #f2fff8;
+  --nav-shadow: 0 8px 20px rgba(4, 120, 87, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  --seg-grad: linear-gradient(180deg, #17976a 0%, #0c6b46 100%);
+  --seg-text: #f2fff8;
+  --seg-shadow: 0 3px 10px rgba(4, 120, 87, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  --slider-grad: linear-gradient(90deg, #0b8f4d, #34d399);
+  --slider-max-grad: linear-gradient(
+    90deg,
+    #06b6d4 0%,
+    #10b981 25%,
+    #a3e635 50%,
+    #10b981 75%,
+    #06b6d4 100%
+  );
+  --slider-text-grad: linear-gradient(90deg, #a7f3d0, #34d399 55%, #a3e635);
+  --slider-glow: rgba(34, 197, 94, 0.35);
+  --slider-max-glow: 0 0 18px rgba(34, 197, 94, 0.5), 0 0 38px rgba(163, 230, 53, 0.22);
+  --thumb-glow: 0 0 0 5px rgba(34, 197, 94, 0.16), 0 0 18px rgba(52, 211, 153, 0.7),
+    0 2px 10px rgba(0, 0, 0, 0.2);
+  --sparkle-glow: 0 0 8px rgba(255, 255, 255, 1), 0 0 14px rgba(167, 243, 208, 0.9);
+  --selected-glow: 0 0 0 2px var(--accent-soft), 0 6px 18px rgba(16, 185, 129, 0.28);
+  --progress-grad: linear-gradient(90deg, #17976a, #34d399);
+  --progress-stream-grad: linear-gradient(
+    90deg,
+    rgba(52, 211, 153, 0.18),
+    #34d399 45%,
+    rgba(52, 211, 153, 0.18)
+  );
+
+  color-scheme: light;
+}
+
+:root[data-theme="standard"][data-mode="light"] {
+  --brand-ink-grad: linear-gradient(180deg, #0f2a2f 0%, #1d4048 55%, #456b72 100%);
+  --brand-accent-grad: linear-gradient(180deg, #2fe892 0%, #06b56a 45%, #04763f 100%);
+  --brand-glow: rgba(16, 185, 129, 0.26);
+
+  --accent: #0a84ff;
+  --accent-hi: #4da3ff;
+  --accent-deep: #0066cc;
+  --accent-text: #0066cc;
+  --accent-soft: rgba(10, 132, 255, 0.12);
+  --accent-line: rgba(10, 132, 255, 0.26);
+  --accent-glow: rgba(10, 132, 255, 0.3);
+  --good-text: #15803d;
+
+  --radiant: #22c55e;
+  --dire: #ef4444;
+
+  --facet-a: rgba(10, 132, 255, 0.05);
+  --facet-b: rgba(15, 23, 42, 0.03);
+  --facet-line: rgba(10, 132, 255, 0.09);
+
+  --bg: #f7f8fa;
+  --bg-deep: #eceef2;
+  --sidebar-bg: rgba(255, 255, 255, 0.66);
+  --card-bg: rgba(255, 255, 255, 0.78);
+  --card-solid: #ffffff;
+  --input-bg: rgba(255, 255, 255, 0.82);
+  --input-bg-solid: #ffffff;
+  --line: rgba(15, 23, 42, 0.08);
+  --line-strong: rgba(15, 23, 42, 0.14);
+  --text: #1d2126;
+  --text-dim: #5c6572;
+  --text-mute: #9aa2ae;
+  --hover: rgba(15, 23, 42, 0.045);
+  --stop: rgba(15, 23, 42, 0.2);
+  --shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+  --toggle-bg: rgba(255, 255, 255, 0.72);
+  --toggle-active: rgba(10, 132, 255, 0.14);
+  --art-opacity: 0;
+  --danger-text: #b42318;
+
+  --app-bg: linear-gradient(180deg, #fafbfc 0%, #f6f7f9 55%, #f1f3f6 100%);
+  --ridge-far: #eceef2;
+  --ridge-near: #e3e6eb;
+  --ridge-rim: rgba(15, 23, 42, 0.05);
+  --stars-opacity: 0;
+  --horizon-bg: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(15, 23, 42, 0.015) 60%,
+    rgba(15, 23, 42, 0.035) 100%
+  );
+  --vignette-bg: radial-gradient(120% 95% at 50% 0%, transparent 55%, rgba(236, 238, 242, 0.4) 100%);
+  --glow-a: radial-gradient(circle, rgba(10, 132, 255, 0.06), transparent 68%);
+  --glow-b: radial-gradient(circle, rgba(10, 132, 255, 0.04), transparent 66%);
+  --rune-filter: drop-shadow(0 0 30px rgba(10, 132, 255, 0.22));
+  --ray-color: rgba(15, 23, 42, 0.03);
+
+  --avatar-bg: linear-gradient(150deg, #f2f4f7, #e7eaef);
+  --gem-hi: #e5f2ff;
+  --gem-mid: #0a84ff;
+  --gem-lo: #004a99;
+  --gem-stroke: #cfe8ff;
+  --gem-eye: #f5fbff;
+  --gem-pupil: #062a4a;
+  --gem-facet: rgba(207, 232, 255, 0.35);
+  --rune-bright: rgba(207, 232, 255, 0.12);
+  --mascot-body: #3d9bff;
+  --mascot-light: #d9ecff;
+  --mascot-ink: #0a2b4a;
+  --rune-fill: rgba(10, 132, 255, 0.06);
+  --rune-stroke: rgba(112, 180, 255, 0.34);
+  --rune-facet: rgba(207, 232, 255, 0.08);
+  --rune-dark: rgba(0, 74, 153, 0.35);
+  --rune-inner: rgba(112, 180, 255, 0.26);
+
+  --blur: 22px;
+  --sidebar-blur: 22px;
+
+  --btn-grad: linear-gradient(180deg, #2f97ff, #007aff);
+  --btn-shadow: 0 8px 22px rgba(0, 122, 255, 0.26);
+  --nav-grad: linear-gradient(180deg, #eef0f4, #e6e9ef);
+  --nav-text: #1d2126;
+  --nav-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.04);
+  --seg-grad: linear-gradient(180deg, #2f97ff, #007aff);
+  --seg-text: #ffffff;
+  --seg-shadow: 0 3px 10px rgba(0, 122, 255, 0.24);
+  --slider-grad: linear-gradient(90deg, #007aff, #0a84ff);
+  --slider-max-grad: linear-gradient(90deg, #1d5fff 0%, #6d5cff 45%, #a855f7 100%);
+  --slider-text-grad: linear-gradient(90deg, #0a84ff, #a855f7);
+  --slider-glow: rgba(10, 132, 255, 0.35);
+  --slider-max-glow: 0 0 16px rgba(109, 92, 255, 0.4), 0 0 34px rgba(168, 85, 247, 0.18);
+  --thumb-glow: 0 0 0 4px rgba(10, 132, 255, 0.1), 0 2px 8px rgba(15, 23, 42, 0.22);
+  --sparkle-glow: 0 0 6px rgba(255, 255, 255, 0.9), 0 0 12px rgba(207, 232, 255, 0.7);
+  --selected-glow: 0 0 0 2px var(--accent-soft), 0 6px 18px rgba(10, 132, 255, 0.22);
+  --progress-grad: linear-gradient(90deg, #007aff, #5ac8fa);
+  --progress-stream-grad: linear-gradient(
+    90deg,
+    rgba(10, 132, 255, 0.12),
+    #0a84ff 45%,
+    rgba(10, 132, 255, 0.12)
+  );
+
+  color-scheme: light;
+}
+
+:root[data-theme="standard"][data-mode="dark"] {
+  --brand-ink-grad: linear-gradient(180deg, #ffffff 0%, #eef4f7 52%, #b9c5ca 100%);
+  --brand-accent-grad: linear-gradient(180deg, #b6ffd2 0%, #2ee88a 44%, #00b45f 100%);
+  --brand-glow: rgba(34, 220, 130, 0.36);
+
+  --accent: #409cff;
+  --accent-hi: #74b9ff;
+  --accent-deep: #0a84ff;
+  --accent-text: #9ccaff;
+  --accent-soft: rgba(64, 156, 255, 0.2);
+  --accent-line: rgba(116, 185, 255, 0.34);
+  --accent-glow: rgba(64, 156, 255, 0.4);
+  --good-text: #86efac;
+
+  --radiant: #4ade80;
+  --dire: #f87171;
+
+  --facet-a: rgba(116, 185, 255, 0.07);
+  --facet-b: rgba(255, 255, 255, 0.03);
+  --facet-line: rgba(116, 185, 255, 0.11);
+
+  --bg: #16181d;
+  --bg-deep: #101216;
+  --sidebar-bg: rgba(23, 25, 30, 0.72);
+  --card-bg: rgba(30, 33, 39, 0.72);
+  --card-solid: #1e2127;
+  --input-bg: rgba(18, 20, 25, 0.78);
+  --input-bg-solid: #16181d;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --text: #e9ebef;
+  --text-dim: #a8aeb9;
+  --text-mute: #7b828d;
+  --hover: rgba(255, 255, 255, 0.05);
+  --stop: rgba(255, 255, 255, 0.26);
+  --shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
+  --toggle-bg: rgba(23, 25, 30, 0.7);
+  --toggle-active: rgba(64, 156, 255, 0.24);
+  --art-opacity: 0;
+  --danger-text: #ffb4b4;
+
+  --app-bg: linear-gradient(180deg, #1a1c21 0%, #15171c 55%, #101216 100%);
+  --ridge-far: #22252c;
+  --ridge-near: #191c22;
+  --ridge-rim: rgba(255, 255, 255, 0.06);
+  --stars-opacity: 0;
+  --horizon-bg: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.015) 60%,
+    rgba(0, 0, 0, 0.18) 100%
+  );
+  --vignette-bg: radial-gradient(120% 95% at 50% 0%, transparent 50%, rgba(5, 6, 9, 0.5) 100%);
+  --glow-a: radial-gradient(circle, rgba(64, 156, 255, 0.1), transparent 68%);
+  --glow-b: radial-gradient(circle, rgba(64, 156, 255, 0.06), transparent 66%);
+  --rune-filter: drop-shadow(0 0 34px rgba(64, 156, 255, 0.35));
+  --ray-color: rgba(255, 255, 255, 0.02);
+
+  --avatar-bg: linear-gradient(150deg, #262a31, #1c2026);
+  --gem-hi: #dbeafe;
+  --gem-mid: #409cff;
+  --gem-lo: #0a3a66;
+  --gem-stroke: #bfdbfe;
+  --gem-eye: #eef7ff;
+  --gem-pupil: #071e33;
+  --gem-facet: rgba(191, 219, 254, 0.2);
+  --rune-bright: rgba(191, 219, 254, 0.1);
+  --mascot-body: #409cff;
+  --mascot-light: #dbeafe;
+  --mascot-ink: #071e33;
+  --rune-fill: rgba(64, 156, 255, 0.06);
+  --rune-stroke: rgba(116, 185, 255, 0.3);
+  --rune-facet: rgba(191, 219, 254, 0.07);
+  --rune-dark: rgba(10, 58, 102, 0.4);
+  --rune-inner: rgba(116, 185, 255, 0.22);
+
+  --blur: 22px;
+  --sidebar-blur: 22px;
+
+  --btn-grad: linear-gradient(180deg, #2f97ff, #0066cc);
+  --btn-shadow: 0 8px 22px rgba(0, 102, 204, 0.35);
+  --nav-grad: linear-gradient(180deg, #282c34, #22262d);
+  --nav-text: #f2f5f9;
+  --nav-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 2px 8px rgba(0, 0, 0, 0.25);
+  --seg-grad: linear-gradient(180deg, #2f97ff, #0066cc);
+  --seg-text: #ffffff;
+  --seg-shadow: 0 3px 10px rgba(0, 102, 204, 0.3);
+  --slider-grad: linear-gradient(90deg, #007aff, #409cff);
+  --slider-max-grad: linear-gradient(90deg, #1d5fff 0%, #6d5cff 45%, #a855f7 100%);
+  --slider-text-grad: linear-gradient(90deg, #6ea8ff, #c084fc);
+  --slider-glow: rgba(64, 156, 255, 0.4);
+  --slider-max-glow: 0 0 16px rgba(109, 92, 255, 0.45), 0 0 34px rgba(168, 85, 247, 0.22);
+  --thumb-glow: 0 0 0 4px rgba(64, 156, 255, 0.12), 0 2px 10px rgba(0, 0, 0, 0.4);
+  --sparkle-glow: 0 0 6px rgba(255, 255, 255, 0.9), 0 0 12px rgba(191, 219, 254, 0.7);
+  --selected-glow: 0 0 0 2px var(--accent-soft), 0 6px 18px rgba(64, 156, 255, 0.3);
+  --progress-grad: linear-gradient(90deg, #007aff, #5ac8fa);
+  --progress-stream-grad: linear-gradient(
+    90deg,
+    rgba(64, 156, 255, 0.14),
+    #409cff 45%,
+    rgba(64, 156, 255, 0.14)
+  );
+
+  color-scheme: dark;
+}

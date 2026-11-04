@@ -1,0 +1,62 @@
+ability	tidehunter_leviathans_catch	ability id 1746 不在 OpenDota ability_ids
+talent	special_bonus_unique_puck_5	datafeed 顺序（2）与 OpenDota 层级（4）不同，采用 OpenDota
+talent	special_bonus_unique_puck	datafeed 顺序（4）与 OpenDota 层级（2）不同，采用 OpenDota
+talent	special_bonus_strength_10	OpenDota 无此天赋，按被替换的 special_bonus_strength_8 推断层级 1
+talent	special_bonus_unique_tiny_6	datafeed 顺序（1）与 OpenDota 层级（2）不同，采用 OpenDota
+talent	special_bonus_unique_tinker_5	数值未解析，保留占位符
+talent	special_bonus_armor_4	OpenDota 无此天赋，按被替换的 special_bonus_armor_5 推断层级 1
+talent	special_bonus_unique_beastmaster_5	数值未解析，保留占位符
+talent	special_bonus_unique_beastmaster_6	数值未解析，保留占位符
+talent	special_bonus_hp_300	OpenDota 无此天赋，按被替换的 special_bonus_hp_350 推断层级 2
+talent	special_bonus_movement_speed_15	OpenDota 无此天赋，按被替换的 special_bonus_movement_speed_20 推断层级 1
+talent	special_bonus_unique_bounty_hunter_2	datafeed 顺序（3）与 OpenDota 层级（4）不同，采用 OpenDota
+talent	special_bonus_unique_bounty_hunter_8	datafeed 顺序（4）与 OpenDota 层级（3）不同，采用 OpenDota
+talent	special_bonus_hp_300	OpenDota 无此天赋，按被替换的 special_bonus_hp_325 推断层级 3
+talent	special_bonus_magic_resistance_10	OpenDota 无此天赋，按被替换的 special_bonus_unique_doom_3 推断层级 1
+talent	special_bonus_unique_doom_1	datafeed 顺序（2）与 OpenDota 层级（3）不同，采用 OpenDota
+talent	special_bonus_attack_damage_66	datafeed 顺序（3）与 OpenDota 层级（2）不同，采用 OpenDota
+talent	special_bonus_unique_alchemist_weaponry_power	datafeed 顺序（1）与 OpenDota 层级（2）不同，采用 OpenDota
+talent	special_bonus_unique_alchemist_5	datafeed 顺序（2）与 OpenDota 层级（1）不同，采用 OpenDota
+talent	special_bonus_unique_invoker_forged_spirit_armor_reduction	OpenDota 无此天赋，按被替换的 special_bonus_unique_invoker_orb_levels 推断层级 3
+talent	special_bonus_unique_invoker_forged_spirit_armor_reduction	数值未解析，保留占位符
+talent	special_bonus_movement_speed_20	OpenDota 无此天赋，按被替换的 special_bonus_movement_speed_25 推断层级 2
+talent	special_bonus_unique_meepo_3	datafeed 顺序（1）与 OpenDota 层级（2）不同，采用 OpenDota
+talent	special_bonus_unique_meepo_2	datafeed 顺序（2）与 OpenDota 层级（1）不同，采用 OpenDota
+talent	special_bonus_unique_naga_siren_reel_in_speed	数值未解析，保留占位符
+talent	special_bonus_unique_slark_4	datafeed 顺序（3）与 OpenDota 层级（4）不同，采用 OpenDota
+talent	special_bonus_unique_slark_5	datafeed 顺序（4）与 OpenDota 层级（3）不同，采用 OpenDota
+talent	special_bonus_magic_resistance_15	OpenDota 无此天赋，按被替换的 special_bonus_magic_resistance_20 推断层级 1
+talent	special_bonus_unique_earth_spirit_5	datafeed 顺序（3）与 OpenDota 层级（4）不同，采用 OpenDota
+talent	special_bonus_unique_earth_spirit	datafeed 顺序（4）与 OpenDota 层级（3）不同，采用 OpenDota
+talent	special_bonus_attack_damage_30	OpenDota 无此天赋，按被替换的 special_bonus_attack_damage_35 推断层级 1
+talent	special_bonus_unique_arc_warden_7	datafeed 顺序（3）与 OpenDota 层级（4）不同，采用 OpenDota
+talent	special_bonus_unique_arc_warden	datafeed 顺序（4）与 OpenDota 层级（3）不同，采用 OpenDota
+talent	special_bonus_cast_range_125	OpenDota 无此天赋，按被替换的 special_bonus_unique_snapfire_3 推断层级 2
+talent	special_bonus_attack_damage_25	OpenDota 无此天赋，按被替换的 special_bonus_attack_damage_30 推断层级 1
+talent	special_bonus_unique_kez_switch_weapons_swap_bonus	OpenDota 无此天赋，按被替换的 special_bonus_magic_resistance_12 推断层级 1
+talent	special_bonus_unique_largo_8	datafeed 顺序（3）与 OpenDota 层级（4）不同，采用 OpenDota
+talent	special_bonus_unique_largo_5	datafeed 顺序（4）与 OpenDota 层级（3）不同，采用 OpenDota
+item	item_diffusal_blade_2	无官方中文名
+item	item_greater_mango	缺英文名
+item	item_greater_mango	无官方中文名
+item	item_horizon	缺英文名
+item	item_horizon	无官方中文名
+item	item_mechanical_arm	缺英文名
+item	item_mechanical_arm	无官方中文名
+item	item_bottomless_chalice	缺英文名
+item	item_bottomless_chalice	无官方中文名
+item	item_super_blink	缺英文名
+item	item_super_blink	无官方中文名
+item	item_miniboss_minion_summoner	缺英文名
+item	item_miniboss_minion_summoner	无官方中文名
+item	item_caster_rapier	缺英文名
+item	item_caster_rapier	无官方中文名
+item	item_recipe_mage_slayer	中文名修正：图纸（巫师之刃） -> 图纸（法师克星）（官方字符串写成“图纸（巫师之刃）”，与 item_mage_slayer=法师克星 冲突）
+item	item_black_grimoire	官方中文未翻译：Black Grimoire (Warlock)
+item	item_recipe_necronomicon	中文名“图纸（死灵书）”对应 3 个键：item_recipe_necronomicon, item_recipe_necronomicon_2, item_recipe_necronomicon_3
+item	item_recipe_dagon	中文名“图纸（达贡之神力）”对应 5 个键：item_recipe_dagon, item_recipe_dagon_2, item_recipe_dagon_3, item_recipe_dagon_4, item_recipe_dagon_5
+item	item_recipe_travel_boots	中文名“图纸（远行鞋）”对应 2 个键：item_recipe_travel_boots, item_recipe_travel_boots_2
+item	item_necronomicon	中文名“死灵书”对应 3 个键：item_necronomicon, item_necronomicon_2, item_necronomicon_3
+item	item_dagon	中文名“达贡之神力”对应 5 个键：item_dagon, item_dagon_2, item_dagon_3, item_dagon_4, item_dagon_5
+item	item_travel_boots	中文名“远行鞋”对应 2 个键：item_travel_boots, item_travel_boots_2
+item	item_recipe_ultimate_scepter_2	中文名“阿哈利姆福佑”对应 2 个键：item_recipe_ultimate_scepter_2, item_ultimate_scepter_2

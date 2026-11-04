@@ -1,0 +1,13 @@
+counts: {'heroes': 127, 'abilities': 734, 'talents': 1016, 'items': 545, 'items_in_opendota': 501, 'items_in_dota2': 544}
+talents: 1016 attribute bonus records: 1
+层级来源统计： {'opendota': 1003, 'inferred': 13, 'position': 0}
+通用天赋（被多个英雄共用）： 21
+天赋未解析： ['special_bonus_unique_tinker_5', 'special_bonus_unique_beastmaster_5', 'special_bonus_unique_beastmaster_6', 'special_bonus_unique_invoker_forged_spirit_armor_reduction', 'special_bonus_unique_naga_siren_reel_in_speed']
+英雄技能数分布: {74: 14, 131: 10, 145: 9, 82: 8, 155: 8}
+技能类型分布: {'基础': 479, '终极': 128, '先天': 126, '先天·终极': 1}
+装备分类分布: {}
+Counter({'基础': 215, '图纸': 129, '合成': 121, '消耗品': 31, '中立 t1': 12, '中立 t5': 10, '中立 t2': 9, '中立 t3': 9, '中立 t4': 9})
+中文缺失装备: ['item_diffusal_blade_2', 'item_greater_mango', 'item_horizon', 'item_mechanical_arm', 'item_bottomless_chalice', 'item_super_blink', 'item_miniboss_minion_summoner', 'item_caster_rapier']
+英文缺失装备: ['item_greater_mango', 'item_horizon', 'item_mechanical_arm', 'item_bottomless_chalice', 'item_super_blink', 'item_miniboss_minion_summoner', 'item_caster_rapier']
+
+RESULT: PASS

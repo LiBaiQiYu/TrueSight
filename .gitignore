@@ -1,0 +1,29 @@
+# Local runtime / generated artifacts (re-build per machine)
+.cache/
+replays/
+runtime/
+jre/
+lib/
+classes/
+__pycache__/
+*.py[cod]
+server.log
+*.log
+heroes.json
+*.dem
+*.dem.bz2
+
+# Frontend
+ui/node_modules/
+ui/dist/
+ui/public/items/icons/
+.tmp-*
+
+# Secrets / machine-local config
+.env
+.env.*
+*.local
+
+# OS
+.DS_Store
+Thumbs.db

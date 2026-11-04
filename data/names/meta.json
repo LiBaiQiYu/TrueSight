@@ -1,0 +1,67 @@
+{
+ "generated_at": "2026-11-03T18:21:28+08:00",
+ "sources": {
+  "dota2_datafeed_zh": "https://www.dota2.com/datafeed/herolist|herodata|itemlist?language=schinese",
+  "dota2_datafeed_en": "https://www.dota2.com/datafeed/herodata|itemlist?language=english",
+  "opendota_constants": "https://api.opendota.com/api/constants/{heroes,items,abilities,ability_ids,hero_abilities}",
+  "stratz": "本项目 STRATZ 查询只用 heroId（数值），与 OpenDota/游戏 ID 同一套编号",
+  "talent_rules": "dota2.fandom.com 英文/中文维基（天赋 8 条、解锁 10/15/20/25 与 27/28/29/30、属性附加）"
+ },
+ "counts": {
+  "heroes": 127,
+  "abilities": 734,
+  "talents": 1016,
+  "items": 545,
+  "items_in_opendota": 501,
+  "items_in_dota2": 544
+ },
+ "coverage": {
+  "hero_cn": 127,
+  "hero_en": 127,
+  "ability_cn": 734,
+  "ability_en": 734,
+  "talent_cn": 1016,
+  "talent_en": 1016,
+  "talent_value_resolved": 1011,
+  "item_cn_official": 507,
+  "item_cn_derived": 30,
+  "item_cn_missing": 8,
+  "item_en": 538
+ },
+ "conflicts": {
+  "hero_en_vs_opendota": 2,
+  "ability_en_vs_opendota": 0,
+  "item_en_vs_opendota": 0,
+  "duplicate_item_cn": 7
+ },
+ "mechanics": {
+  "ability_points": "每级 1 点，技能 / 天赋 / 属性附加共用",
+  "talent_tiers": {
+   "1": [
+    10,
+    27
+   ],
+   "2": [
+    15,
+    28
+   ],
+   "3": [
+    20,
+    29
+   ],
+   "4": [
+    25,
+    30
+   ]
+  },
+  "attribute_bonus": {
+   "id": 730,
+   "max_level": 7,
+   "per_level": 2,
+   "excluded_heroes": [
+    "npc_dota_hero_invoker"
+   ]
+  },
+  "notes": "天赋 8 条 = 4 层 × 2；10/15/20/25 解锁第一轮，27/28/29/30 补选另一条"
+ }
+}

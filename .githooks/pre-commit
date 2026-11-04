@@ -1,0 +1,13 @@
+#!/bin/sh
+# Update the tracked AI memory snapshot and include it in this commit.
+set -e
+
+ROOT=$(git rev-parse --show-toplevel) || exit 0
+PY="$ROOT/runtime/python/python.exe"
+if [ ! -f "$PY" ]; then
+  PY=python
+fi
+
+"$PY" "$ROOT/tools/memory/update.py" || exit 1
+git -C "$ROOT" add memory/ai/state.md
+exit 0

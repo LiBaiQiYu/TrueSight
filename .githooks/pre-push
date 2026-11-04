@@ -1,0 +1,9 @@
+#!/bin/sh
+# Refuse to push a commit that has no AI memory snapshot.
+# This makes `git commit --no-verify` visible instead of silently skipping memory sync.
+ROOT=$(git rev-parse --show-toplevel) || exit 0
+if ! git -C "$ROOT" cat-file -e HEAD:memory/ai/state.md 2>/dev/null; then
+  echo "memory: HEAD 中没有 memory/ai/state.md，请正常提交（不要使用 --no-verify）后再 push。" >&2
+  exit 1
+fi
+exit 0

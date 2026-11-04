@@ -1,0 +1,6 @@
+node_modules/
+dist/
+public/names/
+*.local
+.DS_Store
+shot-*.png

@@ -1,0 +1,74 @@
+npc_dota_hero_antimage datafeed顺序: ['special_bonus_hp_regen_3', 'special_bonus_unique_antimage_manavoid_aoe', 'special_bonus_unique_antimage_5', 'special_bonus_unique_antimage_6', 'special_bonus_unique_antimage_3', 'special_bonus_unique_antimage_8', 'special_bonus_unique_antimage', 'special_bonus_unique_antimage_2']
+   OpenDota levels: [1, 1, 2, 2, 3, 3, 4, 4]
+npc_dota_hero_axe datafeed顺序: ['special_bonus_unique_axe_culling_blade_speed_duration', 'special_bonus_unique_axe_8', 'special_bonus_unique_axe', 'special_bonus_unique_axe_7', 'special_bonus_strength_15', 'special_bonus_unique_axe_4', 'special_bonus_unique_axe_2', 'special_bonus_unique_axe_5']
+   OpenDota levels: [1, 1, 2, 2, 3, 3, 4, 4]
+npc_dota_hero_bane datafeed顺序: ['special_bonus_unique_bane_8', 'special_bonus_unique_bane_11', 'special_bonus_unique_bane_10', 'special_bonus_unique_bane_9', 'special_bonus_unique_bane_5', 'special_bonus_movement_speed_30', 'special_bonus_unique_bane_2', 'special_bonus_unique_bane_3']
+   OpenDota levels: [1, 1, 2, 2, 3, 3, 4, 4]
+npc_dota_hero_bloodseeker datafeed顺序: ['special_bonus_hp_200', 'special_bonus_unique_bloodseeker_5', 'special_bonus_unique_bloodseeker', 'special_bonus_unique_bloodseeker_2', 'special_bonus_unique_bloodseeker_3', 'special_bonus_agility_15', 'special_bonus_unique_bloodseeker_7', 'special_bonus_unique_bloodseeker_4']
+   OpenDota levels: [1, 1, 2, 2, 3, 3, 4, 4]
+npc_dota_hero_crystal_maiden datafeed顺序: ['special_bonus_hp_200', 'special_bonus_intelligence_12', 'special_bonus_unique_crystal_maiden_frostbite_castrange', 'special_bonus_unique_crystal_maiden_5', 'special_bonus_unique_crystal_maiden_glacial_guard_mana_multiplier', 'special_bonus_unique_crystal_maiden_3', 'special_bonus_unique_crystal_maiden_1', 'special_bonus_unique_crystal_maiden_2']
+   OpenDota levels: [1, 1, 2, 2, 3, 3, 4, 4]
+npc_dota_hero_drow_ranger datafeed顺序: ['special_bonus_unique_drow_ranger_7', 'special_bonus_unique_drow_ranger_2', 'special_bonus_attack_range_75', 'special_bonus_unique_drow_ranger_6', 'special_bonus_unique_drow_ranger_gust_selfmovespeed', 'special_bonus_unique_drow_ranger_1', 'special_bonus_unique_drow_ranger_3', 'special_bonus_unique_drow_ranger_8']
+   OpenDota levels: [1, 1, 2, 2, 3, 3, 4, 4]
+npc_dota_hero_earthshaker datafeed顺序: ['special_bonus_attack_base_damage_25', 'special_bonus_unique_earthshaker_4', 'special_bonus_unique_earthshaker_3', 'special_bonus_unique_earthshaker_6', 'special_bonus_unique_earthshaker_2', 'special_bonus_unique_earthshaker_totem_damage', 'special_bonus_unique_earthshaker_echo_cd', 'special_bonus_unique_earthshaker']
+   OpenDota levels: [1, 1, 2, 2, 3, 3, 4, 4]
+npc_dota_hero_juggernaut datafeed顺序: ['special_bonus_unique_juggernaut_5', 'special_bonus_unique_juggernaut_3', 'special_bonus_unique_juggernaut_omnislash_cooldown', 'special_bonus_unique_juggernaut_blade_fury_movespeed', 'special_bonus_unique_juggernaut_4', 'special_bonus_unique_juggernaut', 'special_bonus_unique_juggernaut_omnislash_duration', 'special_bonus_unique_juggernaut_blade_dance_lifesteal']
+   OpenDota levels: [1, 1, 2, 2, 3, 3, 4, 4]
+npc_dota_hero_mirana datafeed顺序: ['special_bonus_unique_mirana_3', 'special_bonus_unique_mirana_6', 'special_bonus_unique_mirana_5', 'special_bonus_unique_mirana_1', 'special_bonus_unique_mirana_7', 'special_bonus_unique_mirana_quiver_damage', 'special_bonus_unique_mirana_2', 'special_bonus_unique_mirana_4']
+   OpenDota levels: [1, 1, 2, 2, 3, 3, 4, 4]
+npc_dota_hero_nevermore datafeed顺序: ['special_bonus_unique_nevermore_7', 'special_bonus_unique_nevermore_4', 'special_bonus_unique_nevermore_3', 'special_bonus_unique_nevermore_frenzy_max_collection_count', 'special_bonus_unique_nevermore_1', 'special_bonus_unique_nevermore_6', 'special_bonus_unique_nevermore_frenzy_castspeed', 'special_bonus_unique_nevermore_raze_procsattacks']
+   OpenDota levels: [1, 1, 2, 2, 3, 3, 4, 4]
+
+天赋 dname 抽查：
+  special_bonus_unique_axe -> '+{s:bonus_damage_per_second} Battle Hunger Damage Per Second'
+  special_bonus_unique_axe_2 -> "+{s:bonus_radius} Berserker's Call AoE"
+  special_bonus_unique_antimage_5 -> '+{s:bonus_move_slow_min}%/{s:bonus_move_slow_max}% Persecutor Min/Max Movement Slow'
+  special_bonus_strength_15 -> '+15 Strength'
+  special_bonus_all_stats_4 -> '+4 All Attributes'
+  special_bonus_unique_antimage -> '-{s:bonus_AbilityCooldown}s Blink Cooldown'
+  special_bonus_hp_100 -> '+100 Health'
+  special_bonus_mp_100 -> '+100 Mana'
+  special_bonus_unique_axe_8 -> '+{s:bonus_speed_bonus}% Movement Speed per active Battle Hunger'
+
+占位符统计: {'both': 959, 'cn_only': 0, 'en_only': 0, 'none': 57, 'count_mismatch': 676, 'no_dname': 27}
+占位符数量与 dname 数字数量不匹配样例:
+   ('special_bonus_unique_antimage_manavoid_aoe', '+{s:bonus_mana_void_aoe_radius} 法力虚空范围', '+{s:bonus_mana_void_aoe_radius} Mana Void Radius', ['{s:bonus_mana_void_aoe_radius}'], [])
+   ('special_bonus_unique_antimage_5', '+{s:bonus_move_slow_min}%/{s:bonus_move_slow_max}% 绝人之路最低/最高减速', '+{s:bonus_move_slow_min}%/{s:bonus_move_slow_max}% Persecutor Min/Max Movement Slow', ['{s:bonus_move_slow_min}', '{s:bonus_move_slow_max}'], [])
+   ('special_bonus_unique_antimage_6', '+{s:bonus_mana_void_damage_per_mana} 法力虚空伤害系数', '+{s:bonus_mana_void_damage_per_mana} Mana Void Damage Multiplier', ['{s:bonus_mana_void_damage_per_mana}'], [])
+   ('special_bonus_unique_antimage_3', '+{s:bonus_AbilityCastRange} 闪烁施法距离', '+{s:bonus_AbilityCastRange} Blink Cast Range', ['{s:bonus_AbilityCastRange}'], [])
+   ('special_bonus_unique_antimage_8', '+{s:bonus_mana_void_ministun}秒 法力虚空眩晕', '+{s:bonus_mana_void_ministun}s Mana Void Stun', ['{s:bonus_mana_void_ministun}'], [])
+   ('special_bonus_unique_antimage', '-{s:bonus_AbilityCooldown}秒 闪烁冷却', '-{s:bonus_AbilityCooldown}s Blink Cooldown', ['{s:bonus_AbilityCooldown}'], [])
+   ('special_bonus_unique_antimage_2', '-{s:bonus_AbilityCooldown}秒 法力虚空冷却', '-{s:bonus_AbilityCooldown}s Mana Void Cooldown', ['{s:bonus_AbilityCooldown}'], [])
+   ('special_bonus_unique_axe_culling_blade_speed_duration', '+{s:bonus_speed_duration}秒 淘汰之刃斩杀后效果', '+{s:bonus_speed_duration}s Culling Blade Kill Buff Bonus Duration', ['{s:bonus_speed_duration}'], [])
+   ('special_bonus_unique_axe_8', '每个战斗饥渴+{s:bonus_speed_bonus}% 移速', '+{s:bonus_speed_bonus}% Movement Speed per active Battle Hunger', ['{s:bonus_speed_bonus}'], [])
+   ('special_bonus_unique_axe', '+{s:bonus_damage_per_second} 战斗饥渴每秒伤害', '+{s:bonus_damage_per_second} Battle Hunger Damage Per Second', ['{s:bonus_damage_per_second}'], [])
+   ('special_bonus_unique_axe_7', '+{s:bonus_bonus_armor} 狂战士之吼护甲', "+{s:bonus_bonus_armor} Berserker's Call Armor", ['{s:bonus_bonus_armor}'], [])
+   ('special_bonus_unique_axe_4', '+{s:bonus_damage} 反击螺旋伤害', '+{s:bonus_damage} Counter Helix Damage', ['{s:bonus_damage}'], [])
+
+属性类天赋（力量/敏捷/智力/全属性）:
+  npc_dota_hero_axe special_bonus_strength_15 | +{s:value} 力量 | +15 Strength
+  npc_dota_hero_bloodseeker special_bonus_agility_15 | +{s:value} 敏捷 | +15 Agility
+  npc_dota_hero_crystal_maiden special_bonus_intelligence_12 | +{s:value} 智力 | +12 Intelligence
+  npc_dota_hero_morphling special_bonus_agility_15 | +{s:value} 敏捷 | +15 Agility
+  npc_dota_hero_morphling special_bonus_strength_35 | +{s:value} 力量 | +35 Strength
+  npc_dota_hero_razor special_bonus_strength_12 | +{s:value} 力量 | +12 Strength
+  npc_dota_hero_tiny special_bonus_strength_10 | +{s:value} 力量 | +10 Strength
+  npc_dota_hero_queenofpain special_bonus_strength_7 | +{s:value} 力量 | +7 Strength
+  npc_dota_hero_life_stealer special_bonus_all_stats_4 | +{s:value} 全属性 | +4 All Attributes
+  npc_dota_hero_night_stalker special_bonus_strength_15 | +{s:value} 力量 | +15 Strength
+  npc_dota_hero_weaver special_bonus_strength_7 | +{s:value} 力量 | +7 Strength
+  npc_dota_hero_shadow_demon special_bonus_strength_8 | +{s:value} 力量 | +8 Strength
+  npc_dota_hero_lone_druid special_bonus_agility_12 | +{s:value} 敏捷 | +12 Agility
+  npc_dota_hero_chaos_knight special_bonus_strength_10 | +{s:value} 力量 | +10 Strength
+  npc_dota_hero_meepo special_bonus_strength_7 | +{s:value} 力量 | +7 Strength
+  npc_dota_hero_ogre_magi special_bonus_strength_30 | +{s:value} 力量 | +30 Strength
+  npc_dota_hero_nyx_assassin special_bonus_agility_80 | +{s:value} 敏捷 | +80 Agility
+  npc_dota_hero_naga_siren special_bonus_agility_25 | +{s:value} 敏捷 | +25 Agility
+  npc_dota_hero_wisp special_bonus_strength_8 | +{s:value} 力量 | +8 Strength
+  npc_dota_hero_medusa special_bonus_intelligence_40 | +{s:value} 智力 | +40 Intelligence
+  npc_dota_hero_centaur special_bonus_strength_10 | +{s:value} 力量 | +10 Strength
+  npc_dota_hero_terrorblade special_bonus_all_stats_10 | +{s:value} 全属性 | +10 All Attributes
+  npc_dota_hero_dark_willow special_bonus_intelligence_12 | +{s:value} 智力 | +12 Intelligence
+  npc_dota_hero_hoodwink special_bonus_agility_10 | +{s:value} 敏捷 | +10 Agility
+  npc_dota_hero_muerta special_bonus_intelligence_15 | +{s:value} 智力 | +15 Intelligence
+属性类天赋数量: 25
