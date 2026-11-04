@@ -54,6 +54,14 @@ javac --release 21 -encoding UTF-8 -cp "classes;lib/*" -d classes java\MatchJson
 - 浏览器验证用临时 Chrome profile + CDP，结束后清理进程和 profile。
 - 不要把 `.cache/`、`replays/`、`runtime/`、`jre/`、`lib/`、`classes/`、`ui/node_modules/`、`ui/dist/` 提交进 Git。
 
+## Git / 多设备同步
+
+- 仓库已初始化，默认分支 `main`；
+- 每台设备执行一次 `powershell -ExecutionPolicy Bypass -File tools/memory/install.ps1` 启用 hook；
+- 每次提交前 `pre-commit` 自动写入并暂存 `memory/ai/state.md`；
+- `pre-push` 检查 HEAD 是否包含该快照，防止 `--no-verify` 绕过；
+- 远端地址由使用者自行添加（`git remote add origin ...`）。
+
 ## 当前版本要点
 
 - 回放解析 schema 8：HP/MP 5 秒采样、前 10 分钟技能次数、物品使用事件、守卫插眼类型/坐标、德鲁伊小熊背包；
