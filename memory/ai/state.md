@@ -2,7 +2,7 @@
 
 > 由 `.githooks/pre-commit` 调用 `tools/memory/update.py` 自动生成；请勿手改。
 
-- 更新时间：2026-11-04T22:13:51+08:00
+- 更新时间：2026-11-05T00:33:42+08:00
 - 分支：main
 - 项目版本：0.1.0
 
@@ -12,19 +12,17 @@
 M	README.md
 M	memory/ai/changelog.md
 M	memory/ai/context.md
-M	start.bat
-A	tools/setup.ps1
+M	tools/setup.ps1
 ```
 
 ### 变更统计
 
 ```text
-README.md              |  28 ++++++-
- memory/ai/changelog.md |   1 +
- memory/ai/context.md   |   4 +
- start.bat              |  24 +++++-
- tools/setup.ps1        | 215 +++++++++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 269 insertions(+), 3 deletions(-)
+README.md              |  7 +++-
+ memory/ai/changelog.md |  2 +-
+ memory/ai/context.md   |  2 +-
+ tools/setup.ps1        | 95 ++++++++++++++++++++++++++++++++++++--------------
+ 4 files changed, 77 insertions(+), 29 deletions(-)
 ```
 
 ## 工作区未提交
@@ -34,18 +32,17 @@ M  README.md
 M  memory/ai/changelog.md
 M  memory/ai/context.md
  M memory/ai/state.md
-M  start.bat
-A  tools/setup.ps1
+M  tools/setup.ps1
 ```
 
 ## 最近提交
 
 ```text
-6407034 (HEAD -> main, origin/main) docs: polish README with screenshots and architecture
+fda4227 (HEAD -> main, origin/main) chore: add Python and Clarity setup script
+6407034 docs: polish README with screenshots and architecture
 ae60c16 docs: add project README
 340e4c5 chore(memory): make commit hook portable
 23a39f0 docs(memory): add AI memory sync workflow
-baf41d5 chore: initialize TrueSight repository with AI memory
 ```
 
 ---

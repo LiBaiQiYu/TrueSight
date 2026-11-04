@@ -4,7 +4,7 @@
 
 ## 2026-11-04
 
-- 新增 `tools/setup.ps1`：检查 Python 3.10+/Java 21+、克隆/构建 Clarity、复制依赖、编译 `MatchJsonMain`；`start.bat` 在无内置 Python 时回退系统 `python` / `py -3`。
+- 新增 `tools/setup.ps1`：检查 Python 3.10+/Java 21+、默认拉取并构建最新 Clarity、复制依赖、编译 `MatchJsonMain`；`start.bat` 在无内置 Python 时回退系统 `python` / `py -3`。
 - 新增 `memory/ai/` 项目记忆库、自动 `state.md` 快照、`.githooks/pre-commit|pre-push` 与 `tools/memory/install.ps1`；初始化 Git 仓库并启用 `core.hooksPath=.githooks`。
 - 团战分析：参团要求改为“伤害/治疗/增益/技能行为 + 战场半径”，支持全球伤害/治疗技能白名单；战场中心用伤害玩家位置中位数。
 - 德鲁伊：新增完整小熊天赋树 8 条（4 层 × 2），天赋区支持本体/小熊切换；技能图标移除等级数字角标。

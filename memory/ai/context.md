@@ -29,7 +29,7 @@ TrueSight（`dota-chat`）是一个 Dota 2 对局分析工具：
 ## 常用命令
 
 ```powershell
-# 一键检查环境（Python/Java/Clarity，首次会克隆并构建 Clarity）
+# 一键检查环境（默认拉取最新 Clarity 并重建；-NoUpdateClarity 保留当前版本）
 powershell -ExecutionPolicy Bypass -File tools\setup.ps1
 
 # 前端

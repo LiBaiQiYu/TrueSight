@@ -1,6 +1,7 @@
 ﻿param(
     [switch]$NoClone,
-    [switch]$SkipClarity
+    [switch]$SkipClarity,
+    [switch]$NoUpdateClarity
 )
 
 $ErrorActionPreference = 'Stop'
@@ -130,7 +131,24 @@ function Test-Jars([string]$Dir) {
 }
 
 $clarityDir = Join-Path (Split-Path $Root -Parent) 'clarity'
-if (-not (Test-Jars $Lib)) {
+$clarityRepo = Test-Path (Join-Path $clarityDir '.git')
+$needClarity = -not (Test-Jars $Lib)
+
+# 默认跟随 ../clarity 的最新代码：每次 setup 都拉取并重建，适配 Dota 新版本。
+if ($clarityRepo -and -not $NoUpdateClarity) {
+    Write-Host '更新 Clarity 到最新代码...' -ForegroundColor Yellow
+    $previous = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    git -C $clarityDir pull --ff-only
+    $pullExit = $LASTEXITCODE
+    $ErrorActionPreference = $previous
+    if ($pullExit -ne 0) {
+        throw 'Clarity 更新失败。请检查网络/本地改动，或使用 -NoUpdateClarity 保留当前版本。'
+    }
+    $needClarity = $true
+}
+
+if ($needClarity) {
     New-Item -ItemType Directory -Force -Path $Lib | Out-Null
 
     if (-not (Test-Path $clarityDir)) {
@@ -146,44 +164,69 @@ if (-not (Test-Jars $Lib)) {
         if ($cloneExit -ne 0) { throw 'Clarity 克隆失败。' }
     }
 
-    $clarityJar = Get-ChildItem (Join-Path $clarityDir 'build\libs') -Filter 'clarity-5*.jar' -File -ErrorAction SilentlyContinue |
-        Sort-Object LastWriteTime -Descending | Select-Object -First 1
-    if (-not $clarityJar) {
-        $gradlew = Join-Path $clarityDir 'gradlew.bat'
-        if (-not (Test-Path $gradlew)) { throw "Clarity 缺少 gradlew.bat：$clarityDir" }
-        Write-Host '正在构建 Clarity（gradlew build -x test）...' -ForegroundColor Yellow
-        Push-Location $clarityDir
-        try {
-            $previous = $ErrorActionPreference
-            $ErrorActionPreference = 'Continue'
-            & $gradlew build -x test
-            $buildExit = $LASTEXITCODE
-            $ErrorActionPreference = $previous
-            if ($buildExit -ne 0) { throw 'Clarity 构建失败。' }
-        } finally {
-            Pop-Location
-        }
-        $clarityJar = Get-ChildItem (Join-Path $clarityDir 'build\libs') -Filter 'clarity-5*.jar' -File -ErrorAction SilentlyContinue |
-            Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    $gradlew = Join-Path $clarityDir 'gradlew.bat'
+    if (-not (Test-Path $gradlew)) { throw "Clarity 缺少 gradlew.bat：$clarityDir" }
+    Write-Host '正在构建 Clarity（gradlew build -x test，适配最新 Dota 协议）...' -ForegroundColor Yellow
+    Push-Location $clarityDir
+    try {
+        $previous = $ErrorActionPreference
+        $ErrorActionPreference = 'Continue'
+        # Clarity 的 settings.gradle.kts 会读取 Maven Central 发布凭据；
+        # 本地只构建、不发布，用占位值即可。
+        & $gradlew build -x test -PmavenCentralUsername=local -PmavenCentralPassword=local
+        $buildExit = $LASTEXITCODE
+        $ErrorActionPreference = $previous
+        if ($buildExit -ne 0) { throw 'Clarity 构建失败。' }
+    } finally {
+        Pop-Location
     }
+
+    $clarityJar = Get-ChildItem (Join-Path $clarityDir 'build\libs') -Filter 'clarity-5*.jar' -File -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -notlike '*-sources.jar' -and $_.Name -notlike '*-javadoc.jar' } |
+        Sort-Object LastWriteTime -Descending | Select-Object -First 1
     if (-not $clarityJar) { throw 'Clarity 构建后仍未找到 clarity-5*.jar。' }
-    Copy-Item $clarityJar.FullName $Lib -Force
-    Write-Host "已复制 $($clarityJar.Name)" -ForegroundColor Green
 
     $cache = Join-Path $env:USERPROFILE '.gradle\caches\modules-2\files-2.1'
     $dependencyPatterns = @('clarity-protobuf-7', 'fastutil-core-8', 'slf4j-api-2', 'snappy-java-')
+    $selected = New-Object System.Collections.Generic.List[System.IO.FileInfo]
+    $selected.Add($clarityJar)
     foreach ($pattern in $dependencyPatterns) {
-        $existing = Get-ChildItem $Lib -Filter "$pattern*.jar" -File -ErrorAction SilentlyContinue | Select-Object -First 1
-        if ($existing) { continue }
         $found = $null
         if (Test-Path $cache) {
             $found = Get-ChildItem $cache -Recurse -Filter '*.jar' -File -ErrorAction SilentlyContinue |
                 Where-Object { $_.Name -like "$pattern*" -and $_.Name -notlike '*-sources.jar' -and $_.Name -notlike '*-javadoc.jar' } |
                 Sort-Object LastWriteTime -Descending | Select-Object -First 1
         }
+        if (-not $found) {
+            $found = Get-ChildItem $Lib -Filter "$pattern*.jar" -File -ErrorAction SilentlyContinue |
+                Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        }
         if (-not $found) { throw "缺少依赖 $pattern*.jar，请手动放入 lib\。" }
-        Copy-Item $found.FullName $Lib -Force
-        Write-Host "已复制 $($found.Name)" -ForegroundColor Green
+        $selected.Add($found)
+    }
+
+    # 先复制到临时目录，再清掉旧版本，避免多个版本同时进入 classpath。
+    $staging = Join-Path $Lib '.clarity-new'
+    if (Test-Path $staging) { Remove-Item $staging -Recurse -Force }
+    New-Item -ItemType Directory -Force -Path $staging | Out-Null
+    foreach ($file in $selected) {
+        Copy-Item $file.FullName $staging -Force
+    }
+
+    $known = @('clarity-5*.jar', 'clarity-protobuf-7*.jar', 'fastutil-core-8*.jar', 'slf4j-api-2*.jar', 'snappy-java-*.jar')
+    foreach ($pattern in $known) {
+        Get-ChildItem $Lib -Filter $pattern -File -ErrorAction SilentlyContinue | Remove-Item -Force
+    }
+    Get-ChildItem $staging -File | ForEach-Object {
+        Move-Item $_.FullName (Join-Path $Lib $_.Name) -Force
+        Write-Host "已复制 $($_.Name)" -ForegroundColor Green
+    }
+    Remove-Item $staging -Recurse -Force
+
+    $head = (git -C $clarityDir rev-parse --short HEAD 2>$null)
+    if ($head) {
+        Set-Content -Path (Join-Path $Lib 'clarity.commit') -Value $head -Encoding ASCII
+        Write-Host "Clarity commit: $head" -ForegroundColor Green
     }
 }
 

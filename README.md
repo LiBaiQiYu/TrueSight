@@ -158,10 +158,12 @@ powershell -ExecutionPolicy Bypass -File tools\setup.ps1
 
 1. 检查 Python 3.10+（项目只使用标准库，不需要 `pip install`）；
 2. 检查 Java 21+ 与 `javac`；
-3. 定位 `../clarity` 源码，缺失时自动克隆并构建；
+3. 默认拉取 `../clarity` 最新代码并重新构建；
 4. 把 Clarity 与依赖 jar 复制到 `lib/`；
 5. 编译 `java/MatchJsonMain.java` 到 `classes/`；
 6. 验证 Java 类路径与导出器可启动。
+
+> Dota 录像协议会随游戏更新，因此 Clarity 不锁旧版本，setup 默认跟随最新代码。
 
 可选参数：
 
@@ -171,6 +173,9 @@ powershell -File tools\setup.ps1 -NoClone
 
 # 只检查 Python / Java，跳过 Clarity
 powershell -File tools\setup.ps1 -SkipClarity
+
+# 保留当前 ../clarity，不拉取最新代码
+powershell -File tools\setup.ps1 -NoUpdateClarity
 ```
 
 ### 构建与启动
