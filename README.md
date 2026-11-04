@@ -141,12 +141,37 @@ flowchart LR
 | 依赖 | 版本 | 用途 |
 | --- | --- | --- |
 | Windows | 10 / 11 | 当前主要运行环境 |
-| Python | 3.10+ | 本地服务 |
+| Python | 3.10+ | 本地服务；仅标准库，无需 pip 依赖 |
 | Node.js | 20+ | 前端开发与构建 |
 | Java | 21 | 高级分析 / 回放解析 |
 | Clarity | `lib/*.jar` + `classes/` | 回放解析运行时 |
 
 > `runtime/`、`jre/`、`lib/`、`classes/`、`replays/`、`.cache/`、`ui/node_modules/`、`ui/dist/` 不进入 Git，需要在目标机器自行准备或重新构建。
+
+### 一键准备运行环境（推荐）
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\setup.ps1
+```
+
+脚本会自动完成：
+
+1. 检查 Python 3.10+（项目只使用标准库，不需要 `pip install`）；
+2. 检查 Java 21+ 与 `javac`；
+3. 定位 `../clarity` 源码，缺失时自动克隆并构建；
+4. 把 Clarity 与依赖 jar 复制到 `lib/`；
+5. 编译 `java/MatchJsonMain.java` 到 `classes/`；
+6. 验证 Java 类路径与导出器可启动。
+
+可选参数：
+
+```powershell
+# 不自动克隆 Clarity
+powershell -File tools\setup.ps1 -NoClone
+
+# 只检查 Python / Java，跳过 Clarity
+powershell -File tools\setup.ps1 -SkipClarity
+```
 
 ### 构建与启动
 
@@ -215,6 +240,7 @@ dota-chat/
 ├─ data/names/                英雄、技能、天赋、装备源数据
 ├─ tools/names/               名称抓取、构建、审计
 ├─ tools/memory/              记忆快照与 Git hook 安装
+├─ tools/setup.ps1            Python / Java / Clarity 一键准备
 ├─ memory/ai/                 AI 开发记忆
 ├─ docs/                      设计与功能文档、截图
 ├─ .githooks/                 提交 / 推送钩子
