@@ -50,7 +50,6 @@ const matchError = ref('')
 const focusSlot = ref<number | null>(null)
 /** 时间轴弹窗内切换查看对象，不影响已经生成的 AI 分析结果。 */
 const dockFocusSlot = ref<number | null>(null)
-const autoMatchupOnFocus = ref(true)
 const timelineFocusSlot = computed(() => dockFocusSlot.value ?? focusSlot.value)
 watch(focusSlot, (value) => {
   dockFocusSlot.value = value
@@ -168,8 +167,8 @@ const timelineModel = computed(() => {
     match: current,
     roster: roster.value,
     focusSlot: timelineFocusSlot.value,
-    allySlots: matchup.value.enabled ? matchup.value.allySlots : [],
-    enemySlots: matchup.value.enabled ? matchup.value.enemySlots : [],
+    allySlots: matchup.value.allySlots,
+    enemySlots: matchup.value.enemySlots,
     replay: replayData.value,
     replays: replays.value,
     names: names.value
@@ -330,9 +329,7 @@ function onMatchupChange(next: MatchupState): void {
     !sameSlots(next.enemySlots, matchup.value.enemySlots)
   matchup.value = { ...next }
   if (!next.enabled) {
-    matchup.value.allySlots = []
-    matchup.value.enemySlots = []
-    matchup.value.note = ''
+    // 保留上次对位阵容；时间轴在关闭自动对位时仍沿用这组选择。
     return
   }
   if (!match.value || focusSlot.value == null) {
@@ -697,9 +694,23 @@ function openDock(): void {
 
 function setDockFocus(slot: number): void {
   dockFocusSlot.value = slot
-  if (!autoMatchupOnFocus.value) return
+  if (!matchup.value.enabled) return
   const player = roster.value.find((row) => row.slot === slot)
   if (!player) return
+  matchup.value = buildMatchup(roster.value, slot, suggestPreset(player))
+}
+
+function setAutoMatchup(enabled: boolean): void {
+  if (!enabled) {
+    matchup.value = { ...matchup.value, enabled: false }
+    return
+  }
+  const slot = timelineFocusSlot.value
+  const player = slot == null ? null : roster.value.find((row) => row.slot === slot)
+  if (slot == null || !player) {
+    matchup.value = { ...matchup.value, enabled: true }
+    return
+  }
   matchup.value = buildMatchup(roster.value, slot, suggestPreset(player))
 }
 
@@ -873,7 +884,8 @@ function setView(key: string): void {
         :heroes="heroes"
         :names="names"
         :matchup-preset="matchup.preset"
-        v-model:autoMatchup="autoMatchupOnFocus"
+        :auto-matchup="matchup.enabled"
+        @update:auto-matchup="setAutoMatchup"
         @focus="setDockFocus"
         @change-matchup="changeDockMatchup"
         @custom-matchup="applyCustomDockMatchup"
