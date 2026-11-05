@@ -29,11 +29,13 @@ const props = defineProps<{
   heroes: Map<number, HeroInfo> | null
   names: NamesIndex | null
   matchupPreset?: MatchupPreset
+  autoMatchup: boolean
   open: boolean
 }>()
 
 const emit = defineEmits<{
   (event: 'update:open', value: boolean): void
+  (event: 'update:autoMatchup', value: boolean): void
   (event: 'focus', slot: number): void
   (event: 'change-matchup', preset: MatchupPreset): void
   (event: 'custom-matchup', allySlots: number[], enemySlots: number[]): void
@@ -552,6 +554,15 @@ onBeforeUnmount(() => {
             <option value="custom">自定义</option>
           </select>
 
+          <label class="auto-matchup" title="切换分析对象时，自动按分路重建对位">
+            <input
+              type="checkbox"
+              :checked="autoMatchup"
+              @change="emit('update:autoMatchup', ($event.target as HTMLInputElement).checked)"
+            />
+            <span>自动对位</span>
+          </label>
+
           <div class="view-tabs">
             <button type="button" :class="{ on: view === 'timeline' }" @click="switchView('timeline')">
               时间轴
@@ -1038,6 +1049,52 @@ onBeforeUnmount(() => {
   font: inherit;
   font-size: 10px;
   cursor: pointer;
+}
+
+.auto-matchup {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-mute);
+  font-size: 9px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.auto-matchup input {
+  appearance: none;
+  position: relative;
+  width: 24px;
+  height: 13px;
+  margin: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--line);
+  cursor: pointer;
+  transition: background 0.16s, border-color 0.16s;
+}
+
+.auto-matchup input::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-mute);
+  transition: transform 0.16s, background 0.16s;
+}
+
+.auto-matchup input:checked {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+}
+
+.auto-matchup input:checked::after {
+  transform: translateX(11px);
+  background: var(--accent-text);
 }
 
 .avatar {

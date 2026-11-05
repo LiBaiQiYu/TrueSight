@@ -50,6 +50,7 @@ const matchError = ref('')
 const focusSlot = ref<number | null>(null)
 /** 时间轴弹窗内切换查看对象，不影响已经生成的 AI 分析结果。 */
 const dockFocusSlot = ref<number | null>(null)
+const autoMatchupOnFocus = ref(true)
 const timelineFocusSlot = computed(() => dockFocusSlot.value ?? focusSlot.value)
 watch(focusSlot, (value) => {
   dockFocusSlot.value = value
@@ -696,6 +697,7 @@ function openDock(): void {
 
 function setDockFocus(slot: number): void {
   dockFocusSlot.value = slot
+  if (!autoMatchupOnFocus.value) return
   const player = roster.value.find((row) => row.slot === slot)
   if (!player) return
   matchup.value = buildMatchup(roster.value, slot, suggestPreset(player))
@@ -871,6 +873,7 @@ function setView(key: string): void {
         :heroes="heroes"
         :names="names"
         :matchup-preset="matchup.preset"
+        v-model:autoMatchup="autoMatchupOnFocus"
         @focus="setDockFocus"
         @change-matchup="changeDockMatchup"
         @custom-matchup="applyCustomDockMatchup"
