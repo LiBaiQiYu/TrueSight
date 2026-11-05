@@ -6,6 +6,7 @@ import TimelineItems from './TimelineItems.vue'
 import TeamfightPanel from './TeamfightPanel.vue'
 import TimelineBuild from './TimelineBuild.vue'
 import TooltipLayer from './TooltipLayer.vue'
+import HeroSelect from './HeroSelect.vue'
 import type { HeroInfo } from '../lib/heroes'
 import type { NamesIndex } from '../lib/names'
 import type { MatchupPreset } from '../lib/matchup'
@@ -91,8 +92,7 @@ function selectHero(player: TimelinePlayer): void {
   emit('focus', player.slot)
 }
 
-function onFocusSelect(event: Event): void {
-  const slot = Number((event.target as HTMLSelectElement).value)
+function onFocusSelectValue(slot: number): void {
   customOpen.value = false
   emit('focus', slot)
 }
@@ -207,6 +207,16 @@ const alignPairTab = (): void => {
 const heroImage = (player: TimelinePlayer): string => props.heroes?.get(player.heroId)?.img ?? ''
 const heroName = (player: TimelinePlayer): string =>
   props.names?.heroById.get(player.heroId)?.cn ?? '未知英雄'
+
+const heroOptions = computed(() =>
+  props.model.players.map((player) => ({
+    value: player.slot,
+    label: heroName(player),
+    meta: positionLabel(player.position) || (player.isRadiant ? '天辉' : '夜魇'),
+    avatar: heroImage(player),
+    side: player.isRadiant ? ('radiant' as const) : ('dire' as const)
+  }))
+)
 
 const metricLabel = computed(() => METRICS.find((item) => item.key === metric.value)?.label ?? '')
 
@@ -486,26 +496,13 @@ onBeforeUnmount(() => {
             </span>
           </div>
 
-          <div v-if="focus" class="focus primary">
-            <img v-if="heroImage(focus)" class="avatar" :src="heroImage(focus)" alt="" />
-            <div class="focus-text">
-              <select
-                class="focus-select"
-                :value="focus.slot"
-                aria-label="切换分析对象"
-                title="从全部英雄中切换分析对象"
-                @change="onFocusSelect"
-              >
-                <option v-for="player in model.players" :key="player.slot" :value="player.slot">
-                  {{ heroName(player) }}（{{ player.isRadiant ? '天辉' : '夜魇' }}）
-                </option>
-              </select>
-              <span>
-                {{ positionLabel(focus.position) || (focus.isRadiant ? '天辉' : '夜魇') }}
-                <em class="focus-tag">分析对象</em>
-              </span>
-            </div>
-          </div>
+          <HeroSelect
+            v-if="focus"
+            :model-value="focus.slot"
+            :options="heroOptions"
+            label="分析对象"
+            @update:model-value="onFocusSelectValue"
+          />
 
           <div class="lane">
             <div v-if="allies.length" class="lane-side">
