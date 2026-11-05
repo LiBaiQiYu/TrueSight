@@ -201,7 +201,8 @@ function addSlot(slot: number): void {
   const side = pickerFor.value
   if (!side) return
   const key = side === 'ally' ? 'allySlots' : 'enemySlots'
-  const next = [...props.matchup[key], slot].slice(0, 2)
+  const limit = side === 'enemy' ? 3 : 2
+  const next = [...props.matchup[key], slot].slice(0, limit)
   patchMatchup({ [key]: next, preset: 'custom' } as Partial<MatchupState>)
   pickerFor.value = null
 }
@@ -490,7 +491,7 @@ const canStart = computed(() => Boolean(props.roster.length && props.focusSlot !
                       @click="removeSlot('enemy', slot)"
                     />
                     <button
-                      v-if="matchup.enemySlots.length < 2"
+                      v-if="matchup.enemySlots.length < 3"
                       class="add"
                       type="button"
                       title="添加对方成员"

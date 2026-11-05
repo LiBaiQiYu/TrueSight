@@ -8,6 +8,7 @@ import TimelineBuild from './TimelineBuild.vue'
 import TooltipLayer from './TooltipLayer.vue'
 import type { HeroInfo } from '../lib/heroes'
 import type { NamesIndex } from '../lib/names'
+import type { MatchupPreset } from '../lib/matchup'
 import { config } from '../lib/config'
 import { positionLabel } from '../lib/roster'
 import {
@@ -26,11 +27,14 @@ const props = defineProps<{
   model: TimelineModel
   heroes: Map<number, HeroInfo> | null
   names: NamesIndex | null
+  matchupPreset?: MatchupPreset
   open: boolean
 }>()
 
 const emit = defineEmits<{
   (event: 'update:open', value: boolean): void
+  (event: 'focus', slot: number): void
+  (event: 'change-matchup', preset: MatchupPreset): void
 }>()
 
 const cursor = ref(600)
@@ -61,7 +65,19 @@ const enemies = computed(() => {
   if (!me) return []
   return props.model.selected.filter((player) => player.isRadiant !== me.isRadiant)
 })
-const rivals = enemies
+
+const allies = computed(() => {
+  const me = focus.value
+  if (!me) return []
+  return props.model.selected.filter(
+    (player) => player.slot !== me.slot && player.isRadiant === me.isRadiant
+  )
+})
+
+function selectHero(player: TimelinePlayer): void {
+  buildSlot.value = player.slot
+  emit('focus', player.slot)
+}
 
 const primaryRival = computed<TimelinePlayer | null>(() => {
   const me = focus.value
@@ -403,30 +419,64 @@ onBeforeUnmount(() => {
             </span>
           </div>
 
-          <div v-if="focus" class="focus">
+          <div v-if="focus" class="focus primary">
             <img v-if="heroImage(focus)" class="avatar" :src="heroImage(focus)" alt="" />
             <div class="focus-text">
               <b>{{ heroName(focus) }}</b>
-              <span>{{ positionLabel(focus.position) || (focus.isRadiant ? '天辉' : '夜魇') }}</span>
+              <span>
+                {{ positionLabel(focus.position) || (focus.isRadiant ? '天辉' : '夜魇') }}
+                <em class="focus-tag">分析对象</em>
+              </span>
             </div>
           </div>
 
-          <div class="rivals">
-            <span class="rivals-label">对位</span>
-            <button
-              v-for="rival in rivals"
-              :key="rival.slot"
-              type="button"
-              class="rival"
-              :class="{ on: buildPlayer?.slot === rival.slot }"
-              :title="`切到 ${heroName(rival)} 的加点`"
-              @click="buildSlot = rival.slot"
-            >
-              <img v-if="heroImage(rival)" :src="heroImage(rival)" alt="" />
-              <span>{{ heroName(rival) }}</span>
-            </button>
-            <span v-if="!rivals.length" class="note">未选择对位</span>
+          <div class="lane">
+            <div v-if="allies.length" class="lane-side">
+              <span class="lane-label">我方</span>
+              <button
+                v-for="mate in allies"
+                :key="mate.slot"
+                type="button"
+                class="rival"
+                :class="{ on: buildPlayer?.slot === mate.slot }"
+                :title="`切换到 ${heroName(mate)} 的时间轴`"
+                @click="selectHero(mate)"
+              >
+                <img v-if="heroImage(mate)" :src="heroImage(mate)" alt="" />
+                <span>{{ heroName(mate) }}</span>
+              </button>
+            </div>
+
+            <div v-if="enemies.length" class="lane-side">
+              <span class="lane-label">对位</span>
+              <button
+                v-for="rival in enemies"
+                :key="rival.slot"
+                type="button"
+                class="rival"
+                :class="{ on: buildPlayer?.slot === rival.slot }"
+                :title="`切换到 ${heroName(rival)} 的时间轴`"
+                @click="selectHero(rival)"
+              >
+                <img v-if="heroImage(rival)" :src="heroImage(rival)" alt="" />
+                <span>{{ heroName(rival) }}</span>
+              </button>
+            </div>
+
+            <span v-if="!allies.length && !enemies.length" class="note">未选择对位</span>
           </div>
+
+          <select
+            class="matchup-select"
+            :value="matchupPreset || 'mid'"
+            title="切换对位范围"
+            @change="emit('change-matchup', ($event.target as HTMLSelectElement).value as MatchupPreset)"
+          >
+            <option value="mid">1v1</option>
+            <option value="safe">优势路 2v2</option>
+            <option value="off">劣势路 2v2</option>
+            <option value="custom">自定义</option>
+          </select>
 
           <div class="view-tabs">
             <button type="button" :class="{ on: view === 'timeline' }" @click="switchView('timeline')">
@@ -804,6 +854,66 @@ onBeforeUnmount(() => {
   padding-left: 14px;
   border-left: 1px solid var(--line);
   min-width: 0;
+}
+
+.focus.primary {
+  padding: 4px 9px 4px 11px;
+  border: 1px solid var(--accent-line);
+  border-radius: 10px;
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--accent-soft);
+}
+
+.focus.primary .avatar {
+  box-shadow: 0 0 0 1px var(--accent-line);
+}
+
+.focus-tag {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 4px;
+  border: 1px solid var(--accent-line);
+  border-radius: 4px;
+  color: var(--accent-text);
+  font-size: 8px;
+  font-style: normal;
+  line-height: 13px;
+  vertical-align: 1px;
+}
+
+.lane {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.lane-side {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.lane-label {
+  flex: none;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--text-mute);
+}
+
+.matchup-select {
+  flex: none;
+  height: 26px;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--hover);
+  color: var(--text-dim);
+  font: inherit;
+  font-size: 10px;
+  cursor: pointer;
 }
 
 .avatar {

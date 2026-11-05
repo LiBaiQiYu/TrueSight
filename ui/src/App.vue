@@ -48,6 +48,12 @@ const lookupError = ref('')
 const loadingMatch = ref(false)
 const matchError = ref('')
 const focusSlot = ref<number | null>(null)
+/** 时间轴弹窗内切换查看对象，不影响已经生成的 AI 分析结果。 */
+const dockFocusSlot = ref<number | null>(null)
+const timelineFocusSlot = computed(() => dockFocusSlot.value ?? focusSlot.value)
+watch(focusSlot, (value) => {
+  dockFocusSlot.value = value
+})
 const matchup = ref<MatchupState>({ ...emptyMatchup })
 const matchCardRef = ref<{ collapse: () => void } | null>(null)
 const replayData = ref<ReplayParse | null>(null)
@@ -160,7 +166,7 @@ const timelineModel = computed(() => {
   return buildTimelineModel({
     match: current,
     roster: roster.value,
-    focusSlot: focusSlot.value,
+    focusSlot: timelineFocusSlot.value,
     allySlots: matchup.value.enabled ? matchup.value.allySlots : [],
     enemySlots: matchup.value.enabled ? matchup.value.enemySlots : [],
     replay: replayData.value,
@@ -680,7 +686,23 @@ async function openTimelineHistory(item: HistoryItem): Promise<void> {
   errorMsg.value = ''
   progress.value = 0
   progressLabel.value = ''
+  openDock()
+}
+
+function openDock(): void {
+  if (focusSlot.value != null) dockFocusSlot.value = focusSlot.value
   dockOpen.value = true
+}
+
+function setDockFocus(slot: number): void {
+  dockFocusSlot.value = slot
+}
+
+function changeDockMatchup(preset: MatchupPreset): void {
+  if (preset === 'custom') return
+  const slot = timelineFocusSlot.value
+  if (slot == null || !roster.value.length) return
+  matchup.value = buildMatchup(roster.value, slot, preset)
 }
 
 function openResultTimeline(): void {
@@ -689,7 +711,7 @@ function openResultTimeline(): void {
     void openTimelineHistory(item)
     return
   }
-  if (hasDock.value) dockOpen.value = true
+  if (hasDock.value) openDock()
 }
 
 function setView(key: string): void {
@@ -820,7 +842,7 @@ function setView(key: string): void {
         type="button"
         class="timeline-fab"
         title="打开时间轴与对位数据"
-        @click="dockOpen = true"
+        @click="openDock"
       >
         <AppIcon name="clock" :size="16" />
         <span>时间轴</span>
@@ -832,6 +854,9 @@ function setView(key: string): void {
         :model="timelineModel"
         :heroes="heroes"
         :names="names"
+        :matchup-preset="matchup.preset"
+        @focus="setDockFocus"
+        @change-matchup="changeDockMatchup"
       />
     </main>
   </div>

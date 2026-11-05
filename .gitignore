@@ -1,10 +1,10 @@
 # Local runtime / generated artifacts (re-build per machine)
-.cache/
-replays/
-runtime/
-jre/
-lib/
-classes/
+/.cache/
+/replays/
+/runtime/
+/jre/
+/lib/
+/classes/
 __pycache__/
 *.py[cod]
 server.log
