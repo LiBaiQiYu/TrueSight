@@ -143,6 +143,18 @@ async function readError(res: Response): Promise<string> {
   return `HTTP ${res.status}`
 }
 
+export async function fetchCachedReplay(
+  matchId: number,
+  heroId: number
+): Promise<ReplayResult | null> {
+  const qs = new URLSearchParams({ matchId: String(matchId), heroId: String(heroId) })
+  const res = await fetch(`/api/parse/cache?${qs.toString()}`)
+  if (!res.ok) return null
+  const body = (await res.json()) as { cached?: boolean; result?: ReplayParse | null }
+  if (!body?.cached || !body.result) return null
+  return { result: body.result, cached: true }
+}
+
 export async function parseReplay(
   matchId: number,
   heroId: number,

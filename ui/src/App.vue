@@ -20,7 +20,7 @@ import {
 import { loadHeroes, type HeroInfo } from './lib/heroes'
 import { fetchMatch, type OpenDotaMatch } from './lib/opendota'
 import { fetchStratzMatch, type StratzMatch } from './lib/stratz'
-import { parseReplay, type ReplayParse } from './lib/replay'
+import { fetchCachedReplay, parseReplay, type ReplayParse } from './lib/replay'
 import { buildRoster } from './lib/roster'
 import { buildTimelineModel } from './lib/timeline'
 import { loadNames, type NamesIndex } from './lib/names'
@@ -135,7 +135,10 @@ onMounted(async () => {
       if (heroId) {
         try {
           const parsed = await parseReplay(match.value.match_id, heroId)
-          if (parsed.result) replayData.value = parsed.result
+          if (parsed.result) {
+            replayData.value = parsed.result
+            replays.value = { ...replays.value, [heroId]: parsed.result }
+          }
         } catch {
           /* 回放不可用时忽略 */
         }
@@ -160,6 +163,23 @@ const focusPlayer = computed(
   () => roster.value.find((p) => p.slot === focusSlot.value) ?? null
 )
 
+const timelineFocusPlayer = computed(
+  () => roster.value.find((p) => p.slot === timelineFocusSlot.value) ?? focusPlayer.value
+)
+
+/** 时间轴优先使用当前查看对象自己的回放，而不是上一名英雄的 replayData。 */
+const focusReplay = computed<ReplayParse | null>(() => {
+  const heroId = timelineFocusPlayer.value?.heroId
+  if (heroId == null) return null
+  return replays.value[heroId] ?? null
+})
+
+const analysisFocusReplay = computed<ReplayParse | null>(() => {
+  const heroId = focusPlayer.value?.heroId
+  if (heroId == null) return null
+  return replays.value[heroId] ?? null
+})
+
 const timelineModel = computed(() => {
   const current = match.value
   if (!current) return null
@@ -169,15 +189,16 @@ const timelineModel = computed(() => {
     focusSlot: timelineFocusSlot.value,
     allySlots: matchup.value.allySlots,
     enemySlots: matchup.value.enemySlots,
-    replay: replayData.value,
+    replay: focusReplay.value,
     replays: replays.value,
     names: names.value
   })
 })
 
 const hasDock = computed(() => {
-  // 时间轴只属于高级分析：必须已有回放解析数据，且选了分析对象
-  if (focusSlot.value == null || !replayData.value) return false
+  // 时间轴属于高级分析：主分析对象已有回放即可显示按钮；
+  // 弹窗内切换查看对象时不应因为新对象尚未加载而关闭弹窗。
+  if (focusSlot.value == null || !analysisFocusReplay.value) return false
   const model = timelineModel.value
   return Boolean(model && (model.hasItems || model.hasSkills))
 })
@@ -185,6 +206,35 @@ const hasDock = computed(() => {
 watch(hasDock, (value) => {
   if (!value) dockOpen.value = false
 })
+
+const cacheLoads = new Set<string>()
+async function loadCachedForSlot(slot: number | null): Promise<void> {
+  const m = match.value
+  if (!m || slot == null || config.depth !== 'advanced') return
+  const player = m.players.find((row) => row.player_slot === slot)
+  if (!player || replays.value[player.hero_id]) return
+  const key = `${m.match_id}:${player.hero_id}`
+  if (cacheLoads.has(key)) return
+  cacheLoads.add(key)
+  try {
+    const parsed = await fetchCachedReplay(m.match_id, player.hero_id)
+    if (!parsed || match.value?.match_id !== m.match_id) return
+    replays.value = { ...replays.value, [player.hero_id]: parsed.result }
+    if (focusSlot.value === slot) replayData.value = parsed.result
+  } catch {
+    /* 没有缓存时保持普通高级分析流程 */
+  } finally {
+    cacheLoads.delete(key)
+  }
+}
+
+watch(
+  [timelineFocusSlot, () => match.value?.match_id, () => config.depth],
+  () => {
+    void loadCachedForSlot(timelineFocusSlot.value)
+  },
+  { immediate: true }
+)
 
 function heroName(id: number | undefined): string {
   if (id == null) return ''

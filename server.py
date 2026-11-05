@@ -41,6 +41,23 @@ _JOBS_LOCK = threading.Lock()
 _JOB_SEQ = [0]
 
 
+def valid_cached_replay(result):
+    """与 run_parse 的缓存条件保持一致，供 /api/parse/cache 预检复用。"""
+    if not isinstance(result, dict) or result.get('schema') != 8:
+        return False
+    focus = result.get('focus')
+    if not isinstance(focus, dict) or not isinstance(result.get('build'), int):
+        return False
+    for key in ('items', 'uses', 'wardPlacements', 'sells', 'removed'):
+        if not isinstance(focus.get(key), list):
+            return False
+    if focus.get('unit') == 'npc_dota_hero_lone_druid':
+        bear_items = focus.get('bearItems')
+        if not isinstance(bear_items, list) or not bear_items:
+            return False
+    return True
+
+
 def log(msg):
     line = '%s %s' % (time.strftime('%H:%M:%S'), msg)
     try:
@@ -119,6 +136,27 @@ class Handler(BaseHTTPRequestHandler):
     # ---------- 静态文件 ----------
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
+        if parsed.path == '/api/parse/cache':
+            qs = urllib.parse.parse_qs(parsed.query)
+            mid = (qs.get('matchId') or [''])[0].strip()
+            hero = (qs.get('heroId') or [''])[0].strip()
+            if not (mid.isdigit() and hero.isdigit()):
+                return self.send_json(400, {'error': '缺少 matchId / heroId'})
+            unit = self.hero_unit(int(hero))
+            if not unit:
+                return self.send_json(200, {'cached': False})
+            safe_unit = ''.join(c if (c.isalnum() or c == '_') else '_' for c in unit)
+            path = os.path.join(REPLAYS_DIR, '%s-%s.json' % (mid, safe_unit))
+            if not os.path.isfile(path):
+                return self.send_json(200, {'cached': False})
+            try:
+                with open(path, encoding='utf-8') as f:
+                    result = json.load(f)
+            except (OSError, ValueError):
+                return self.send_json(200, {'cached': False})
+            if not valid_cached_replay(result):
+                return self.send_json(200, {'cached': False})
+            return self.send_json(200, {'cached': True, 'result': result})
         if parsed.path == '/api/parse/status':
             qs = urllib.parse.parse_qs(parsed.query)
             jid = (qs.get('job') or [''])[0]
@@ -472,23 +510,7 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 with open(out_path, encoding='utf-8') as f:
                     result = json.load(f)
-                focus = result.get('focus') if isinstance(result, dict) else None
-                # Older caches only have purchases.  Re-parse so the UI gets the
-                # exact replay inventory (items/sells) instead of the Heuristic.
-                # Lone Druid caches from before bear snapshots are also stale:
-                # re-parse those so the Spirit Bear's 6+1+3 inventory is available.
-                bear_ok = True
-                if isinstance(focus, dict) and focus.get('unit') == 'npc_dota_hero_lone_druid':
-                    bear_items = focus.get('bearItems')
-                    bear_ok = isinstance(bear_items, list) and len(bear_items) > 0
-                if result.get('schema') == 8 and isinstance(focus, dict) \
-                        and isinstance(result.get('build'), int) \
-                        and isinstance(focus.get('items'), list) \
-                        and isinstance(focus.get('uses'), list) \
-                        and isinstance(focus.get('wardPlacements'), list) \
-                        and isinstance(focus.get('sells'), list) \
-                        and isinstance(focus.get('removed'), list) \
-                        and bear_ok:
+                if valid_cached_replay(result):
                     yield {'done': True, 'cached': True, 'result': result}
                     return
             except (OSError, ValueError):
