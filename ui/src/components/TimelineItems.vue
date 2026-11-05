@@ -19,6 +19,8 @@ const props = defineProps<{
   names: NamesIndex | null
   /** Only exact replay inventories are trustworthy enough to show the bag. */
   showInventory: boolean
+  /** 场上德鲁伊的小熊：分析其他英雄时也把熊的背包带进时间轴。 */
+  externalBear?: TimelinePlayer | null
 }>()
 
 const emit = defineEmits<{ (event: 'seek', sec: number): void }>()
@@ -336,9 +338,30 @@ const bearInventory = computed(() => {
   )
 })
 
-const hasBear = computed(() => Boolean(focus.value?.bearInventorySnapshots.length))
+const hasBear = computed(() => focus.value?.heroId === 80 && Boolean(focus.value?.bearInventorySnapshots.length))
 
 const bearBag = computed(() => makeBag(bearInventory.value))
+
+const externalBearOwner = computed<TimelinePlayer | null>(() => {
+  const player = props.externalBear
+  if (!player || player.heroId !== 80) return null
+  if (props.players.some((row) => row.heroId === 80)) return null
+  return player.bearInventorySnapshots.length ? player : null
+})
+
+const externalBearInventory = computed(() => {
+  const player = externalBearOwner.value
+  if (!player || !props.showInventory) return []
+  return inventoryAt(player, props.cursorSec, 'bear').filter(
+    (entry) => isKnownItem(entry.key) && !entry.key.startsWith('item_enhancement')
+  )
+})
+
+const externalBearLabel = computed(() => {
+  const player = externalBearOwner.value
+  if (!player) return ''
+  return props.names?.heroById.get(player.heroId)?.cn ?? '德鲁伊'
+})
 
 const bagSets = computed(() => {
   const sets: Array<{
@@ -349,6 +372,13 @@ const bagSets = computed(() => {
   }> = [{ key: 'hero', label: hasBear.value ? '本体' : '', bag: bag.value, entries: inventory.value }]
   if (hasBear.value) {
     sets.push({ key: 'bear', label: '小熊', bag: bearBag.value, entries: bearInventory.value })
+  } else if (externalBearOwner.value) {
+    sets.push({
+      key: 'bear-external',
+      label: `小熊 · ${externalBearLabel.value}`,
+      bag: makeBag(externalBearInventory.value),
+      entries: externalBearInventory.value
+    })
   }
   return sets
 })

@@ -454,9 +454,37 @@ public class MatchJsonMain {
             if (!e.getDtClass().getDtName().startsWith("CDOTA_Unit_")) {
                 return;
             }
+            // 先收下候选熊；输出时再按 focus 英雄和 owner 过滤，避免熊实体
+            // 比英雄实体更早出现时漏掉德鲁伊自己的熊。
             if (focusBear == null || !focusBear.isExistent()) {
                 focusBear = e;
             }
+        }
+
+        private Entity entityOwner(Entity e) {
+            if (e == null || !e.hasProperty("m_hOwnerEntity")) {
+                return null;
+            }
+            Object raw = e.getProperty("m_hOwnerEntity");
+            int handle = raw instanceof Number ? ((Number) raw).intValue() : -1;
+            if (handle <= 0 || handle == INVALID_HANDLE) {
+                return null;
+            }
+            return entities.getByHandle(handle);
+        }
+
+        /** 只有德鲁伊本人的熊才写入 bearItems/inBear；其他英雄的解析结果保持为空。 */
+        private boolean focusBearVisible() {
+            if (focusHero == null || focusBear == null
+                || !focusHero.isExistent() || !focusBear.isExistent()) {
+                return false;
+            }
+            String heroClass = focusHero.getDtClass().getDtName().toLowerCase().replace("_", "");
+            if (!heroClass.contains("lonedruid")) {
+                return false;
+            }
+            Entity owner = entityOwner(focusBear);
+            return owner == null || owner.getIndex() == focusHero.getIndex();
         }
 
         @OnEntityCreated(classPattern = "CDOTA_NPC_Observer_Ward.*")
@@ -806,7 +834,7 @@ public class MatchJsonMain {
         }
 
         private boolean bearHasItem(String key) {
-            if (focusBear == null || !focusBear.isExistent() || key == null) {
+            if (!focusBearVisible() || key == null) {
                 return false;
             }
             for (int i = 0; i < MAIN_SLOTS; i++) {
@@ -974,7 +1002,7 @@ public class MatchJsonMain {
             sb.append(",\"items\":");
             appendItemSnapshots(sb);
             sb.append(",\"bearItems\":");
-            appendItemSnapshots(sb, bearItemSnapshots);
+            appendItemSnapshots(sb, focusBearVisible() ? bearItemSnapshots : java.util.Collections.emptyList());
             sb.append(",\"sells\":").append(tripJson(focusSells));
             sb.append(",\"removed\":").append(tripJson(focusRemoved));
             sb.append(",\"notes\":").append(tripJson(focusNotes));

@@ -105,6 +105,13 @@ const buildPlayer = computed<TimelinePlayer | null>(() => {
   return selected.find((player) => player.slot === buildSlot.value) ?? selected[0]
 })
 
+/** 分析其他英雄时，仍把本局德鲁伊的小熊背包带到时间轴。 */
+const externalBear = computed<TimelinePlayer | null>(() => {
+  if (props.model.focus?.heroId === 80) return null
+  const druid = props.model.players.find((player) => player.heroId === 80)
+  return druid && druid.bearInventorySnapshots.length ? druid : null
+})
+
 const pairs = computed<PositionPair[]>(() =>
   buildPositionPairs(props.model.players, focus.value?.isRadiant ?? true)
 )
@@ -532,6 +539,7 @@ onBeforeUnmount(() => {
               :heroes="heroes"
               :names="names"
               :show-inventory="Boolean(model.focus?.inventoryExact)"
+              :external-bear="externalBear"
               @seek="seek"
             />
           </section>
