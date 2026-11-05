@@ -696,6 +696,22 @@ function openDock(): void {
 
 function setDockFocus(slot: number): void {
   dockFocusSlot.value = slot
+  const player = roster.value.find((row) => row.slot === slot)
+  if (!player) return
+  matchup.value = buildMatchup(roster.value, slot, suggestPreset(player))
+}
+
+function applyCustomDockMatchup(allySlots: number[], enemySlots: number[]): void {
+  const focus = dockFocusSlot.value ?? focusSlot.value
+  if (focus == null || !roster.value.length) return
+  const allies = [focus, ...allySlots.filter((slot) => slot !== focus)].slice(0, 2)
+  matchup.value = {
+    enabled: true,
+    preset: 'custom',
+    allySlots: allies,
+    enemySlots: [...new Set(enemySlots)].slice(0, 3),
+    note: ''
+  }
 }
 
 function changeDockMatchup(preset: MatchupPreset): void {
@@ -857,6 +873,7 @@ function setView(key: string): void {
         :matchup-preset="matchup.preset"
         @focus="setDockFocus"
         @change-matchup="changeDockMatchup"
+        @custom-matchup="applyCustomDockMatchup"
       />
     </main>
   </div>

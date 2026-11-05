@@ -35,6 +35,7 @@ const emit = defineEmits<{
   (event: 'update:open', value: boolean): void
   (event: 'focus', slot: number): void
   (event: 'change-matchup', preset: MatchupPreset): void
+  (event: 'custom-matchup', allySlots: number[], enemySlots: number[]): void
 }>()
 
 const cursor = ref(600)
@@ -74,9 +75,74 @@ const allies = computed(() => {
   )
 })
 
+const customOpen = ref(false)
+const customAllies = ref<number[]>([])
+const customEnemies = ref<number[]>([])
+const allyCandidates = computed(() =>
+  props.model.players.filter((player) => player.isRadiant === focus.value?.isRadiant)
+)
+const enemyCandidates = computed(() =>
+  props.model.players.filter((player) => player.isRadiant !== focus.value?.isRadiant)
+)
+
 function selectHero(player: TimelinePlayer): void {
   buildSlot.value = player.slot
+  customOpen.value = false
   emit('focus', player.slot)
+}
+
+function onFocusSelect(event: Event): void {
+  const slot = Number((event.target as HTMLSelectElement).value)
+  customOpen.value = false
+  emit('focus', slot)
+}
+
+function openCustomMatchup(): void {
+  const me = focus.value
+  if (!me) return
+  customAllies.value = [
+    me.slot,
+    ...props.model.selected
+      .filter((player) => player.slot !== me.slot && player.isRadiant === me.isRadiant)
+      .map((player) => player.slot)
+  ].slice(0, 2)
+  customEnemies.value = props.model.selected
+    .filter((player) => player.isRadiant !== me.isRadiant)
+    .map((player) => player.slot)
+    .slice(0, 3)
+  customOpen.value = true
+}
+
+function onMatchupSelect(event: Event): void {
+  const preset = (event.target as HTMLSelectElement).value as MatchupPreset
+  if (preset === 'custom') {
+    openCustomMatchup()
+    return
+  }
+  emit('change-matchup', preset)
+}
+
+function toggleCustom(side: 'ally' | 'enemy', player: TimelinePlayer): void {
+  if (side === 'ally' && player.slot === focus.value?.slot) return
+  const list = side === 'ally' ? customAllies : customEnemies
+  const index = list.value.indexOf(player.slot)
+  if (index >= 0) {
+    list.value = list.value.filter((slot) => slot !== player.slot)
+    return
+  }
+  const limit = side === 'ally' ? 2 : 3
+  if (list.value.length < limit) list.value = [...list.value, player.slot]
+}
+
+function saveCustomMatchup(): void {
+  const me = focus.value
+  if (!me) return
+  emit(
+    'custom-matchup',
+    [me.slot, ...customAllies.value.filter((slot) => slot !== me.slot)].slice(0, 2),
+    customEnemies.value.slice(0, 3)
+  )
+  customOpen.value = false
 }
 
 const primaryRival = computed<TimelinePlayer | null>(() => {
@@ -311,6 +377,7 @@ function seek(sec: number): void {
 
 function close(): void {
   stopTimer()
+  customOpen.value = false
   emit('update:open', false)
 }
 
@@ -422,7 +489,17 @@ onBeforeUnmount(() => {
           <div v-if="focus" class="focus primary">
             <img v-if="heroImage(focus)" class="avatar" :src="heroImage(focus)" alt="" />
             <div class="focus-text">
-              <b>{{ heroName(focus) }}</b>
+              <select
+                class="focus-select"
+                :value="focus.slot"
+                aria-label="切换分析对象"
+                title="从全部英雄中切换分析对象"
+                @change="onFocusSelect"
+              >
+                <option v-for="player in model.players" :key="player.slot" :value="player.slot">
+                  {{ heroName(player) }}（{{ player.isRadiant ? '天辉' : '夜魇' }}）
+                </option>
+              </select>
               <span>
                 {{ positionLabel(focus.position) || (focus.isRadiant ? '天辉' : '夜魇') }}
                 <em class="focus-tag">分析对象</em>
@@ -470,7 +547,7 @@ onBeforeUnmount(() => {
             class="matchup-select"
             :value="matchupPreset || 'mid'"
             title="切换对位范围"
-            @change="emit('change-matchup', ($event.target as HTMLSelectElement).value as MatchupPreset)"
+            @change="onMatchupSelect"
           >
             <option value="mid">1v1</option>
             <option value="safe">优势路 2v2</option>
@@ -495,6 +572,55 @@ onBeforeUnmount(() => {
           <button type="button" class="close" aria-label="关闭" @click="close">
             <AppIcon name="close" :size="18" />
           </button>
+
+          <div v-if="customOpen" class="matchup-editor">
+            <div class="me-head">
+              <b>自定义对位</b>
+              <span>分析对象：{{ focus ? heroName(focus) : '' }}</span>
+            </div>
+
+            <div class="me-group">
+              <span class="me-label">我方 · 最多 2 人（含分析对象）</span>
+              <div class="me-list">
+                <button
+                  v-for="player in allyCandidates"
+                  :key="`ally-${player.slot}`"
+                  type="button"
+                  class="me-chip"
+                  :class="{ on: customAllies.includes(player.slot), lock: player.slot === focus?.slot }"
+                  :disabled="player.slot === focus?.slot"
+                  @click="toggleCustom('ally', player)"
+                >
+                  <img v-if="heroImage(player)" :src="heroImage(player)" alt="" />
+                  <span>{{ heroName(player) }}</span>
+                  <em v-if="player.slot === focus?.slot">对象</em>
+                </button>
+              </div>
+            </div>
+
+            <div class="me-group">
+              <span class="me-label">对方 · 最多 3 人</span>
+              <div class="me-list">
+                <button
+                  v-for="player in enemyCandidates"
+                  :key="`enemy-${player.slot}`"
+                  type="button"
+                  class="me-chip"
+                  :class="{ on: customEnemies.includes(player.slot) }"
+                  @click="toggleCustom('enemy', player)"
+                >
+                  <img v-if="heroImage(player)" :src="heroImage(player)" alt="" />
+                  <span>{{ heroName(player) }}</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="me-actions">
+              <span class="me-hint">选择后应用，时间轴按此对位显示</span>
+              <button type="button" class="me-btn" @click="customOpen = false">取消</button>
+              <button type="button" class="me-btn primary" @click="saveCustomMatchup">应用</button>
+            </div>
+          </div>
         </header>
 
         <div
@@ -805,6 +931,7 @@ onBeforeUnmount(() => {
   border-bottom: 1px solid var(--line);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent);
   flex: none;
+  position: relative;
 }
 
 .title {
@@ -936,6 +1063,140 @@ onBeforeUnmount(() => {
   font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
+}
+
+.focus-select {
+  max-width: 150px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+}
+
+.focus-select option {
+  color: var(--text);
+  background: var(--card-solid);
+}
+
+.matchup-editor {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 18px;
+  z-index: 30;
+  width: min(540px, calc(100vw - 40px));
+  padding: 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  background: var(--card-solid);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+}
+
+.me-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.me-head b {
+  font-size: 13px;
+}
+
+.me-head span {
+  font-size: 10px;
+  color: var(--text-mute);
+}
+
+.me-group {
+  margin-bottom: 10px;
+}
+
+.me-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 10px;
+  color: var(--text-mute);
+}
+
+.me-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.me-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--hover);
+  color: var(--text-dim);
+  font: inherit;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.me-chip img {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+}
+
+.me-chip.on {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.me-chip.lock {
+  opacity: 0.85;
+  cursor: default;
+}
+
+.me-chip em {
+  font-style: normal;
+  font-size: 8px;
+  color: var(--accent-text);
+}
+
+.me-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.me-hint {
+  flex: 1;
+  font-size: 9px;
+  color: var(--text-mute);
+}
+
+.me-btn {
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--hover);
+  color: var(--text-dim);
+  font: inherit;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.me-btn.primary {
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--accent-text);
 }
 
 .focus-text span {
