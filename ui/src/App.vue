@@ -704,7 +704,7 @@ function setDockFocus(slot: number): void {
 function applyCustomDockMatchup(allySlots: number[], enemySlots: number[]): void {
   const focus = dockFocusSlot.value ?? focusSlot.value
   if (focus == null || !roster.value.length) return
-  const allies = [focus, ...allySlots.filter((slot) => slot !== focus)].slice(0, 2)
+  const allies = [focus, ...allySlots.filter((slot) => slot !== focus)].slice(0, 3)
   matchup.value = {
     enabled: true,
     preset: 'custom',

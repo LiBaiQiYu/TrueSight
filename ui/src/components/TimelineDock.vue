@@ -58,7 +58,7 @@ const METRICS: Array<{ key: MetricKey; label: string }> = [
   { key: 'heroDamage', label: '英雄伤害' }
 ]
 
-const COLORS = ['#10b981', '#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6']
+const COLORS = ['#10b981', '#3b82f6', '#ef4444', '#f59e0b', '#8b5cf6', '#06b6d4', '#ec4899']
 
 const focus = computed(() => props.model.focus)
 const isLight = computed(() => config.mode === 'light')
@@ -105,7 +105,7 @@ function openCustomMatchup(): void {
     ...props.model.selected
       .filter((player) => player.slot !== me.slot && player.isRadiant === me.isRadiant)
       .map((player) => player.slot)
-  ].slice(0, 2)
+  ].slice(0, 3)
   customEnemies.value = props.model.selected
     .filter((player) => player.isRadiant !== me.isRadiant)
     .map((player) => player.slot)
@@ -130,7 +130,7 @@ function toggleCustom(side: 'ally' | 'enemy', player: TimelinePlayer): void {
     list.value = list.value.filter((slot) => slot !== player.slot)
     return
   }
-  const limit = side === 'ally' ? 2 : 3
+  const limit = side === 'ally' ? 3 : 3
   if (list.value.length < limit) list.value = [...list.value, player.slot]
 }
 
@@ -139,7 +139,7 @@ function saveCustomMatchup(): void {
   if (!me) return
   emit(
     'custom-matchup',
-    [me.slot, ...customAllies.value.filter((slot) => slot !== me.slot)].slice(0, 2),
+    [me.slot, ...customAllies.value.filter((slot) => slot !== me.slot)].slice(0, 3),
     customEnemies.value.slice(0, 3)
   )
   customOpen.value = false
@@ -577,7 +577,7 @@ onBeforeUnmount(() => {
             </div>
 
             <div class="me-group">
-              <span class="me-label">我方 · 最多 2 人（含分析对象）</span>
+              <span class="me-label">我方 · 最多 3 人（含分析对象）</span>
               <div class="me-list">
                 <button
                   v-for="player in allyCandidates"
