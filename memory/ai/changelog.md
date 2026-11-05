@@ -2,6 +2,10 @@
 
 按时间倒序；每次功能/修复完成后在顶部追加一条。自动快照见 `state.md`。
 
+## 2026-11-05
+
+- 修复停止分析后重新开始高级分析时 `POST /api/parse` 返回 `ERR_EMPTY_RESPONSE`：SSE 响应改为 `Connection: close` 并显式关闭连接，避免浏览器复用已关闭的流式连接。
+
 ## 2026-11-04
 
 - 新增 `tools/setup.ps1`：检查 Python 3.10+/Java 21+、默认拉取并构建最新 Clarity、复制依赖、编译 `MatchJsonMain`；`start.bat` 在无内置 Python 时回退系统 `python` / `py -3`。

@@ -353,8 +353,11 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(upstream_resp.status or 200)
         self.send_header('Content-Type', 'text/event-stream; charset=utf-8')
         self.send_header('Cache-Control', 'no-cache')
-        self.send_header('Connection', 'keep-alive')
+        # SSE 没有 Content-Length，必须关闭连接；否则浏览器可能复用一条
+        # 已被服务端关闭的 socket，下一次 POST 会直接 ERR_EMPTY_RESPONSE。
+        self.send_header('Connection', 'close')
         self.send_header('X-Accel-Buffering', 'no')
+        self.close_connection = True
         self.end_headers()
         try:
             while True:
@@ -363,12 +366,13 @@ class Handler(BaseHTTPRequestHandler):
                     break
                 self.wfile.write(chunk)
                 self.wfile.flush()
-        except (BrokenPipeError, ConnectionResetError):
+        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
             pass  # 浏览器关了页面，直接结束
         except Exception as exc:  # noqa: BLE001
             log('upstream stream interrupted: %s' % exc)
         finally:
             upstream_resp.close()
+            self.close_connection = True
 
     # ---------- STRATZ GraphQL 转发（浏览器直连会被跨域拦） ----------
     def handle_stratz(self):
