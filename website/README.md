@@ -23,6 +23,11 @@ python -m http.server 4173 --directory website
 
 浏览器打开 <http://127.0.0.1:4173/>。
 
+## 维护者
+
+- 开发者：`CarlosWhite_A1E`
+- 个人网站：<https://cwa1e.top>
+
 ## 主题
 
 官网支持两套主题，可在页面右上角切换：

@@ -4,6 +4,7 @@
 
 ## 2026-11-06
 
+- 官网 footer 增加开发者 `CarlosWhite_A1E`、个人网站 `cwa1e.top`，以及 OpenDota / STRATZ / Clarity powered 信息。
 - 官网新增 TrueSight / 标准双主题，支持本地记忆与跨标签同步；默认 TrueSight，标准主题使用中性蓝灰配色。
 - 官网已部署到 Cloudflare Worker：<https://truesight.carloswhitea1e.workers.dev/>；新增 `wrangler.jsonc`、`cloudflare/worker.js`、自定义 404，并改用 `npx wrangler deploy` 发布。
 - 新增 `website/` 官方静态官网：清爽浅色视觉、功能/界面/下载/使用说明/FAQ、响应式布局与截图。
