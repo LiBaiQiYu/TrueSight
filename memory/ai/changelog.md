@@ -2,6 +2,10 @@
 
 按时间倒序；每次功能/修复完成后在顶部追加一条。自动快照见 `state.md`。
 
+## 2026-11-06
+
+- 更新 Clarity 至 `53e60b1`（5.0.1 未变版本号）：重建 `clarity-5.0.1.jar`、复制依赖并重新编译 `MatchJsonMain`；实解析两场英雄数据验证 positions/series/players/timeline/damage 等字段与旧缓存一致，`bearItems` 归属修复生效。
+
 ## 2026-11-05
 
 - 新增 `/api/parse/cache` 预检与前端自动加载：已有录像解析缓存时，选择英雄且处于高级分析会直接显示时间轴按钮，无需重新跑 AI。

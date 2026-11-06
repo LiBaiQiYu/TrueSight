@@ -68,6 +68,7 @@ javac --release 21 -encoding UTF-8 -cp "classes;lib/*" -d classes java\MatchJson
 
 ## 当前版本要点
 
+- 本地 Clarity 更新至 `53e60b1`（`clarity-5.0.1.jar`，跟随 master；`lib/clarity.commit` 记录 commit）；
 - 回放解析 schema 8：HP/MP 5 秒采样、前 10 分钟技能次数、物品使用事件、守卫插眼类型/坐标、德鲁伊小熊背包；
 - 时间轴：出装路线、真假眼拆分、FIFO 消耗、卷轴合成、此刻背包、双天赋树；
 - 名称/图标：中文名称、Steam CDN 图标、Lone Druid 8 条小熊天赋（含通用天赋）；
