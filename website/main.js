@@ -3,6 +3,35 @@ document.documentElement.classList.add('js');
 const header = document.querySelector('.site-header');
 const menuToggle = document.querySelector('.menu-toggle');
 const nav = document.getElementById('main-nav');
+const themeButtons = [...document.querySelectorAll('[data-theme-choice]')];
+const themeColor = document.querySelector('meta[name="theme-color"]');
+
+function applySiteTheme(theme, persist) {
+  const next = theme === 'standard' ? 'standard' : 'truesight'
+  document.documentElement.dataset.theme = next
+  themeButtons.forEach((button) => {
+    button.setAttribute('aria-pressed', String(button.dataset.themeChoice === next))
+  })
+  if (themeColor) themeColor.setAttribute('content', next === 'standard' ? '#f4f7fb' : '#f6fbf8')
+  if (persist) {
+    try {
+      localStorage.setItem('truesight.site.theme', next)
+    } catch (error) {
+      /* localStorage may be unavailable */
+    }
+  }
+}
+
+applySiteTheme(document.documentElement.dataset.theme || 'truesight', false)
+
+themeButtons.forEach((button) => {
+  button.addEventListener('click', () => applySiteTheme(button.dataset.themeChoice, true))
+})
+
+window.addEventListener('storage', (event) => {
+  if (event.key !== 'truesight.site.theme') return
+  applySiteTheme(event.newValue || 'truesight', false)
+})
 
 function syncHeader() {
   if (!header) return;

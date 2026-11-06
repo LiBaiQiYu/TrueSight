@@ -23,6 +23,15 @@ python -m http.server 4173 --directory website
 
 浏览器打开 <http://127.0.0.1:4173/>。
 
+## 主题
+
+官网支持两套主题，可在页面右上角切换：
+
+- **TrueSight**：祖母绿品牌主题（默认）；
+- **标准**：中性蓝灰主题。
+
+选择写入 `localStorage` 的 `truesight.site.theme`，刷新后保留。
+
 ## 部署到 Cloudflare Workers
 
 项目根目录已提供：

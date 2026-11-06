@@ -288,7 +288,7 @@ python tools/names/build.py
 
 ## 官网
 
-项目官网为纯静态站点，源码位于 [`website/`](website/README.md)，包含功能展示、界面预览、下载入口和图文使用说明。
+项目官网为纯静态站点，源码位于 [`website/`](website/README.md)，包含功能展示、界面预览、下载入口和图文使用说明。官网支持 **TrueSight / 标准** 双主题切换。
 
 本地预览：
 

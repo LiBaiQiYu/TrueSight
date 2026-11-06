@@ -22,6 +22,14 @@
     <meta property="og:image" content="https://truesight.carloswhitea1e.workers.dev/assets/home.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/svg+xml" href="assets/truesight-mark.svg" />
+    <script>
+      try {
+        var siteTheme = localStorage.getItem('truesight.site.theme')
+        if (siteTheme === 'standard' || siteTheme === 'truesight') {
+          document.documentElement.dataset.theme = siteTheme
+        }
+      } catch (e) {}
+    </script>
     <link rel="stylesheet" href="styles.css" />
     <script src="main.js" defer></script>
   </head>
@@ -51,6 +59,10 @@
         </nav>
 
         <div class="header-actions">
+          <div class="theme-switch" role="group" aria-label="站点主题">
+            <button type="button" data-theme-choice="truesight" aria-pressed="true">TrueSight</button>
+            <button type="button" data-theme-choice="standard" aria-pressed="false">标准</button>
+          </div>
           <a class="btn btn-small btn-primary" href="#download">下载项目</a>
           <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" aria-label="打开导航">
             <span></span><span></span>
