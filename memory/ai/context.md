@@ -24,6 +24,7 @@ TrueSight（`dota-chat`）是一个 Dota 2 对局分析工具：
 | `tools/names/` | 名称数据抓取、构建、审计脚本 |
 | `tools/memory/` | 记忆快照与 Git hook 安装脚本 |
 | `tools/setup.ps1` | Python / Java / Clarity 一键准备 |
+| `website/` | 官方静态官网（GitHub Pages） |
 | `.githooks/` | 提交/推送钩子 |
 
 ## 常用命令

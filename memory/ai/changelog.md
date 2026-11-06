@@ -4,6 +4,7 @@
 
 ## 2026-11-06
 
+- 新增 `website/` 官方静态官网：清爽浅色视觉、功能/界面/下载/使用说明/FAQ、响应式布局与截图；新增 `.github/workflows/pages.yml` 自动部署 GitHub Pages。
 - 更新 Clarity 至 `53e60b1`（5.0.1 未变版本号）：重建 `clarity-5.0.1.jar`、复制依赖并重新编译 `MatchJsonMain`；实解析两场英雄数据验证 positions/series/players/timeline/damage 等字段与旧缓存一致，`bearItems` 归属修复生效。
 
 ## 2026-11-05

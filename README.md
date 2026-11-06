@@ -38,6 +38,7 @@ TrueSight 是一个本地运行的 Dota 2 对局分析工具，将 **OpenDota / 
 - [快速开始](#快速开始)
 - [配置说明](#配置说明)
 - [项目结构](#项目结构)
+- [官网](#官网)
 - [名称与图标数据](#名称与图标数据)
 - [AI 记忆与多设备同步](#ai-记忆与多设备同步)
 - [隐私与安全](#隐私与安全)
@@ -257,6 +258,7 @@ dota-chat/
 ├─ tools/memory/              记忆快照与 Git hook 安装
 ├─ tools/setup.ps1            Python / Java / Clarity 一键准备
 ├─ memory/ai/                 AI 开发记忆
+├─ website/                   官网静态站点
 ├─ docs/                      设计与功能文档、截图
 ├─ .githooks/                 提交 / 推送钩子
 └─ start.bat                  Windows 启动脚本
@@ -283,6 +285,20 @@ npm run names
 python tools/names/fetch_raw.py
 python tools/names/build.py
 ```
+
+## 官网
+
+项目官网为纯静态站点，源码位于 [`website/`](website/README.md)，包含功能展示、界面预览、下载入口和图文使用说明。
+
+本地预览：
+
+```powershell
+python -m http.server 4173 --directory website
+```
+
+打开 `http://127.0.0.1:4173/`。
+
+部署到 GitHub Pages：在仓库 **Settings → Pages** 中将 Source 设为 **GitHub Actions**，推送 `main` 后由 [`.github/workflows/pages.yml`](.github/workflows/pages.yml) 自动发布。
 
 ## AI 记忆与多设备同步
 
