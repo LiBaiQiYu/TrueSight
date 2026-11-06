@@ -11,10 +11,11 @@
     "start": "electron .",
     "pack": "npm --prefix ../ui run build && electron-builder --dir",
     "dist": "npm --prefix ../ui run build && electron-builder --win portable",
-    "dist:installer": "npm --prefix ../ui run build && electron-builder --win nsis"
+    "dist:installer": "npm --prefix ../ui run build && electron-builder --win nsis",
+    "fix:integrity": "powershell -ExecutionPolicy Bypass -File ../tools/desktop/fix-integrity.ps1"
   },
   "devDependencies": {
-    "electron": "^45.2.3",
+    "electron": "44.0.0",
     "electron-builder": "^26.18.0"
   },
   "build": {

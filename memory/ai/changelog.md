@@ -4,6 +4,7 @@
 
 ## 2026-11-06
 
+- 修复 Electron 客户端双击无反应：固定 Electron 44.0.0、修正打包后的 backend 目录识别，并新增 `tools/desktop/fix-integrity.ps1` 处理沙箱产物 Low integrity 问题；Portable 与 win-unpacked 均已验证可启动。
 - 新增 Electron 桌面客户端（`desktop/`），与 Web 模式并行：共用 UI/server/Clarity，随机本地端口，数据写入 `%APPDATA%\TrueSight\data`；支持 dev、portable 打包和可选 NSIS。
 - 官网 footer 增加开发者 `CarlosWhite_A1E`、个人网站 `cwa1e.top`，以及 OpenDota / STRATZ / Clarity powered 信息。
 - 官网新增 TrueSight / 标准双主题，支持本地记忆与跨标签同步；默认 TrueSight，标准主题使用中性蓝灰配色。

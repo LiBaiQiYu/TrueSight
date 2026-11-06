@@ -25,7 +25,7 @@ TrueSight（`dota-chat`）是一个 Dota 2 对局分析工具：
 | `tools/memory/` | 记忆快照与 Git hook 安装脚本 |
 | `tools/setup.ps1` | Python / Java / Clarity 一键准备 |
 | `website/` | 官方静态官网（Cloudflare Worker：`wrangler.jsonc`） |
-| `desktop/` | Electron 桌面壳（与 Web 模式共用后端） |
+| `desktop/` | Electron 桌面壳（Electron 44；Low integrity 修复脚本） |
 | `.githooks/` | 提交/推送钩子 |
 
 ## 常用命令

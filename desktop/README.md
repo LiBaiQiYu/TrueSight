@@ -116,6 +116,39 @@ runtime/python/
 
 当前未配置 Windows 代码签名证书。正式分发前建议配置，避免 SmartScreen 和杀毒软件误报。
 
+## 常见问题：双击后没有反应
+
+如果 `release\win-unpacked\TrueSight.exe` 双击无窗口，按顺序检查：
+
+1. 任务管理器结束残留的 `TrueSight.exe` / `electron.exe`；
+2. 如果构建环境是 DSH 或其他沙箱，文件可能带有 **Low mandatory integrity**，Electron 会无法启动：
+
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File tools\desktop\fix-integrity.ps1
+   ```
+
+   或：
+
+   ```powershell
+   cd desktop
+   npm run fix:integrity
+   ```
+
+3. 查看日志：
+
+   ```text
+   %APPDATA%\TrueSight\data\logs\backend.log
+   ```
+
+4. 确认 `desktop/release/win-unpacked/resources/backend` 下存在：
+   - `server.py`
+   - `jre/bin/java.exe`
+   - `classes/skadistats/clarity/bench/MatchJsonMain.class`
+   - `lib/*.jar`
+   - `ui/dist/index.html`
+
+当前固定使用 **Electron 44.0.0**。Electron 45 在该机器上启动异常，因此未采用。
+
 ## 调试
 
 - 开发模式按 `F12` 打开 DevTools；
