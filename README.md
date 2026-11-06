@@ -36,6 +36,7 @@ TrueSight 是一个本地运行的 Dota 2 对局分析工具，将 **OpenDota / 
 - [界面预览](#界面预览)
 - [系统架构](#系统架构)
 - [快速开始](#快速开始)
+- [桌面客户端](#桌面客户端electron可选)
 - [配置说明](#配置说明)
 - [项目结构](#项目结构)
 - [官网](#官网)
@@ -219,6 +220,34 @@ cd ui
 npm run dev
 ```
 
+### 桌面客户端（Electron，可选）
+
+Web 模式保持不变。桌面模式共用同一套 `ui/`、`server.py`、Clarity 与运行时：
+
+```powershell
+# 首次准备环境并构建前端
+powershell -ExecutionPolicy Bypass -File tools\setup.ps1
+cd ui
+npm install
+npm run build
+cd ..
+
+# 启动桌面开发模式
+cd desktop
+npm install
+npm run dev
+```
+
+打包 Portable 客户端：
+
+```powershell
+npm run dist
+```
+
+产物在 `desktop/release/`。桌面模式使用随机本地端口，数据写入 `%APPDATA%\TrueSight\data`，不会与 Web 模式的 8077 冲突。
+
+详细说明见 [`desktop/README.md`](desktop/README.md)。
+
 ### 重新构建解析器
 
 ```powershell
@@ -259,6 +288,7 @@ dota-chat/
 ├─ tools/setup.ps1            Python / Java / Clarity 一键准备
 ├─ memory/ai/                 AI 开发记忆
 ├─ website/                   官网静态站点
+├─ desktop/                   Electron 桌面客户端
 ├─ docs/                      设计与功能文档、截图
 ├─ .githooks/                 提交 / 推送钩子
 └─ start.bat                  Windows 启动脚本

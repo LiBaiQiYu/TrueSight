@@ -25,6 +25,7 @@ TrueSight（`dota-chat`）是一个 Dota 2 对局分析工具：
 | `tools/memory/` | 记忆快照与 Git hook 安装脚本 |
 | `tools/setup.ps1` | Python / Java / Clarity 一键准备 |
 | `website/` | 官方静态官网（Cloudflare Worker：`wrangler.jsonc`） |
+| `desktop/` | Electron 桌面壳（与 Web 模式共用后端） |
 | `.githooks/` | 提交/推送钩子 |
 
 ## 常用命令
@@ -42,6 +43,14 @@ npm run names        # 重新生成 ui/public/names/*.json
 
 # 后端
 python server.py 8077
+
+# 桌面客户端（Electron，与 Web 模式并行）
+cd desktop
+npm install
+npm run dev
+
+# 打包 Portable 客户端（需先构建 ui/dist）
+npm run dist
 
 # 名称源数据（需要网络）
 python tools/names/fetch_raw.py

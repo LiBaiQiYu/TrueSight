@@ -1,4 +1,4 @@
-﻿# Local runtime / generated artifacts (re-build per machine)
+# Local runtime / generated artifacts (re-build per machine)
 /.cache/
 /replays/
 /runtime/
@@ -18,6 +18,11 @@ ui/node_modules/
 ui/dist/
 ui/public/items/icons/
 .tmp-*
+
+# Desktop (Electron)
+desktop/node_modules/
+desktop/release/
+desktop/out/
 
 # Secrets / machine-local config
 .env

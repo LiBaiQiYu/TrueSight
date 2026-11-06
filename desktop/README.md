@@ -1,0 +1,142 @@
+# TrueSight Desktop
+
+TrueSight 的 Electron 桌面壳。它与现有 Web 模式并行存在，共用同一套：
+
+- `ui/` 前端；
+- `server.py` 本地服务；
+- `java/MatchJsonMain.java` + Clarity；
+- `lib/`、`classes/`、`jre/`、`runtime/python/`。
+
+不会替换或破坏现有 `start.bat` / `server.py` 工作流。
+
+## 两种模式
+
+### Web 模式（原有）
+
+```powershell
+cd ui
+npm run build
+cd ..
+.\start.bat
+```
+
+浏览器访问 `http://127.0.0.1:8077`。
+
+### Desktop 模式
+
+先准备运行环境并构建前端：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\setup.ps1
+cd ui
+npm install
+npm run build
+cd ..
+```
+
+安装 Electron 依赖并启动：
+
+```powershell
+cd desktop
+npm install
+npm run dev
+```
+
+`npm run dev` 会：
+
+1. 选择空闲的 `127.0.0.1` 端口；
+2. 启动 `server.py`；
+3. 等待本地服务健康检查通过；
+4. 在 Electron 窗口中加载 `ui/dist`。
+
+## 目录
+
+```text
+desktop/
+├─ main.cjs          Electron 主进程 / sidecar 生命周期
+├─ preload.cjs       最小桌面信息桥
+├─ package.json      Electron、打包配置
+├─ build/icon.ico    Windows 图标
+├─ README.md
+└─ release/          electron-builder 输出（不提交）
+```
+
+## 运行数据
+
+桌面模式不会写安装目录，数据保存在：
+
+```text
+%APPDATA%\TrueSight\data\
+├─ replays/
+├─ .cache/
+├─ heroes.json
+├─ logs/backend.log
+└─ server.log
+```
+
+这是通过 `TRUESIGHT_DATA_DIR` 传给 `server.py` 的；Web 模式不设置该变量，仍使用项目根目录，行为不变。
+
+## 生产打包
+
+```powershell
+cd desktop
+npm run dist
+```
+
+输出位于 `desktop/release/`，默认生成：
+
+- `TrueSight-0.1.0-x64.exe`：Portable 便携版，单文件运行。
+
+如需 NSIS 安装包：
+
+```powershell
+npm run dist:installer
+```
+
+打包会包含：
+
+```text
+server.py
+ui/dist
+data/names
+lib/*
+classes/*
+jre/
+runtime/python/
+```
+
+不会包含：
+
+- `replays/`、`.cache/`；
+- `node_modules/`；
+- API Key / Token；
+- 现有 `server.log`。
+
+### 代码签名
+
+当前未配置 Windows 代码签名证书。正式分发前建议配置，避免 SmartScreen 和杀毒软件误报。
+
+## 调试
+
+- 开发模式按 `F12` 打开 DevTools；
+- 启动/退出日志：`%APPDATA%\TrueSight\data\logs\backend.log`；
+- 本地服务日志：`%APPDATA%\TrueSight\data\server.log`；
+- 无界面 smoke test：
+
+  ```powershell
+  cd desktop
+  npx electron . --smoke-test
+  ```
+
+  成功时输出：
+
+  ```text
+  TRUESIGHT_SMOKE_OK http://127.0.0.1:<port>
+  ```
+
+## 说明
+
+- 桌面模式与分析服务只绑定 `127.0.0.1`，不对外网开放；
+- 每次启动使用随机端口，避免与 Web 模式的 8077 冲突；
+- 关闭窗口时通过进程树终止 Python 和 Java 子进程；
+- UI 与 Web 模式完全共用，不需要两套前端代码。

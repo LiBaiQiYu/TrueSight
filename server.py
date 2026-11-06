@@ -24,14 +24,15 @@ import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.environ.get('TRUESIGHT_DATA_DIR') or BASE_DIR
 WEB_DIR = os.path.join(BASE_DIR, 'web')
 DIST_DIR = os.path.join(BASE_DIR, 'ui', 'dist')
 STATIC_DIR = DIST_DIR if os.path.isdir(DIST_DIR) else WEB_DIR
-REPLAYS_DIR = os.path.join(BASE_DIR, 'replays')
+REPLAYS_DIR = os.path.join(DATA_DIR, 'replays')
 NAMES_DIR = os.path.join(BASE_DIR, 'data', 'names')
 NAME_FILES = ('heroes', 'abilities', 'talents', 'items', 'meta')
-HEROES_CACHE = os.path.join(BASE_DIR, 'heroes.json')
-SERVER_LOG = os.path.join(BASE_DIR, 'server.log')
+HEROES_CACHE = os.path.join(DATA_DIR, 'heroes.json')
+SERVER_LOG = os.path.join(DATA_DIR, 'server.log')
 # clarity 源码仓：默认是本项目的 sibling ../clarity，可用环境变量覆盖
 CLARITY_DIR = os.environ.get('DOTA_CHAT_CLARITY_DIR',
                              os.path.join(BASE_DIR, '..', 'clarity'))
@@ -677,8 +678,8 @@ class Handler(BaseHTTPRequestHandler):
         # java.io.tmpdir。如果服务从没有 TEMP/TMP 的环境启动，Windows 会回退到
         # C:\Windows\System32 并报“拒绝访问”，最终表现为 no snappyjava in
         # java.library.path。这里显式指到项目内可写目录，避免依赖父进程环境。
-        tmp_dir = os.path.join(BASE_DIR, '.cache', 'tmp')
-        snappy_dir = os.path.join(BASE_DIR, '.cache', 'snappy')
+        tmp_dir = os.path.join(DATA_DIR, '.cache', 'tmp')
+        snappy_dir = os.path.join(DATA_DIR, '.cache', 'snappy')
         for path in (tmp_dir, snappy_dir):
             try:
                 os.makedirs(path, exist_ok=True)

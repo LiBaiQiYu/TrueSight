@@ -1,0 +1,79 @@
+{
+  "name": "truesight-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TrueSight Dota 2 match analyzer desktop shell",
+  "author": "CarlosWhite_A1E",
+  "license": "UNLICENSED",
+  "main": "main.cjs",
+  "scripts": {
+    "dev": "electron .",
+    "start": "electron .",
+    "pack": "npm --prefix ../ui run build && electron-builder --dir",
+    "dist": "npm --prefix ../ui run build && electron-builder --win portable",
+    "dist:installer": "npm --prefix ../ui run build && electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "^45.2.3",
+    "electron-builder": "^26.18.0"
+  },
+  "build": {
+    "appId": "top.cwa1e.truesight",
+    "productName": "TrueSight",
+    "artifactName": "TrueSight-${version}-${arch}.${ext}",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../server.py",
+        "to": "backend/server.py"
+      },
+      {
+        "from": "../ui/dist",
+        "to": "backend/ui/dist"
+      },
+      {
+        "from": "../data/names",
+        "to": "backend/data/names"
+      },
+      {
+        "from": "../lib",
+        "to": "backend/lib"
+      },
+      {
+        "from": "../classes",
+        "to": "backend/classes"
+      },
+      {
+        "from": "../jre",
+        "to": "backend/jre"
+      },
+      {
+        "from": "../runtime/python",
+        "to": "backend/runtime/python"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "TrueSight"
+    }
+  }
+}
