@@ -298,7 +298,15 @@ python -m http.server 4173 --directory website
 
 打开 `http://127.0.0.1:4173/`。
 
-部署到 GitHub Pages：在仓库 **Settings → Pages** 中将 Source 设为 **GitHub Actions**，推送 `main` 后由 [`.github/workflows/pages.yml`](.github/workflows/pages.yml) 自动发布。
+部署到 Cloudflare Workers：
+
+```powershell
+npx wrangler deploy
+```
+
+配置文件为 [`wrangler.jsonc`](wrangler.jsonc)，静态资源绑定 `website/`。
+
+线上地址：<https://truesight.carloswhitea1e.workers.dev/>
 
 ## AI 记忆与多设备同步
 

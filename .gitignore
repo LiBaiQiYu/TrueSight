@@ -1,4 +1,4 @@
-# Local runtime / generated artifacts (re-build per machine)
+﻿# Local runtime / generated artifacts (re-build per machine)
 /.cache/
 /replays/
 /runtime/
@@ -27,3 +27,8 @@ ui/public/items/icons/
 # OS
 .DS_Store
 Thumbs.db
+
+# Cloudflare
+.wrangler/
+.dev.vars
+

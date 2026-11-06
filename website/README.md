@@ -23,21 +23,35 @@ python -m http.server 4173 --directory website
 
 浏览器打开 <http://127.0.0.1:4173/>。
 
-## 部署到 GitHub Pages
+## 部署到 Cloudflare Workers
 
-仓库已提供 `.github/workflows/pages.yml`。
-
-首次部署需要在 GitHub 仓库中设置：
-
-1. 打开 **Settings → Pages**；
-2. **Build and deployment → Source** 选择 **GitHub Actions**；
-3. 推送到 `main`，或手动运行 **Deploy website** workflow。
-
-部署地址通常为：
+项目根目录已提供：
 
 ```text
-https://libaiqiyu.github.io/TrueSight/
+wrangler.jsonc         Cloudflare Worker 配置
+cloudflare/worker.js   ASSETS 绑定入口
+website/               静态资源目录
 ```
+
+首次部署前登录：
+
+```powershell
+npx wrangler login
+```
+
+部署：
+
+```powershell
+npx wrangler deploy
+```
+
+成功后 Wrangler 会输出 Worker 地址：
+
+```text
+https://truesight.carloswhitea1e.workers.dev
+```
+
+静态资源变更后重新执行 `npx wrangler deploy` 即可。`wrangler.jsonc` 中的 `assets.directory` 指向 `website/`。
 
 ## 更新截图
 
