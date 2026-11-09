@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import type { HeroInfo } from '../lib/heroes'
 import type { NamesIndex } from '../lib/names'
+import { itemName as formatItemName } from '../lib/labels'
 import {
   formatClock,
   inventoryAt,
@@ -40,8 +41,7 @@ function itemName(key: string): string {
   const item = props.names?.itemByKey.get(key) ?? props.names?.itemByKey.get(key.replace(/^item_/, ''))
   if (item?.cn) return item.cn
   if (item?.en) return item.en
-  const cleaned = key.replace(/^item_/, '').replace(/_/g, ' ').trim()
-  return cleaned || '未知装备'
+  return formatItemName(key, props.names) || '未知装备'
 }
 
 /** 当前物品库没有的 key 不进入时间轴；内部类名别名由 names 统一解析。 */

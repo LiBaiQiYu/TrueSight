@@ -10,6 +10,7 @@ import TooltipLayer from './TooltipLayer.vue'
 import HeroSelect from './HeroSelect.vue'
 import type { HeroInfo } from '../lib/heroes'
 import type { NamesIndex } from '../lib/names'
+import { itemName as formatItemName } from '../lib/labels'
 import type { MatchupPreset } from '../lib/matchup'
 import { config } from '../lib/config'
 import { positionLabel } from '../lib/roster'
@@ -315,7 +316,7 @@ const conclusionLines = computed(() => {
     const item = props.names?.itemByKey.get(key) ?? props.names?.itemByKey.get(key.replace(/^item_/, ''))
     if (item?.cn) return item.cn
     if (item?.en) return item.en
-    return key.replace(/^item_/, '').replace(/_/g, ' ') || '未知装备'
+    return formatItemName(key, props.names) || '未知装备'
   }
 
   const at10 = pair.at10

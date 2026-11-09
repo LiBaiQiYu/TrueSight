@@ -3,6 +3,7 @@ import type { Depth } from './config'
 import type { ReplayParse } from './replay'
 import type { RosterPlayer } from './roster'
 import type { NamesIndex } from './names'
+import { abilityName, itemName, unitName } from './labels'
 import { positionLabel } from './roster'
 import {
   durationText,
@@ -52,7 +53,7 @@ function heroLabel(
 
 function itemLabel(names: NamesIndex | null | undefined, raw: string): string {
   const key = raw.startsWith('item_') ? raw : `item_${raw}`
-  return names?.itemByKey.get(key)?.cn || raw.replace(/^item_/, '').replace(/_/g, ' ')
+  return names?.itemByKey.get(key)?.cn || itemName(raw, names)
 }
 
 /** 把录像里的英文/内部名（如 Luna、npc_dota_hero_luna、Mana Break）映射成中文名。 */
@@ -62,7 +63,7 @@ function unitLabel(names: NamesIndex | null | undefined, raw: string | null | un
   const direct = names?.heroByKey.get(value)?.cn
   if (direct) return direct
   if (value.startsWith('npc_dota_hero_')) {
-    return names?.heroByKey.get(value)?.cn || prettyUnit(value)
+    return names?.heroByKey.get(value)?.cn || unitName(value, names)
   }
   if (names) {
     const lower = value.toLowerCase()
@@ -84,7 +85,7 @@ function unitLabel(names: NamesIndex | null | undefined, raw: string | null | un
       if (row.en.toLowerCase() === lower) return row.cn
     }
   }
-  return prettyUnit(value)
+  return unitName(value, names)
 }
 
 function abilityLabel(names: NamesIndex | null | undefined, raw: string): string {
@@ -98,7 +99,7 @@ function abilityLabel(names: NamesIndex | null | undefined, raw: string): string
       if (row.en.toLowerCase() === lower) return row.cn
     }
   }
-  return prettyUnit(key)
+  return abilityName(key, names)
 }
 
 function openDotaLine(
@@ -171,10 +172,6 @@ export function buildSystemPrompt(depth: Depth, matchup = false, hasReplay = fal
         '分析必须引用录像中的具体时间点与事件；OpenDota/STRATZ 与录像冲突时，以录像为准并说明差异。'
       : '')
   )
-}
-
-function prettyUnit(unit: string): string {
-  return unit.replace(/^npc_dota_hero_/, '').replace(/_/g, ' ')
 }
 
 function sampleTimeline(points: ReplayParse['timeline']): ReplayParse['timeline'] {

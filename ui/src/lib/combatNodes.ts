@@ -1,4 +1,5 @@
 import type { NamesIndex } from './names'
+import { abilityName, isUnitKey, itemName, unitName } from './labels'
 import type { OpenDotaMatch, OpenDotaPlayer } from './opendota'
 import type {
   ReplayCombatEvent,
@@ -115,9 +116,11 @@ function normalizedUnit(unit: string): string {
 
 function sourceType(source: string, damageType: number, category: number): 'basic' | 'ability' | 'item' | 'other' {
   if (source.startsWith('item_')) return 'item'
-  if (source && !source.startsWith('npc_dota_hero_')) return 'ability'
-  if (damageType === 1 && (category === 0 || category === 1)) return 'basic'
-  return 'other'
+  if (isUnitKey(source)) {
+    return damageType === 1 && (category === 0 || category === 1) ? 'basic' : 'other'
+  }
+  if (source) return 'ability'
+  return damageType === 1 && (category === 0 || category === 1) ? 'basic' : 'other'
 }
 
 function sourceLabel(
@@ -127,19 +130,23 @@ function sourceLabel(
   category: number,
   actorUnit = ''
 ): string {
-  if (!source || source.startsWith('npc_dota_hero_')) {
-    if ((source === 'npc_dota_hero_spirit_breaker' || actorUnit === 'npc_dota_hero_spirit_breaker') && damageType === 2) {
+  const lower = (source || '').toLowerCase()
+  const isHeroUnit = lower.startsWith('npc_dota_hero_') || lower.startsWith('cdota_unit_hero_')
+  if (!source || isHeroUnit) {
+    if ((lower === 'npc_dota_hero_spirit_breaker' || actorUnit === 'npc_dota_hero_spirit_breaker') && damageType === 2) {
       return '强化攻击（Greater Bash）'
     }
     return damageType === 1 && (category === 0 || category === 1)
       ? '普通攻击'
       : '未归因伤害'
   }
-  if (source === 'spirit_breaker_greater_bash') return '强化攻击（Greater Bash）'
-  if (source.startsWith('item_')) {
-    return names?.itemByKey.get(source)?.cn || names?.itemByKey.get(source)?.en || source
+  // 小兵 / 建筑 / 召唤物：直接给单位名，不再把内部类名当技能名显示
+  if (isUnitKey(source)) {
+    const label = unitName(source, names)
+    return damageType === 1 && (category === 0 || category === 1) ? `${label} 普攻` : label
   }
-  return names?.abilityByKey.get(source)?.cn || names?.abilityByKey.get(source)?.en || source
+  if (lower.startsWith('item_')) return itemName(source, names)
+  return abilityName(source, names)
 }
 
 function emptyHero(
@@ -153,7 +160,7 @@ function emptyHero(
   return {
     slot,
     heroId,
-    heroName: named?.cn || named?.en || replayPlayer?.hero || `英雄 ${heroId}`,
+    heroName: named?.cn || named?.en || unitName(replayPlayer?.hero, names) || `英雄 ${heroId}`,
     playerName: player?.personaname || player?.name || replayPlayer?.name || `玩家 ${slot + 1}`,
     side: replayPlayer?.team === 3 || player?.isRadiant === false ? 'dire' : 'radiant',
     kills: 0,
@@ -341,6 +348,8 @@ export function buildCombatNodes(
       const damageSource = event[15] || ''
       const actorUnit = event[2] ? normalizedUnit(event[2]) : ''
       const targetUnit = event[3] ? normalizedUnit(event[3]) : ''
+      const actorText = actor?.heroName ?? unitName(actorUnit, names)
+      const targetText = target?.heroName ?? unitName(targetUnit, names)
       const actorInNode = actorSlot != null && heroes.has(actorSlot)
       const targetInNode = targetSlot != null && heroes.has(targetSlot)
       if (kind !== 'DEATH' && !actorInNode && !targetInNode) continue
@@ -363,19 +372,19 @@ export function buildCombatNodes(
         deathRows.push({
           t: event[0],
           targetSlot: targetSlot ?? -1,
-          targetHero: target ? target.heroName : targetUnit,
+          targetHero: targetText,
           killerSlot: actorSlot,
-          killerHero: actor ? actor.heroName : actorUnit,
+          killerHero: actorText,
           assists: [...assists]
         })
         timeline.push({
           t: event[0],
           kind,
           actorSlot,
-          actorHero: actor?.heroName ?? actorUnit,
+          actorHero: actorText,
           targetSlot,
-          targetHero: target?.heroName ?? targetUnit,
-          label: actor ? `${actor.heroName} 击杀 ${target?.heroName ?? targetUnit}` : `${target?.heroName ?? targetUnit} 阵亡`,
+          targetHero: targetText,
+          label: actor ? `${actor.heroName} 击杀 ${targetText}` : `${targetText} 阵亡`,
           value: 0
         })
         continue
@@ -413,7 +422,7 @@ export function buildCombatNodes(
           const key = `${actorSlot}|${resolvedSource}|${type}`
           const hit = incomingMap.get(key) ?? {
             actorSlot,
-            actorHero: actor?.heroName ?? actorUnit,
+            actorHero: actorText,
             actorName: actor?.playerName ?? '',
             source: label,
             sourceType: sourceType(resolvedSource, event[6], category),
@@ -429,10 +438,10 @@ export function buildCombatNodes(
           t: event[0],
           kind,
           actorSlot,
-          actorHero: actor?.heroName ?? actorUnit,
+          actorHero: actorText,
           targetSlot,
-          targetHero: target?.heroName ?? targetUnit,
-          label: `${actor?.heroName ?? actorUnit} → ${target?.heroName ?? targetUnit} · ${sourceLabel(resolvedSource, names, event[6], category, actorUnit)}`,
+          targetHero: targetText,
+          label: `${actorText} → ${targetText} · ${sourceLabel(resolvedSource, names, event[6], category, actorUnit)}`,
           value,
           damageType: type
         })
@@ -458,13 +467,13 @@ export function buildCombatNodes(
           t: event[0],
           kind,
           actorSlot,
-          actorHero: actor?.heroName ?? actorUnit,
+          actorHero: actorText,
           targetSlot,
-          targetHero: target?.heroName ?? targetUnit,
+          targetHero: targetText,
           label:
             kind === 'ABILITY'
-              ? `${actor?.heroName ?? actorUnit} 释放 ${sourceText}`
-              : `${actor?.heroName ?? actorUnit} 使用 ${sourceText}`,
+              ? `${actorText} 释放 ${sourceText}`
+              : `${actorText} 使用 ${sourceText}`,
           value
         })
         continue
@@ -476,10 +485,10 @@ export function buildCombatNodes(
           t: event[0],
           kind,
           actorSlot,
-          actorHero: actor?.heroName ?? actorUnit,
+          actorHero: actorText,
           targetSlot,
-          targetHero: target?.heroName ?? targetUnit,
-          label: `${actor?.heroName ?? actorUnit} 治疗 ${target?.heroName ?? targetUnit}`,
+          targetHero: targetText,
+          label: `${actorText} 治疗 ${targetText}`,
           value
         })
       }
