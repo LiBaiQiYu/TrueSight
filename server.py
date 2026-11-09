@@ -386,6 +386,11 @@ class Handler(BaseHTTPRequestHandler):
                 upstream['instructions'] = system_text
             if isinstance(payload.get('temperature'), (int, float)):
                 upstream['temperature'] = payload['temperature']
+            effort = payload.get('reasoning_effort')
+            if isinstance(effort, str):
+                effort = effort.strip()[:20]
+                if effort and effort != '__omit__':
+                    upstream['reasoning'] = {'effort': effort}
             endpoint = responses_url_for(base)
         else:
             upstream = {

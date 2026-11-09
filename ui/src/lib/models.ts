@@ -223,7 +223,7 @@ watch(
 )
 
 watch(
-  [() => config.model, () => modelState.list],
+  [() => config.model, () => modelState.list, () => config.customEfforts],
   () => {
     const levels = levelsFor(config.model)
     if (!levels.includes(config.effortLevel)) {
@@ -236,6 +236,9 @@ watch(
 if (hasApiKey.value) void refreshModels()
 
 export function levelsFor(model: string): string[] {
+  if (config.provider === 'custom' && config.customEfforts.length) {
+    return config.customEfforts
+  }
   const meta = modelState.meta[model]
   if (meta && meta.efforts.length) return meta.efforts
   return PROVIDERS[config.provider].efforts

@@ -122,6 +122,7 @@ export interface PersistedConfig {
   customProtocol: CustomProtocol
   customModel: string
   customCatalog: string[]
+  customEfforts: string[]
   effortLevel: string
   depth: Depth
   sourceMode: SourceMode
@@ -158,6 +159,7 @@ function defaults(): PersistedConfig {
     customProtocol: 'chat',
     customModel: '',
     customCatalog: [],
+    customEfforts: [],
     effortLevel: '',
     depth: 'rough',
     sourceMode: 'auto',
@@ -194,6 +196,11 @@ function load(): PersistedConfig {
     merged.customModel = text(parsed.customModel)
     merged.customCatalog = Array.isArray(parsed.customCatalog)
       ? parsed.customCatalog.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+      : []
+    merged.customEfforts = Array.isArray(parsed.customEfforts)
+      ? parsed.customEfforts
+          .filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+          .map((item) => item.trim())
       : []
     merged.effortLevel = text(parsed.effortLevel)
     merged.depth = parsed.depth === 'advanced' ? 'advanced' : 'rough'

@@ -43,6 +43,15 @@ const catalogText = computed({
       .filter((item, index, list) => item.length > 0 && list.indexOf(item) === index)
   }
 })
+const effortText = computed({
+  get: () => config.customEfforts.join(', '),
+  set: (value: string) => {
+    config.customEfforts = value
+      .split(/[\s,]+/)
+      .map((item) => item.trim().toLowerCase())
+      .filter((item, index, list) => item.length > 0 && list.indexOf(item) === index)
+  }
+})
 
 const protocolOptions = [
   { id: 'chat', label: 'OpenAI Chat Completions' },
@@ -175,6 +184,17 @@ const statusText = computed(() => {
         <select id="settings-protocol" v-model="config.customProtocol" class="field">
           <option v-for="p in protocolOptions" :key="p.id" :value="p.id">{{ p.label }}</option>
         </select>
+
+        <label class="field-label" for="settings-efforts">推理档位</label>
+        <input
+          id="settings-efforts"
+          v-model="effortText"
+          class="field mono"
+          spellcheck="false"
+          autocomplete="off"
+          placeholder="low, medium, high, xhigh, max, ultra"
+        />
+        <p class="note field-note">留空不发送档位；ultra 等非标准档位也可直接填写。</p>
 
         <label class="field-label" for="settings-custom-key">API 密钥</label>
         <div class="input-wrap">

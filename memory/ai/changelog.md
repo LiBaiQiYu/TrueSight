@@ -4,6 +4,7 @@
 
 ## 2026-11-09
 
+- 自定义模型新增推理档位输入，支持 `ultra` 等非标准档位；留空不发送 `reasoning_effort`，OpenAI Responses 写入 `reasoning.effort`。
 - 修复推理级别滑块：轨道保持完整圆角，点位按 12px 内边距对齐，填充从轨道左端延伸到当前 thumb，首尾点落在填充/轨道内，与参考图一致。
 - 自定义模型补齐 Provider ID、显示名称、API 地址、协议、API Key、模型 ID、模型目录；支持 OpenAI Chat Completions / OpenAI Responses / Anthropic Messages，并实现 Responses/Anthropic SSE 转换。
 - 设置页新增 OpenAI/Codex API、小米 MiMo、自定义 OpenAI 兼容模型；自定义模型支持 Base URL 和模型名，Ollama/LM Studio 可空 Key。
