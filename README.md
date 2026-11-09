@@ -265,6 +265,16 @@ javac --release 21 -encoding UTF-8 -cp "classes;lib/*" -d classes java\MatchJson
 | Base URL | 默认使用提供商官方地址，可自定义；自定义模型必填 |
 | 模型 | 由提供商模型列表或内置模型提供；自定义模型手动填写 |
 | 推理强度 | low / medium / high / xhigh / max；DeepSeek、MiMo 不传档位 |
+
+自定义模型支持：
+
+- `OpenAI Chat Completions`
+- `OpenAI Responses`
+- `Anthropic Messages`
+
+可填写 Provider ID、显示名称、API 地址、协议、API Key、模型 ID 和模型目录。目录为空时不显示模型，但手填的模型 ID 仍会直接发送。
+
+> Claude Code / Codex 的订阅登录与 API Key 是两套机制；当前支持的是 API Key 与自定义协议接口，不包含订阅 OAuth/CLI 登录。
 | STRATZ Token | 可选，用于精确位置与角色数据 |
 | 数据源 | 自动 / 仅 OpenDota / 仅 STRATZ / 双源 |
 | 主题 | TrueSight / 标准；深色 / 浅色 |

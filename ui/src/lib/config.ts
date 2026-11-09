@@ -5,6 +5,7 @@ export type ThemeMode = 'light' | 'dark'
 export type Depth = 'rough' | 'advanced'
 export type SourceMode = 'auto' | 'opendota' | 'stratz' | 'both'
 export type ProviderId = 'opencode' | 'minimax' | 'deepseek' | 'openai' | 'xiaomi' | 'custom'
+export type CustomProtocol = 'chat' | 'responses' | 'anthropic'
 
 export interface ProviderDef {
   id: ProviderId
@@ -92,12 +93,12 @@ export const PROVIDERS: Record<ProviderId, ProviderDef> = {
   custom: {
     id: 'custom',
     name: '自定义',
-    desc: '任意 OpenAI 兼容接口；自行填写 Base URL 和模型名，可用于 Ollama、LM Studio、OpenRouter 等。',
+    desc: '连接中转站、自部署服务或其他兼容 OpenAI / Anthropic 协议的接口。',
     defaultBaseUrl: '',
     models: [],
     efforts: [],
     defaultEffort: '',
-    keyHint: 'sk-... / 本地服务可留空',
+    keyHint: 'API Key（本地服务可留空）',
     siteUrl: '',
     allowEmptyKey: true,
     requiresModel: true
@@ -116,7 +117,11 @@ export interface PersistedConfig {
   baseUrls: Record<ProviderId, string>
   stratzToken: string
   model: string
+  customId: string
+  customName: string
+  customProtocol: CustomProtocol
   customModel: string
+  customCatalog: string[]
   effortLevel: string
   depth: Depth
   sourceMode: SourceMode
@@ -148,7 +153,11 @@ function defaults(): PersistedConfig {
     },
     stratzToken: '',
     model: '',
+    customId: '',
+    customName: '自定义',
+    customProtocol: 'chat',
     customModel: '',
+    customCatalog: [],
     effortLevel: '',
     depth: 'rough',
     sourceMode: 'auto',
@@ -176,7 +185,16 @@ function load(): PersistedConfig {
 
     merged.stratzToken = text(parsed.stratzToken)
     merged.model = text(parsed.model)
+    merged.customId = text(parsed.customId)
+    merged.customName = text(parsed.customName) || '自定义'
+    merged.customProtocol =
+      parsed.customProtocol === 'responses' || parsed.customProtocol === 'anthropic'
+        ? parsed.customProtocol
+        : 'chat'
     merged.customModel = text(parsed.customModel)
+    merged.customCatalog = Array.isArray(parsed.customCatalog)
+      ? parsed.customCatalog.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+      : []
     merged.effortLevel = text(parsed.effortLevel)
     merged.depth = parsed.depth === 'advanced' ? 'advanced' : 'rough'
     merged.sourceMode =
@@ -236,6 +254,11 @@ function load(): PersistedConfig {
 export const config = reactive<PersistedConfig>(load())
 
 export const activeProvider = computed(() => PROVIDERS[config.provider])
+
+export function providerName(id: ProviderId = config.provider): string {
+  if (id === 'custom') return config.customName.trim() || '自定义'
+  return PROVIDERS[id].name
+}
 
 export function activeApiKey(): string {
   return config.keys[config.provider] ?? ''

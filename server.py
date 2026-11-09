@@ -134,6 +134,20 @@ def chat_url_for(base):
     return (base or DEFAULT_GO_BASE).rstrip('/') + CHAT_PATH
 
 
+def responses_url_for(base):
+    return (base or DEFAULT_GO_BASE).rstrip('/') + '/responses'
+
+
+def anthropic_url_for(base):
+    base = (base or 'https://api.anthropic.com').rstrip('/')
+    return base + '/messages' if base.endswith('/v1') else base + '/v1/messages'
+
+
+def anthropic_models_url_for(base):
+    base = (base or 'https://api.anthropic.com').rstrip('/')
+    return base + '/models' if base.endswith('/v1') else base + '/v1/models'
+
+
 def provider_base(provider):
     return PROVIDER_BASES.get((provider or '').strip(), DEFAULT_GO_BASE)
 
@@ -257,13 +271,25 @@ class Handler(BaseHTTPRequestHandler):
     def handle_models(self, qs):
         base = (qs.get('base') or [''])[0] or DEFAULT_GO_BASE
         api_key, key_err = clean_token((qs.get('key') or [''])[0])
+        provider = (qs.get('provider') or [''])[0].strip().lower()
+        protocol = (qs.get('protocol') or ['chat'])[0].strip().lower()
         if key_err:
             return self.send_json(400, {'error': key_err})
-        url = models_url_for(base)
-        headers = {'Accept': 'application/json',
-                   'User-Agent': 'TrueSight/0.1 (local)'}
-        if api_key:
-            headers['Authorization'] = 'Bearer ' + api_key
+        if protocol == 'anthropic':
+            url = anthropic_models_url_for(base)
+            headers = {
+                'Accept': 'application/json',
+                'User-Agent': 'TrueSight/0.1 (local)',
+                'anthropic-version': '2023-06-01',
+            }
+            if api_key:
+                headers['x-api-key'] = api_key
+        else:
+            url = models_url_for(base)
+            headers = {'Accept': 'application/json',
+                       'User-Agent': 'TrueSight/0.1 (local)'}
+            if api_key:
+                headers['Authorization'] = 'Bearer ' + api_key
         try:
             req = urllib.request.Request(url, headers=headers, method='GET')
             with urllib.request.urlopen(req, timeout=CONNECT_TIMEOUT) as resp:
@@ -322,29 +348,74 @@ class Handler(BaseHTTPRequestHandler):
         if not model or not isinstance(messages, list) or not messages:
             return self.send_json(400, {'error': '缺少 model 或 messages'})
 
-        upstream = {
-            'model': model,
-            'messages': messages,
-            'stream': True,
-        }
-        if isinstance(payload.get('temperature'), (int, float)):
-            upstream['temperature'] = payload['temperature']
-        effort = payload.get('reasoning_effort')
-        if provider not in ('deepseek', 'xiaomi') and isinstance(effort, str):
-            effort = effort.strip()[:20]
-            # '__omit__' = 用户明确选择不传档位；空字符串同样不传
-            if effort and effort != '__omit__':
-                upstream['reasoning_effort'] = effort
+        protocol = 'chat'
+        if provider == 'custom':
+            protocol = (payload.get('protocol') or 'chat').strip().lower()
+            if protocol not in ('chat', 'responses', 'anthropic'):
+                return self.send_json(400, {'error': '未知的 API 协议：%s' % protocol})
+
+        system_text = '\n\n'.join(
+            str(item.get('content') or '')
+            for item in messages
+            if isinstance(item, dict) and item.get('role') == 'system'
+        ).strip()
+        chat_messages = [
+            item for item in messages
+            if isinstance(item, dict) and item.get('role') != 'system'
+        ]
+
+        if protocol == 'anthropic':
+            upstream = {
+                'model': model,
+                'messages': chat_messages,
+                'max_tokens': 8192,
+                'stream': True,
+            }
+            if system_text:
+                upstream['system'] = system_text
+            if isinstance(payload.get('temperature'), (int, float)):
+                upstream['temperature'] = payload['temperature']
+            endpoint = anthropic_url_for(base)
+        elif protocol == 'responses':
+            upstream = {
+                'model': model,
+                'input': chat_messages,
+                'stream': True,
+            }
+            if system_text:
+                upstream['instructions'] = system_text
+            if isinstance(payload.get('temperature'), (int, float)):
+                upstream['temperature'] = payload['temperature']
+            endpoint = responses_url_for(base)
+        else:
+            upstream = {
+                'model': model,
+                'messages': messages,
+                'stream': True,
+            }
+            if isinstance(payload.get('temperature'), (int, float)):
+                upstream['temperature'] = payload['temperature']
+            effort = payload.get('reasoning_effort')
+            if provider not in ('deepseek', 'xiaomi') and isinstance(effort, str):
+                effort = effort.strip()[:20]
+                # '__omit__' = 用户明确选择不传档位；空字符串同样不传
+                if effort and effort != '__omit__':
+                    upstream['reasoning_effort'] = effort
+            endpoint = chat_url_for(base)
+
         data = json.dumps(upstream).encode('utf-8')
         headers = {
             'Content-Type': 'application/json',
             'Accept': 'text/event-stream',
-            'Authorization': 'Bearer ' + api_key if api_key else '',
             'Connection': 'close',
             'User-Agent': 'TrueSight/0.1',
         }
-        if not api_key:
-            headers.pop('Authorization', None)
+        if protocol == 'anthropic':
+            if api_key:
+                headers['x-api-key'] = api_key
+            headers['anthropic-version'] = '2023-06-01'
+        elif api_key:
+            headers['Authorization'] = 'Bearer ' + api_key
         if provider == 'opencode':
             # 按 Go 文档要求：自有 UA + 稳定会话 ID
             headers['X-OpenCode-Session'] = session_id
@@ -352,7 +423,7 @@ class Handler(BaseHTTPRequestHandler):
         last_exc = None
         for attempt in range(3):
             try:
-                req = urllib.request.Request(chat_url_for(base), data=data,
+                req = urllib.request.Request(endpoint, data=data,
                                              headers=headers, method='POST')
                 upstream_resp = urllib.request.urlopen(req, timeout=READ_TIMEOUT)
                 last_exc = None
@@ -415,6 +486,12 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header('X-Accel-Buffering', 'no')
         self.close_connection = True
         self.end_headers()
+        if protocol == 'anthropic':
+            self.stream_translated_sse(upstream_resp, 'anthropic')
+            return
+        if protocol == 'responses':
+            self.stream_translated_sse(upstream_resp, 'responses')
+            return
         try:
             while True:
                 chunk = upstream_resp.read1(4096)
@@ -426,6 +503,79 @@ class Handler(BaseHTTPRequestHandler):
             pass  # 浏览器关了页面，直接结束
         except Exception as exc:  # noqa: BLE001
             log('upstream stream interrupted: %s' % exc)
+        finally:
+            upstream_resp.close()
+            self.close_connection = True
+
+    def stream_translated_sse(self, upstream_resp, protocol):
+        """把 Anthropic / OpenAI Responses 事件转换成前端使用的 OpenAI chat SSE。"""
+        def emit(payload):
+            self.wfile.write(
+                b'data: ' + json.dumps(payload, ensure_ascii=False).encode('utf-8') + b'\n\n'
+            )
+            self.wfile.flush()
+
+        def emit_done():
+            self.wfile.write(b'data: [DONE]\n\n')
+            self.wfile.flush()
+
+        try:
+            for raw_line in upstream_resp:
+                line = raw_line.decode('utf-8', errors='replace').strip()
+                if not line.startswith('data:'):
+                    continue
+                data = line[5:].strip()
+                if not data:
+                    continue
+                if data == '[DONE]':
+                    emit_done()
+                    break
+                try:
+                    event = json.loads(data)
+                except ValueError:
+                    continue
+
+                text = ''
+                reasoning = ''
+                done = False
+                if protocol == 'anthropic':
+                    typ = event.get('type')
+                    if typ == 'content_block_delta':
+                        delta = event.get('delta') or {}
+                        if delta.get('type') == 'text_delta':
+                            text = delta.get('text') or ''
+                        elif delta.get('type') == 'thinking_delta':
+                            reasoning = delta.get('thinking') or ''
+                    elif typ == 'message_stop':
+                        done = True
+                    elif typ == 'error':
+                        error = event.get('error') or {}
+                        emit({'choices': [{'delta': {'content': '\n[上游错误] ' + str(error.get('message') or error)}}]})
+                        done = True
+                else:
+                    typ = event.get('type')
+                    if typ == 'response.output_text.delta':
+                        text = event.get('delta') or ''
+                    elif typ in ('response.reasoning_summary_text.delta',
+                                 'response.reasoning_text.delta'):
+                        reasoning = event.get('delta') or ''
+                    elif typ in ('response.completed', 'response.incomplete', 'response.failed'):
+                        done = True
+                    elif typ == 'error':
+                        emit({'choices': [{'delta': {'content': '\n[上游错误] ' + str(event.get('message') or event)}}]})
+                        done = True
+
+                if text:
+                    emit({'choices': [{'delta': {'content': text}}]})
+                if reasoning:
+                    emit({'choices': [{'delta': {'reasoning_content': reasoning}}]})
+                if done:
+                    emit_done()
+                    break
+        except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
+            pass
+        except Exception as exc:  # noqa: BLE001
+            log('translated stream interrupted: %s' % exc)
         finally:
             upstream_resp.close()
             self.close_connection = True

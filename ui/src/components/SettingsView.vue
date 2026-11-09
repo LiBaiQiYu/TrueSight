@@ -5,19 +5,23 @@ import {
   config,
   PROVIDERS,
   PROVIDER_LIST,
+  providerName,
   setProvider,
   type ProviderId
 } from '../lib/config'
-import { hasApiKey, modelState, refreshModels } from '../lib/models'
+import { fetchCustomCatalog, hasApiKey, modelState, refreshModels } from '../lib/models'
 
 const emit = defineEmits<{ (e: 'back'): void }>()
 
 const revealKey = ref(false)
 const revealStratz = ref(false)
+const customCatalogLoading = ref(false)
+const customCatalogError = ref('')
 const canMask =
   typeof CSS !== 'undefined' && CSS.supports('-webkit-text-security', 'disc')
 
 const provider = computed(() => PROVIDERS[config.provider])
+const providerLabel = computed(() => providerName())
 const apiKey = computed({
   get: () => config.keys[config.provider] ?? '',
   set: (value: string) => {
@@ -30,6 +34,40 @@ const baseUrl = computed({
     config.baseUrls[config.provider] = value
   }
 })
+const catalogText = computed({
+  get: () => config.customCatalog.join('\n'),
+  set: (value: string) => {
+    config.customCatalog = value
+      .split(/[\n,]/)
+      .map((item) => item.trim())
+      .filter((item, index, list) => item.length > 0 && list.indexOf(item) === index)
+  }
+})
+
+const protocolOptions = [
+  { id: 'chat', label: 'OpenAI Chat Completions' },
+  { id: 'responses', label: 'OpenAI Responses' },
+  { id: 'anthropic', label: 'Anthropic Messages' }
+] as const
+
+async function loadCustomCatalog(): Promise<void> {
+  customCatalogLoading.value = true
+  customCatalogError.value = ''
+  try {
+    const list = await fetchCustomCatalog()
+    config.customCatalog = list
+    if (!list.length) {
+      customCatalogError.value = '接口没有返回可用模型，仍可直接填写模型 ID'
+    } else if (!config.customModel.trim()) {
+      config.customModel = list[0]
+    }
+    await refreshModels()
+  } catch (error) {
+    customCatalogError.value = error instanceof Error ? error.message : String(error)
+  } finally {
+    customCatalogLoading.value = false
+  }
+}
 
 function chooseProvider(id: ProviderId): void {
   if (id === config.provider) return
@@ -53,13 +91,13 @@ const modes = [
 ] as const
 
 const statusText = computed(() => {
-  if (!hasApiKey.value) return `未填写 ${provider.value.name} API Key`
+  if (!hasApiKey.value) return `未填写 ${providerLabel.value} API Key`
   if (modelState.loading) return '正在获取模型…'
   if (modelState.error) return modelState.error
   if (provider.value.models.length) {
-    return `已配置 · ${provider.value.name} · 内置模型 ${modelState.list.length} 个`
+    return `已配置 · ${providerLabel.value} · 内置模型 ${modelState.list.length} 个`
   }
-  return `已连接 · ${provider.value.name} · 可用模型 ${modelState.list.length} 个`
+  return `已连接 · ${providerLabel.value} · 可用模型 ${modelState.list.length} 个`
 })
 </script>
 
@@ -88,7 +126,7 @@ const statusText = computed(() => {
           :class="{ on: config.provider === p.id }"
           @click="chooseProvider(p.id)"
         >
-          {{ p.name }}
+          {{ p.id === 'custom' ? (config.customName.trim() || '自定义') : p.name }}
         </button>
       </div>
       <p class="provider-desc">
@@ -96,54 +134,142 @@ const statusText = computed(() => {
         <a v-if="provider.siteUrl" :href="provider.siteUrl" target="_blank" rel="noopener">获取 API Key</a>
       </p>
 
-      <label class="field-label" for="settings-key">{{ provider.name }} API Key</label>
-      <div class="input-wrap">
-        <input
-          id="settings-key"
-          v-model="apiKey"
-          class="field"
-          :class="{ masked: !revealKey && canMask }"
-          :type="!revealKey && !canMask ? 'password' : 'text'"
-          :autocomplete="!revealKey && !canMask ? 'new-password' : 'off'"
-          :name="'truesight-' + config.provider + '-key'"
-          autocapitalize="off"
-          autocorrect="off"
-          spellcheck="false"
-          data-lpignore="true"
-          data-1p-ignore="true"
-          data-bwignore="true"
-          data-form-type="other"
-          :placeholder="provider.keyHint"
-        />
-        <button class="reveal" type="button" @click="revealKey = !revealKey">
-          <AppIcon :name="revealKey ? 'eyeOff' : 'eye'" :size="16" />
-        </button>
-      </div>
-      <p v-if="provider.allowEmptyKey" class="note key-note">
-        本地 Ollama / LM Studio 可以留空；远程服务请填写 Key。
-      </p>
+      <template v-if="provider.id === 'custom'">
+        <div class="custom-identity">
+          <div>
+            <label class="field-label" for="settings-custom-id">Provider ID</label>
+            <input
+              id="settings-custom-id"
+              v-model="config.customId"
+              class="field mono"
+              spellcheck="false"
+              autocomplete="off"
+              placeholder="acme-gateway"
+            />
+            <p class="note field-note">小写字母开头，用于标识该提供商。</p>
+          </div>
+          <div>
+            <label class="field-label" for="settings-custom-name">显示名称</label>
+            <input
+              id="settings-custom-name"
+              v-model="config.customName"
+              class="field"
+              spellcheck="false"
+              autocomplete="off"
+              placeholder="显示名称"
+            />
+          </div>
+        </div>
 
-      <template v-if="provider.requiresModel">
-        <label class="field-label" for="settings-model">模型名称</label>
+        <label class="field-label" for="settings-base">API 地址</label>
+        <input
+          id="settings-base"
+          v-model="baseUrl"
+          class="field mono"
+          spellcheck="false"
+          autocomplete="off"
+          placeholder="https://gateway.example/v1"
+        />
+
+        <label class="field-label" for="settings-protocol">API 协议</label>
+        <select id="settings-protocol" v-model="config.customProtocol" class="field">
+          <option v-for="p in protocolOptions" :key="p.id" :value="p.id">{{ p.label }}</option>
+        </select>
+
+        <label class="field-label" for="settings-custom-key">API 密钥</label>
+        <div class="input-wrap">
+          <input
+            id="settings-custom-key"
+            v-model="apiKey"
+            class="field"
+            :class="{ masked: !revealKey && canMask }"
+            :type="!revealKey && !canMask ? 'password' : 'text'"
+            :autocomplete="!revealKey && !canMask ? 'new-password' : 'off'"
+            name="truesight-custom-key"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            data-lpignore="true"
+            data-1p-ignore="true"
+            data-bwignore="true"
+            data-form-type="other"
+            :placeholder="provider.keyHint"
+          />
+          <button class="reveal" type="button" @click="revealKey = !revealKey">
+            <AppIcon :name="revealKey ? 'eyeOff' : 'eye'" :size="16" />
+          </button>
+        </div>
+        <p class="note key-note">本地 Ollama / LM Studio 可以留空；远程服务请填写 Key。</p>
+
+        <label class="field-label" for="settings-model">模型 ID</label>
         <input
           id="settings-model"
           v-model="config.customModel"
           class="field mono"
           spellcheck="false"
           autocomplete="off"
-          placeholder="例如：qwen2.5-72b-instruct"
+          placeholder="例如：gpt-5.1 或 mimo-v2.6-flash"
         />
+        <p class="note field-note">目录为空时，模型选择器不显示模型；此 ID 仍会直接发送。</p>
+
+        <label class="field-label" for="settings-catalog">模型目录</label>
+        <textarea
+          id="settings-catalog"
+          v-model="catalogText"
+          class="field catalog-field"
+          spellcheck="false"
+          rows="3"
+          placeholder="每行一个模型 ID，可留空"
+        />
+        <div class="catalog-line">
+          <button
+            class="btn btn-ghost small"
+            type="button"
+            :disabled="customCatalogLoading"
+            @click="loadCustomCatalog"
+          >
+            <AppIcon name="refresh" :size="13" :class="{ spin: customCatalogLoading }" />
+            获取可用模型
+          </button>
+          <span v-if="customCatalogError" class="catalog-error">{{ customCatalogError }}</span>
+        </div>
       </template>
 
-      <label class="field-label" for="settings-base">接口地址</label>
-      <input
-        id="settings-base"
-        v-model="baseUrl"
-        class="field mono"
-        spellcheck="false"
-        autocomplete="off"
-        :placeholder="provider.defaultBaseUrl || 'https://your-endpoint/v1'"
-      />
+      <template v-else>
+        <label class="field-label" for="settings-key">{{ providerLabel }} API Key</label>
+        <div class="input-wrap">
+          <input
+            id="settings-key"
+            v-model="apiKey"
+            class="field"
+            :class="{ masked: !revealKey && canMask }"
+            :type="!revealKey && !canMask ? 'password' : 'text'"
+            :autocomplete="!revealKey && !canMask ? 'new-password' : 'off'"
+            :name="'truesight-' + config.provider + '-key'"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            data-lpignore="true"
+            data-1p-ignore="true"
+            data-bwignore="true"
+            data-form-type="other"
+            :placeholder="provider.keyHint"
+          />
+          <button class="reveal" type="button" @click="revealKey = !revealKey">
+            <AppIcon :name="revealKey ? 'eyeOff' : 'eye'" :size="16" />
+          </button>
+        </div>
+
+        <label class="field-label" for="settings-base">接口地址</label>
+        <input
+          id="settings-base"
+          v-model="baseUrl"
+          class="field mono"
+          spellcheck="false"
+          autocomplete="off"
+          :placeholder="provider.defaultBaseUrl || 'https://your-endpoint/v1'"
+        />
+      </template>
 
       <div v-if="provider.altBaseUrl" class="line-row">
         <span class="line-label">线路</span>
@@ -385,6 +511,48 @@ const statusText = computed(() => {
   border: 1px solid var(--line);
 }
 
+.custom-identity {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.custom-identity .field-label {
+  margin-top: 12px;
+}
+
+.field-note {
+  margin: 6px 0 0;
+  font-size: 10.5px;
+  line-height: 1.5;
+}
+
+.catalog-field {
+  min-height: 72px;
+  resize: vertical;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+
+.catalog-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.catalog-line .small {
+  margin-left: 0;
+}
+
+.catalog-error {
+  font-size: 11px;
+  color: var(--dire);
+  line-height: 1.5;
+}
+
 .provider {
   height: 30px;
   padding: 0 18px;
@@ -561,6 +729,10 @@ const statusText = computed(() => {
 
 @media (max-width: 640px) {
   .themes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .custom-identity {
     grid-template-columns: minmax(0, 1fr);
   }
 }

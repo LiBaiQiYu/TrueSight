@@ -4,6 +4,7 @@ import {
   activeBaseUrl,
   config,
   defaultLevel,
+  providerName,
   PROVIDERS
 } from './config'
 
@@ -84,16 +85,23 @@ export async function refreshModels(): Promise<void> {
     modelState.loading = false
     return
   }
-  // 自定义服务使用手动模型名，不请求 /v1/models
+  // 自定义服务使用目录 + 手动模型 ID，不自动请求 /models
   if (provider.id === 'custom') {
-    const model = config.customModel.trim()
-    if (!model) {
+    const manual = config.customModel.trim()
+    const list = [...config.customCatalog]
+    if (manual && !list.includes(manual)) list.unshift(manual)
+    if (!list.length) {
       clearModels()
-      modelState.error = '请填写自定义模型名称'
+      modelState.error = '请填写模型 ID 或先获取模型目录'
       modelState.loading = false
       return
     }
-    useStaticModels([model])
+    modelState.list = list
+    modelState.meta = {}
+    modelState.error = ''
+    modelState.loading = false
+    if (manual) config.model = manual
+    else if (!config.model || !list.includes(config.model)) config.model = list[0] ?? ''
     return
   }
   // MiniMax 等内置模型清单：不依赖 /v1/models（该接口在 MiniMax 上不可用）
@@ -118,12 +126,12 @@ export async function refreshModels(): Promise<void> {
       body = null
     }
     if (res.status === 401) {
-      modelState.error = `${provider.name} API Key 无效或已过期`
+      modelState.error = `${providerName()} API Key 无效或已过期`
       clearModels()
       return
     }
     if (!res.ok || !body) {
-      throw new Error(body?.error || `拉取 ${provider.name} 模型列表失败: HTTP ` + res.status)
+      throw new Error(body?.error || `拉取 ${providerName()} 模型列表失败: HTTP ` + res.status)
     }
     const list: string[] = []
     const meta: Record<string, ModelMeta> = {}
@@ -154,6 +162,38 @@ export async function refreshModels(): Promise<void> {
   }
 }
 
+export async function fetchCustomCatalog(): Promise<string[]> {
+  const base = activeBaseUrl().trim()
+  if (!base) throw new Error('请先填写 API 地址')
+  const { key, error } = normalizeKey(activeApiKey())
+  if (error) throw new Error(error)
+
+  const url =
+    '/api/models?base=' +
+    encodeURIComponent(base) +
+    '&key=' +
+    encodeURIComponent(key) +
+    '&provider=custom&protocol=' +
+    encodeURIComponent(config.customProtocol)
+  const res = await fetch(url)
+  const text = await res.text()
+  let body: { data?: ApiModel[]; error?: string } | null = null
+  try {
+    body = JSON.parse(text)
+  } catch {
+    body = null
+  }
+  if (!res.ok || !body) {
+    throw new Error(body?.error || `获取模型目录失败: HTTP ${res.status}`)
+  }
+  const list: string[] = []
+  for (const item of body.data ?? []) {
+    const id = typeof item.id === 'string' ? item.id.trim() : ''
+    if (id && !list.includes(id)) list.push(id)
+  }
+  return list
+}
+
 function schedule(delay: number): void {
   if (timer) window.clearTimeout(timer)
   timer = window.setTimeout(() => {
@@ -165,7 +205,9 @@ watch(
   [
     () => config.keys[config.provider],
     () => config.baseUrls[config.provider],
-    () => config.customModel
+    () => config.customProtocol,
+    () => config.customModel,
+    () => config.customCatalog
   ],
   () => schedule(600)
 )

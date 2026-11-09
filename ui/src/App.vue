@@ -584,6 +584,7 @@ async function start(): Promise<void> {
     await streamChat({
       apiKey: activeApiKey().trim(),
       provider: config.provider,
+      protocol: config.provider === 'custom' ? config.customProtocol : undefined,
       baseUrl: activeBaseUrl(),
       model: config.model,
       effort: config.effortLevel || undefined,

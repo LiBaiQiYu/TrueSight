@@ -6,6 +6,7 @@ export interface ChatMessage {
 export interface StreamOptions {
   apiKey: string
   provider?: string
+  protocol?: string
   baseUrl: string
   model: string
   effort?: string
@@ -20,6 +21,7 @@ export async function streamChat(opts: StreamOptions): Promise<string> {
   const payload: Record<string, unknown> = {
     apiKey: opts.apiKey,
     provider: opts.provider,
+    protocol: opts.protocol,
     baseUrl: opts.baseUrl || undefined,
     model: opts.model,
     sessionId: opts.sessionId,
