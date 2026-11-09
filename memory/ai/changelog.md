@@ -4,6 +4,7 @@
 
 ## 2026-11-09
 
+- 修复 Portable 高级分析找不到 Clarity：首次启动把 `resources/backend` 复制到 `%APPDATA%\TrueSight\portable-backend`，避免系统清理临时目录后 classes/lib/jre 丢失；使用稳定 backend 启动 Python/Java。
 - 自定义推理档位改为标签编辑器：预设低/中/高/xhigh/max/ultra 可选，支持逗号/回车生成标签、× 移除和任意补充档位。
 - 自定义模型目录自动识别思考档位：解析 `capabilities.reasoning.effort`、`reasoning.effort`、`thinkingLevelMap`，有元数据时自动填充 ultra 等档位，无元数据时保留手动填写。
 - 自定义模型新增推理档位输入，支持 `ultra` 等非标准档位；留空不发送 `reasoning_effort`，OpenAI Responses 写入 `reasoning.effort`。

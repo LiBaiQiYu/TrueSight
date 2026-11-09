@@ -13,6 +13,7 @@
 
 ## 2026-11-09 Electron 渲染策略
 
+- Portable 首次启动复制 `resources/backend` 到 `%APPDATA%\TrueSight\portable-backend`，避免临时目录清理丢失 classes/lib/jre；
 - 桌面客户端默认启用硬件加速，不再无条件调用 `app.disableHardwareAcceleration()`；
 - 启动时加 `ignore-gpu-blocklist`、`enable-gpu-rasterization`、`use-angle=d3d11`、`force_high_performance_gpu`；
 - 仅在驱动异常时用 `TRUESIGHT_DISABLE_GPU=1` 降级；

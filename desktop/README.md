@@ -76,6 +76,14 @@ desktop/
 
 这是通过 `TRUESIGHT_DATA_DIR` 传给 `server.py` 的；Web 模式不设置该变量，仍使用项目根目录，行为不变。
 
+Portable 版本会额外把 `resources/backend` 复制到：
+
+```text
+%APPDATA%\TrueSight\portable-backend\
+```
+
+因为 Portable 本体解压到系统临时目录，Windows 清理临时文件时可能删掉 `classes`、`lib`、`jre`，导致高级分析找不到 Clarity。复制后 Python、Java、Clarity 和 JRE 都从稳定目录运行。
+
 ## 生产打包
 
 ```powershell
@@ -154,6 +162,21 @@ runtime/python/
    - `classes/skadistats/clarity/bench/MatchJsonMain.class`
    - `lib/*.jar`
    - `ui/dist/index.html`
+
+### Portable 高级分析报找不到 Clarity
+
+Portable 会解压到临时目录，系统清理临时文件后可能只剩 Python 运行时。新版本首次启动会自动复制 backend 到稳定目录：
+
+```text
+%APPDATA%\TrueSight\portable-backend
+```
+
+如果仍报错：
+
+1. 完全退出旧 Portable 和残留 `TrueSight.exe`；
+2. 用新版 Portable 或 Setup 重新启动；
+3. 确认 `%APPDATA%\TrueSight\portable-backend\classes` 存在；
+4. 查看 `%APPDATA%\TrueSight\data\logs\backend.log` 中是否有 `portable backend ready`。
 
 当前固定使用 **Electron 44.0.0**。Electron 45 在该机器上启动异常，因此未采用。
 

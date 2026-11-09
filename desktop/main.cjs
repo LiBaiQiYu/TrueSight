@@ -22,7 +22,7 @@ if (process.env.TRUESIGHT_DISABLE_GPU === '1') {
 const projectRoot = path.resolve(__dirname, '..')
 const packagedBackendDir = path.join(process.resourcesPath, 'backend')
 const isDev = !fs.existsSync(path.join(packagedBackendDir, 'server.py'))
-const backendDir = isDev ? projectRoot : packagedBackendDir
+let backendDir = isDev ? projectRoot : packagedBackendDir
 const smokeTest = process.argv.indexOf('--smoke-test') !== -1
 
 let backend = null
@@ -36,6 +36,73 @@ function appDataDir() {
   const dir = path.join(app.getPath('userData'), 'data')
   fs.mkdirSync(dir, { recursive: true })
   return dir
+}
+
+function backendComplete(dir) {
+  try {
+    const jars = fs.readdirSync(path.join(dir, 'lib')).filter(function (name) {
+      return name.toLowerCase().endsWith('.jar')
+    })
+    return (
+      fs.existsSync(path.join(dir, 'server.py')) &&
+      fs.existsSync(path.join(dir, 'classes', 'skadistats', 'clarity', 'bench', 'MatchJsonMain.class')) &&
+      fs.existsSync(path.join(dir, 'jre', 'bin', 'java.exe')) &&
+      fs.existsSync(path.join(dir, 'runtime', 'python', 'python.exe')) &&
+      fs.existsSync(path.join(dir, 'ui', 'dist', 'index.html')) &&
+      jars.length > 0
+    )
+  } catch (error) {
+    return false
+  }
+}
+
+function isPortableInstance() {
+  if (process.env.PORTABLE_EXECUTABLE_DIR) return true
+  const temp = (process.env.TEMP || '').toLowerCase()
+  return isDev || !temp ? false : process.resourcesPath.toLowerCase().indexOf(temp) === 0
+}
+
+// electron-builder 的 portable 版本会解压到临时目录；Windows 清理临时文件后，
+// classes/lib/jre 会消失，导致高级分析找不到 Clarity。首次运行时复制到稳定的
+// 用户数据目录，后续都从这里启动。
+function preparePortableBackend() {
+  if (isDev || !isPortableInstance()) return
+  const source = packagedBackendDir
+  const stable = path.join(app.getPath('userData'), 'portable-backend')
+  const marker = path.join(stable, '.portable-version')
+  const sourceComplete = backendComplete(source)
+  let fingerprint = ''
+  if (sourceComplete) {
+    try {
+      const stat = fs.statSync(path.join(source, 'server.py'))
+      fingerprint = app.getVersion() + ':' + stat.size + ':' + Math.round(stat.mtimeMs)
+    } catch {
+      fingerprint = ''
+    }
+  }
+  if (backendComplete(stable) && fs.existsSync(marker)) {
+    const stableFingerprint = fs.readFileSync(marker, 'utf8').trim()
+    if (!fingerprint || stableFingerprint === fingerprint) {
+      backendDir = stable
+      return
+    }
+  }
+  if (!sourceComplete) {
+    writeLog('portable source backend is incomplete: ' + source)
+    return
+  }
+  try {
+    writeLog('prepare portable backend: ' + stable)
+    fs.rmSync(stable, { recursive: true, force: true })
+    fs.mkdirSync(stable, { recursive: true })
+    fs.cpSync(source, stable, { recursive: true, force: true })
+    fs.writeFileSync(marker, fingerprint, 'utf8')
+    backendDir = stable
+    writeLog('portable backend ready: ' + stable)
+  } catch (error) {
+    writeLog('prepare portable backend failed: ' + error.message)
+    backendDir = source
+  }
 }
 
 function logFile() {
@@ -245,6 +312,7 @@ function createWindow(port) {
 
 async function start() {
   try {
+    preparePortableBackend()
     const port = await startBackend()
     if (smokeTest) {
       console.log('TRUESIGHT_SMOKE_OK http://127.0.0.1:' + port)
