@@ -7,7 +7,7 @@
 - 提供商：OpenCode Go、MiniMax、DeepSeek、OpenAI/Codex API、小米 MiMo、自定义；
 - 自定义 provider 支持三种协议：OpenAI Chat Completions、OpenAI Responses、Anthropic Messages；
 - 自定义模型名由设置页手动填写，不请求 `/models`；模型目录可手动填入或通过接口获取；
-- 自定义推理档位可填写任意值（包括 `ultra`），留空不发送；OpenAI 兼容动态模型若在 capabilities 中返回档位，也会按返回值展示；
+- 自定义推理档位可填写任意值（包括 `ultra`），留空不发送；OpenAI 兼容动态模型若在 `capabilities.reasoning.effort`、`reasoning.effort` 或 `thinkingLevelMap` 中返回档位，也会自动展示；
 - Claude Code / Codex 的订阅登录与 API Key 不是同一件事；当前只接 API Key 类服务，不把订阅 OAuth 混入模型设置；
 - DeepSeek / MiMo 不发送 `reasoning_effort`。
 

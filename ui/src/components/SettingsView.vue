@@ -17,6 +17,7 @@ const revealKey = ref(false)
 const revealStratz = ref(false)
 const customCatalogLoading = ref(false)
 const customCatalogError = ref('')
+const customCatalogNote = ref('')
 const canMask =
   typeof CSS !== 'undefined' && CSS.supports('-webkit-text-security', 'disc')
 
@@ -62,13 +63,20 @@ const protocolOptions = [
 async function loadCustomCatalog(): Promise<void> {
   customCatalogLoading.value = true
   customCatalogError.value = ''
+  customCatalogNote.value = ''
   try {
-    const list = await fetchCustomCatalog()
-    config.customCatalog = list
-    if (!list.length) {
+    const result = await fetchCustomCatalog()
+    config.customCatalog = result.models
+    if (result.efforts.length) {
+      if (!config.customEfforts.length) config.customEfforts = result.efforts
+      customCatalogNote.value = '模型接口返回的思考档位：' + result.efforts.join(' / ')
+    } else {
+      customCatalogNote.value = '该接口没有返回思考档位，可在上方手动填写'
+    }
+    if (!result.models.length) {
       customCatalogError.value = '接口没有返回可用模型，仍可直接填写模型 ID'
     } else if (!config.customModel.trim()) {
-      config.customModel = list[0]
+      config.customModel = result.models[0]
     }
     await refreshModels()
   } catch (error) {
@@ -253,6 +261,7 @@ const statusText = computed(() => {
           </button>
           <span v-if="customCatalogError" class="catalog-error">{{ customCatalogError }}</span>
         </div>
+        <p v-if="customCatalogNote" class="note field-note">{{ customCatalogNote }}</p>
       </template>
 
       <template v-else>

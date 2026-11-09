@@ -18,6 +18,13 @@ interface ApiModel {
   capabilities?: {
     reasoning?: { supported?: boolean; effort?: string[]; toggle?: boolean }
   }
+  reasoning?: { effort?: string[] }
+  thinkingLevelMap?: Record<string, unknown>
+}
+
+export interface CustomCatalogResult {
+  models: string[]
+  efforts: string[]
 }
 
 export const modelState = reactive({
@@ -162,7 +169,7 @@ export async function refreshModels(): Promise<void> {
   }
 }
 
-export async function fetchCustomCatalog(): Promise<string[]> {
+export async function fetchCustomCatalog(): Promise<CustomCatalogResult> {
   const base = activeBaseUrl().trim()
   if (!base) throw new Error('请先填写 API 地址')
   const { key, error } = normalizeKey(activeApiKey())
@@ -186,12 +193,28 @@ export async function fetchCustomCatalog(): Promise<string[]> {
   if (!res.ok || !body) {
     throw new Error(body?.error || `获取模型目录失败: HTTP ${res.status}`)
   }
-  const list: string[] = []
+  const models: string[] = []
+  const efforts = new Set<string>()
   for (const item of body.data ?? []) {
     const id = typeof item.id === 'string' ? item.id.trim() : ''
-    if (id && !list.includes(id)) list.push(id)
+    if (id && !models.includes(id)) models.push(id)
+    const declared = [
+      ...(Array.isArray(item.capabilities?.reasoning?.effort)
+        ? item.capabilities.reasoning.effort
+        : []),
+      ...(Array.isArray(item.reasoning?.effort) ? item.reasoning.effort : [])
+    ]
+    if (item.thinkingLevelMap && typeof item.thinkingLevelMap === 'object') {
+      for (const [level, mapped] of Object.entries(item.thinkingLevelMap)) {
+        if (mapped !== null && mapped !== undefined) declared.push(level)
+      }
+    }
+    for (const level of declared) {
+      const value = typeof level === 'string' ? level.trim().toLowerCase() : ''
+      if (value) efforts.add(value)
+    }
   }
-  return list
+  return { models, efforts: [...efforts] }
 }
 
 function schedule(delay: number): void {
