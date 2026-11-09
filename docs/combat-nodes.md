@@ -1,7 +1,15 @@
 # 战斗节点（Combat Nodes）
 
-> 状态：功能定义，待实现。  
+> 状态：已实现 schema 9 + 新面板。  
 > 目标位置：时间轴弹窗 → 原「团战」Tab。
+
+## 0. 实现状态
+
+- 回放导出器 schema 9 增加 `combat.events` 与 1 秒 `combat.samples`；
+- 新面板 `CombatNodePanel.vue` 已接入时间轴；
+- 旧 schema 8 缓存会自动失效并重新解析；
+- 当前节点算法集中在 `ui/src/lib/combatNodes.ts`。
+
 
 ## 1. 产品定义
 

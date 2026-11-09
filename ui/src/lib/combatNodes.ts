@@ -1,0 +1,530 @@
+import type { NamesIndex } from './names'
+import type { OpenDotaMatch, OpenDotaPlayer } from './opendota'
+import type {
+  ReplayCombatEvent,
+  ReplayCombatSample,
+  ReplayParse,
+  ReplayPlayer
+} from './replay'
+
+export type DamageType = 'physical' | 'magical' | 'pure' | 'other'
+export type Side = 'radiant' | 'dire'
+export type CombatNodeType = 'solo' | 'skirmish' | 'teamfight' | 'multi' | 'assist'
+export type FocusRole = 'kill' | 'death' | 'assist' | 'multi' | 'participant'
+
+export interface DamageBreakdown {
+  physical: number
+  magical: number
+  pure: number
+  other: number
+  total: number
+}
+
+export interface CombatHero {
+  slot: number
+  heroId: number
+  heroName: string
+  playerName: string
+  side: Side
+  kills: number
+  assists: number
+  deaths: number
+  damage: DamageBreakdown
+  taken: DamageBreakdown
+  healing: number
+  basicHits: number
+  basicDamage: number
+  abilities: Array<{ key: string; label: string; count: number }>
+  items: Array<{ key: string; label: string; count: number }>
+  hp: { start: number | null; min: number | null; end: number | null }
+  mp: { start: number | null; min: number | null; end: number | null }
+  gold: { start: number | null; end: number | null; delta: number | null }
+  xp: { start: number | null; end: number | null; delta: number | null }
+  level: { start: number | null; end: number | null }
+}
+
+export interface IncomingDamage {
+  actorSlot: number
+  actorHero: string
+  actorName: string
+  source: string
+  sourceType: 'basic' | 'ability' | 'item' | 'other'
+  damageType: DamageType
+  hits: number
+  damage: number
+}
+
+export interface CombatDeath {
+  t: number
+  targetSlot: number
+  targetHero: string
+  killerSlot: number | null
+  killerHero: string
+  assists: number[]
+}
+
+export interface CombatTimelineEvent {
+  t: number
+  kind: 'DAMAGE' | 'ABILITY' | 'ITEM' | 'HEAL' | 'DEATH'
+  actorSlot: number | null
+  actorHero: string
+  targetSlot: number | null
+  targetHero: string
+  label: string
+  value: number
+  damageType?: DamageType
+}
+
+export interface CombatNode {
+  index: number
+  start: number
+  end: number
+  duration: number
+  type: CombatNodeType
+  focusRole: FocusRole
+  result: Side | 'even'
+  focusSlot: number
+  participants: CombatHero[]
+  focus: CombatHero | null
+  deaths: CombatDeath[]
+  incoming: IncomingDamage[]
+  timeline: CombatTimelineEvent[]
+}
+
+const MERGE_WINDOW = 12
+const WINDOW_BEFORE = 8
+const WINDOW_AFTER = 8
+const MAX_TIMELINE = 180
+
+function emptyDamage(): DamageBreakdown {
+  return { physical: 0, magical: 0, pure: 0, other: 0, total: 0 }
+}
+
+function damageType(value: number): DamageType {
+  if (value === 1) return 'physical'
+  if (value === 2) return 'magical'
+  if (value === 4) return 'pure'
+  return 'other'
+}
+
+function normalizedUnit(unit: string): string {
+  const value = (unit || '').toLowerCase()
+  if (value.includes('lone_druid_bear')) return 'npc_dota_hero_lone_druid'
+  return value
+}
+
+function sourceType(inflictor: string): 'basic' | 'ability' | 'item' | 'other' {
+  if (!inflictor) return 'basic'
+  if (inflictor.startsWith('item_')) return 'item'
+  if (inflictor.startsWith('npc_dota_')) return 'other'
+  return 'ability'
+}
+
+function sourceLabel(
+  inflictor: string,
+  names: NamesIndex | null
+): string {
+  if (!inflictor) return '普通攻击'
+  if (inflictor.startsWith('item_')) {
+    return names?.itemByKey.get(inflictor)?.cn || names?.itemByKey.get(inflictor)?.en || inflictor
+  }
+  return names?.abilityByKey.get(inflictor)?.cn || names?.abilityByKey.get(inflictor)?.en || inflictor
+}
+
+function emptyHero(
+  slot: number,
+  player: OpenDotaPlayer | undefined,
+  replayPlayer: ReplayPlayer | undefined,
+  names: NamesIndex | null
+): CombatHero {
+  const heroId = player?.hero_id ?? 0
+  const named = names?.heroById.get(heroId)
+  return {
+    slot,
+    heroId,
+    heroName: named?.cn || named?.en || replayPlayer?.hero || `英雄 ${heroId}`,
+    playerName: player?.personaname || player?.name || replayPlayer?.name || `玩家 ${slot + 1}`,
+    side: replayPlayer?.team === 3 || player?.isRadiant === false ? 'dire' : 'radiant',
+    kills: 0,
+    assists: 0,
+    deaths: 0,
+    damage: emptyDamage(),
+    taken: emptyDamage(),
+    healing: 0,
+    basicHits: 0,
+    basicDamage: 0,
+    abilities: [],
+    items: [],
+    hp: { start: null, min: null, end: null },
+    mp: { start: null, min: null, end: null },
+    gold: { start: null, end: null, delta: null },
+    xp: { start: null, end: null, delta: null },
+    level: { start: null, end: null }
+  }
+}
+
+function addAbility(row: CombatHero, key: string, label: string): void {
+  const hit = row.abilities.find((entry) => entry.key === key)
+  if (hit) hit.count += 1
+  else row.abilities.push({ key, label, count: 1 })
+}
+
+function addItem(row: CombatHero, key: string, label: string): void {
+  const hit = row.items.find((entry) => entry.key === key)
+  if (hit) hit.count += 1
+  else row.items.push({ key, label, count: 1 })
+}
+
+function clamp(value: number, low: number, high: number): number {
+  return Math.max(low, Math.min(high, value))
+}
+
+interface Seed {
+  event: ReplayCombatEvent
+  t: number
+  participants: Set<number>
+  x: number
+  y: number
+}
+
+export function buildCombatNodes(
+  match: OpenDotaMatch,
+  replay: ReplayParse | null | undefined,
+  names: NamesIndex | null
+): CombatNode[] {
+  const combat = replay?.combat
+  if (!replay || !combat?.events?.length) return []
+
+  const players = replay.players ?? []
+  const unitToSlot = new Map<string, number>()
+  const slotToReplay = new Map<number, ReplayPlayer>()
+  for (const player of players) {
+    unitToSlot.set(normalizedUnit(player.hero), player.slot)
+    slotToReplay.set(player.slot, player)
+  }
+  const focusUnit = normalizedUnit(replay.focus?.unit ?? '')
+  const focusSlot = unitToSlot.get(focusUnit)
+  if (focusSlot == null) return []
+
+  const events = combat.events
+  const samples = combat.samples ?? []
+  const deaths = events.filter((event) => event[1] === 'DEATH')
+  const focusAnchors: Seed[] = deaths
+    .map((event) => {
+      const attackerSlot = unitToSlot.get(normalizedUnit(event[2]))
+      const targetSlot = unitToSlot.get(normalizedUnit(event[3]))
+      const assists = Array.isArray(event[10]) ? event[10] : []
+      const involved =
+        attackerSlot === focusSlot ||
+        targetSlot === focusSlot ||
+        assists.includes(focusSlot)
+      if (!involved) return null
+      const participants = new Set<number>()
+      if (attackerSlot != null) participants.add(attackerSlot)
+      if (targetSlot != null) participants.add(targetSlot)
+      for (const slot of assists) participants.add(slot)
+      participants.add(focusSlot)
+      return {
+        event,
+        t: event[0],
+        participants,
+        x: event[12],
+        y: event[13]
+      }
+    })
+    .filter((seed): seed is Seed => seed != null)
+
+  if (!focusAnchors.length) return []
+
+  const groups: Seed[][] = []
+  for (const seed of focusAnchors) {
+    const current = groups[groups.length - 1]
+    if (!current) {
+      groups.push([seed])
+      continue
+    }
+    const previous = current[current.length - 1]
+    const shared = [...seed.participants].some((slot) => previous.participants.has(slot))
+    const distance =
+      seed.x > 0 && seed.y > 0 && previous.x > 0 && previous.y > 0
+        ? Math.hypot(seed.x - previous.x, seed.y - previous.y)
+        : Number.POSITIVE_INFINITY
+    if (seed.t - previous.t <= MERGE_WINDOW && (shared || distance <= 2500)) {
+      current.push(seed)
+    } else {
+      groups.push([seed])
+    }
+  }
+
+  const nodes: CombatNode[] = []
+  for (const group of groups) {
+    const start = Math.max(0, group[0].t - WINDOW_BEFORE)
+    const end = group[group.length - 1].t + WINDOW_AFTER
+    const focusRole: FocusRole =
+      group.some((seed) => seed.event[2] && unitToSlot.get(normalizedUnit(seed.event[2])) === focusSlot)
+        ? 'kill'
+        : group.some((seed) => seed.event[3] && unitToSlot.get(normalizedUnit(seed.event[3])) === focusSlot)
+          ? 'death'
+          : 'assist'
+
+    const seedParticipants = new Set<number>()
+    for (const seed of group) {
+      for (const slot of seed.participants) seedParticipants.add(slot)
+    }
+
+    const windowEvents = events.filter((event) => event[0] >= start && event[0] <= end)
+    // Include heroes connected to the seed by damage/heal/assist events. This
+    // keeps unrelated lane kills out while still including support players who
+    // casted first and never got the kill.
+    let changed = true
+    while (changed) {
+      changed = false
+      for (const event of windowEvents) {
+        const actor = unitToSlot.get(normalizedUnit(event[2]))
+        const target = unitToSlot.get(normalizedUnit(event[3]))
+        if (actor != null && seedParticipants.has(actor) && target != null && !seedParticipants.has(target)) {
+          seedParticipants.add(target)
+          changed = true
+        }
+        if (target != null && seedParticipants.has(target) && actor != null && !seedParticipants.has(actor)) {
+          seedParticipants.add(actor)
+          changed = true
+        }
+      }
+    }
+
+    const heroes = new Map<number, CombatHero>()
+    for (const slot of seedParticipants) {
+      const player = match.players[slot]
+      heroes.set(slot, emptyHero(slot, player, slotToReplay.get(slot), names))
+    }
+
+    const incomingMap = new Map<string, IncomingDamage>()
+    const deathRows: CombatDeath[] = []
+    const timeline: CombatTimelineEvent[] = []
+    const radiantDeaths = { radiant: 0, dire: 0 }
+    const samplesBySlot = new Map<number, ReplayCombatSample[]>()
+    for (const sample of samples) {
+      if (sample[0] < start - 1 || sample[0] > end + 1) continue
+      const list = samplesBySlot.get(sample[1]) ?? []
+      list.push(sample)
+      samplesBySlot.set(sample[1], list)
+    }
+
+    const getHero = (slot: number | null): CombatHero | null => {
+      if (slot == null) return null
+      return heroes.get(slot) ?? null
+    }
+
+    for (const event of windowEvents) {
+      const kind = event[1]
+      const actorSlot = unitToSlot.get(normalizedUnit(event[2])) ?? null
+      const targetSlot = unitToSlot.get(normalizedUnit(event[3])) ?? null
+      const actor = getHero(actorSlot)
+      const target = getHero(targetSlot)
+      const inflictor = event[4] || ''
+      const value = Math.max(0, event[5] || 0)
+      const type = damageType(event[6])
+      const actorUnit = event[2] ? normalizedUnit(event[2]) : ''
+      const targetUnit = event[3] ? normalizedUnit(event[3]) : ''
+      const actorInNode = actorSlot != null && heroes.has(actorSlot)
+      const targetInNode = targetSlot != null && heroes.has(targetSlot)
+      if (kind !== 'DEATH' && !actorInNode && !targetInNode) continue
+
+      if (kind === 'DEATH') {
+        if (targetSlot != null) {
+          const victim = getHero(targetSlot)
+          if (victim) {
+            victim.deaths += 1
+            radiantDeaths[victim.side] += 1
+          }
+        }
+        const killer = actorSlot != null ? getHero(actorSlot) : null
+        if (killer) killer.kills += 1
+        const assists = Array.isArray(event[10]) ? event[10] : []
+        for (const slot of assists) {
+          const helper = getHero(slot)
+          if (helper) helper.assists += 1
+        }
+        deathRows.push({
+          t: event[0],
+          targetSlot: targetSlot ?? -1,
+          targetHero: target ? target.heroName : targetUnit,
+          killerSlot: actorSlot,
+          killerHero: actor ? actor.heroName : actorUnit,
+          assists: [...assists]
+        })
+        timeline.push({
+          t: event[0],
+          kind,
+          actorSlot,
+          actorHero: actor?.heroName ?? actorUnit,
+          targetSlot,
+          targetHero: target?.heroName ?? targetUnit,
+          label: actor ? `${actor.heroName} 击杀 ${target?.heroName ?? targetUnit}` : `${target?.heroName ?? targetUnit} 阵亡`,
+          value: 0
+        })
+        continue
+      }
+
+      if (kind === 'DAMAGE') {
+        if (actor) {
+          actor.damage[type] += value
+          actor.damage.total += value
+          if (sourceType(inflictor) === 'basic') {
+            actor.basicHits += 1
+            actor.basicDamage += value
+          }
+        }
+        if (target) {
+          target.taken[type] += value
+          target.taken.total += value
+        }
+        if (targetSlot === focusSlot && actorSlot != null) {
+          const label = sourceLabel(inflictor, names)
+          const key = `${actorSlot}|${inflictor}|${type}`
+          const hit = incomingMap.get(key) ?? {
+            actorSlot,
+            actorHero: actor?.heroName ?? actorUnit,
+            actorName: actor?.playerName ?? '',
+            source: label,
+            sourceType: sourceType(inflictor),
+            damageType: type,
+            hits: 0,
+            damage: 0
+          }
+          hit.hits += 1
+          hit.damage += value
+          incomingMap.set(key, hit)
+        }
+        timeline.push({
+          t: event[0],
+          kind,
+          actorSlot,
+          actorHero: actor?.heroName ?? actorUnit,
+          targetSlot,
+          targetHero: target?.heroName ?? targetUnit,
+          label: `${actor?.heroName ?? actorUnit} → ${target?.heroName ?? targetUnit} · ${sourceLabel(inflictor, names)}`,
+          value,
+          damageType: type
+        })
+        continue
+      }
+
+      if (kind === 'ABILITY' || kind === 'ITEM') {
+        const sourceKey = inflictor || (kind === 'ABILITY' ? 'ability' : 'item')
+        const sourceText = inflictor
+          ? sourceLabel(inflictor, names)
+          : kind === 'ABILITY'
+            ? '技能'
+            : '物品'
+        if (actor) {
+          if (kind === 'ABILITY') addAbility(actor, sourceKey, sourceText)
+          else addItem(actor, sourceKey, sourceText)
+        }
+        timeline.push({
+          t: event[0],
+          kind,
+          actorSlot,
+          actorHero: actor?.heroName ?? actorUnit,
+          targetSlot,
+          targetHero: target?.heroName ?? targetUnit,
+          label:
+            kind === 'ABILITY'
+              ? `${actor?.heroName ?? actorUnit} 释放 ${sourceText}`
+              : `${actor?.heroName ?? actorUnit} 使用 ${sourceText}`,
+          value
+        })
+        continue
+      }
+
+      if (kind === 'HEAL') {
+        if (actor) actor.healing += value
+        timeline.push({
+          t: event[0],
+          kind,
+          actorSlot,
+          actorHero: actor?.heroName ?? actorUnit,
+          targetSlot,
+          targetHero: target?.heroName ?? targetUnit,
+          label: `${actor?.heroName ?? actorUnit} 治疗 ${target?.heroName ?? targetUnit}`,
+          value
+        })
+      }
+    }
+
+    for (const [slot, hero] of heroes) {
+      const rows = (samplesBySlot.get(slot) ?? []).sort((a, b) => a[0] - b[0])
+      if (!rows.length) continue
+      const before = [...rows].reverse().find((row) => row[0] <= start) ?? rows[0]
+      const after = rows.find((row) => row[0] >= end) ?? rows[rows.length - 1]
+      const inside = rows.filter((row) => row[0] >= start && row[0] <= end)
+      const hpValues = (inside.length ? inside : rows).map((row) => row[2]).filter((value) => value >= 0)
+      const mpValues = (inside.length ? inside : rows).map((row) => row[3]).filter((value) => value >= 0)
+      hero.hp = {
+        start: before[2] >= 0 ? before[2] : null,
+        min: hpValues.length ? Math.min(...hpValues) : null,
+        end: after[2] >= 0 ? after[2] : null
+      }
+      hero.mp = {
+        start: before[3] >= 0 ? before[3] : null,
+        min: mpValues.length ? Math.min(...mpValues) : null,
+        end: after[3] >= 0 ? after[3] : null
+      }
+      const goldStart = before[4] >= 0 ? before[4] : null
+      const goldEnd = after[4] >= 0 ? after[4] : null
+      const xpStart = before[5] >= 0 ? before[5] : null
+      const xpEnd = after[5] >= 0 ? after[5] : null
+      hero.gold = {
+        start: goldStart,
+        end: goldEnd,
+        delta: goldStart != null && goldEnd != null ? goldEnd - goldStart : null
+      }
+      hero.xp = {
+        start: xpStart,
+        end: xpEnd,
+        delta: xpStart != null && xpEnd != null ? xpEnd - xpStart : null
+      }
+      hero.level = {
+        start: before[6] >= 0 ? before[6] : null,
+        end: after[6] >= 0 ? after[6] : null
+      }
+    }
+
+    const participants = [...heroes.values()]
+    const focus = heroes.get(focusSlot) ?? null
+    const focusKills = focus ? group.filter((seed) => seed.event[2] && unitToSlot.get(normalizedUnit(seed.event[2])) === focusSlot).length : 0
+    const nodeType: CombatNodeType =
+      focusKills >= 2
+        ? 'multi'
+        : focusRole === 'assist'
+          ? 'assist'
+          : participants.length <= 2
+            ? 'solo'
+            : participants.length >= 6
+              ? 'teamfight'
+              : 'skirmish'
+    const killsRadiant = radiantDeaths.dire
+    const killsDire = radiantDeaths.radiant
+    const result: Side | 'even' =
+      killsRadiant > killsDire ? 'radiant' : killsDire > killsRadiant ? 'dire' : 'even'
+
+    nodes.push({
+      index: nodes.length,
+      start,
+      end,
+      duration: Math.max(0, end - start),
+      type: nodeType,
+      focusRole,
+      result,
+      focusSlot,
+      participants,
+      focus,
+      deaths: deathRows,
+      incoming: [...incomingMap.values()].sort((a, b) => b.damage - a.damage),
+      timeline: timeline.sort((a, b) => a.t - b.t).slice(0, MAX_TIMELINE)
+    })
+  }
+
+  return nodes.sort((a, b) => a.start - b.start)
+}

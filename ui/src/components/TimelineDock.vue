@@ -4,6 +4,7 @@ import AppIcon from './AppIcon.vue'
 import TimelineChart from './TimelineChart.vue'
 import TimelineItems from './TimelineItems.vue'
 import TeamfightPanel from './TeamfightPanel.vue'
+import CombatNodePanel from './CombatNodePanel.vue'
 import TimelineBuild from './TimelineBuild.vue'
 import TooltipLayer from './TooltipLayer.vue'
 import HeroSelect from './HeroSelect.vue'
@@ -570,10 +571,12 @@ onBeforeUnmount(() => {
             <button
               type="button"
               :class="{ on: view === 'fights' }"
-              :disabled="!model.teamfights.length"
+              :disabled="!model.combatNodes.length && !model.teamfights.length"
               @click="switchView('fights')"
             >
-              团战<span v-if="model.teamfights.length">{{ model.teamfights.length }}</span>
+              {{ model.combatNodes.length ? '战斗节点' : '团战' }}
+              <span v-if="model.combatNodes.length">{{ model.combatNodes.length }}</span>
+              <span v-else-if="model.teamfights.length">{{ model.teamfights.length }}</span>
             </button>
           </div>
 
@@ -816,6 +819,10 @@ onBeforeUnmount(() => {
             <span class="chip">Esc 关闭</span>
           </footer>
           </template>
+          <CombatNodePanel
+            v-if="model.combatNodes.length"
+            :nodes="model.combatNodes"
+          />
           <TeamfightPanel v-else :fights="model.teamfights" :names="names" />
         </div>
       </section>

@@ -312,6 +312,18 @@ public class MatchJsonMain {
         /** each: {t, playerIndex, cellX, cellY, hp, maxHp, team} */
         final List<String[]> positionSamples = new ArrayList<>();
         float nextPositionAt = 0f;
+        /**
+         * Combat log rows for the combat-node UI:
+         * {gameT, kind, attackerUnit, targetUnit, inflictor, value, damageType,
+         *  healthAfter, attackerTeam, targetTeam, assistPlayerIds, abilityLevel, x, y}
+         */
+        final List<String[]> combatEvents = new ArrayList<>();
+        /**
+         * One-second hero state samples:
+         * {gameT, playerSlot, hpPct, mpPct, gold, xp, level, cellX, cellY}
+         */
+        final List<String[]> combatSamples = new ArrayList<>();
+        float nextCombatSampleAt = 0f;
         final List<PlayerSeries> playerSeries = new ArrayList<>();
         float nextSeriesAt = 0f;
         /** each: {rawDemoSec, radiantAfter, direAfter} */
@@ -328,6 +340,52 @@ public class MatchJsonMain {
             return kd.computeIfAbsent(hero, k -> new int[2]);
         }
 
+        private static String unitOrEmpty(String unit) {
+            return unit == null ? "" : unit;
+        }
+
+        private static String assistCsv(CombatLogEntry e) {
+            if (!e.hasAssistPlayers()) {
+                return "";
+            }
+            StringBuilder out = new StringBuilder();
+            for (Integer id : e.getAssistPlayers()) {
+                if (id == null) {
+                    continue;
+                }
+                if (out.length() > 0) {
+                    out.append(',');
+                }
+                out.append(id);
+            }
+            return out.toString();
+        }
+
+        private void addCombatEvent(float gameT, String kind, String attacker, String target,
+                                    String inflictor, int value, int damageType, int health,
+                                    int attackerTeam, int targetTeam, String assists,
+                                    int abilityLevel, float x, float y) {
+            if (Float.isNaN(gameT) || gameT < 0f) {
+                return;
+            }
+            combatEvents.add(new String[]{
+                String.format(java.util.Locale.ROOT, "%.1f", gameT),
+                kind,
+                unitOrEmpty(attacker),
+                unitOrEmpty(target),
+                unitOrEmpty(inflictor),
+                Integer.toString(value),
+                Integer.toString(damageType),
+                Integer.toString(health),
+                Integer.toString(attackerTeam),
+                Integer.toString(targetTeam),
+                assists == null ? "" : assists,
+                Integer.toString(abilityLevel),
+                String.format(java.util.Locale.ROOT, "%.0f", x),
+                String.format(java.util.Locale.ROOT, "%.0f", y)
+            });
+        }
+
         @OnCombatLogEntry
         public void onEntry(CombatLogEntry e) {
             if (!e.hasType()) {
@@ -337,6 +395,7 @@ public class MatchJsonMain {
             var attacker = e.hasAttackerName() ? e.getAttackerName() : null;
             var target = e.hasTargetName() ? e.getTargetName() : null;
             float t = e.hasTimestamp() ? e.getTimestamp() : Float.NaN;
+            float gameT = offsetOk && !Float.isNaN(t) ? t - offsetSec : Float.NaN;
 
             if (type == DOTACombatLog.DOTA_COMBATLOG_TYPES.DOTA_COMBATLOG_GAME_STATE) {
                 if (e.hasValue() && e.getValue() == 5 && !Float.isNaN(t) && !offsetOk) {
@@ -373,6 +432,20 @@ public class MatchJsonMain {
                 if (focus.equals(attacker) && heroKill && !deny && !Float.isNaN(t)) {
                     focusKills.add(new String[]{Float.toString(t), pretty(target), with(e)});
                 }
+                if (heroKill && target != null && !(e.hasTargetIllusion() && e.isTargetIllusion())) {
+                    float ex = e.hasLocationX() ? e.getLocationX() : 0f;
+                    float ey = e.hasLocationY() ? e.getLocationY() : 0f;
+                    addCombatEvent(gameT, "DEATH", unitOrEmpty(attacker), target,
+                        unitOrEmpty(e.hasInflictorName() ? e.getInflictorName() : ""),
+                        e.hasValue() ? e.getValue() : 0,
+                        e.hasDamageType() ? e.getDamageType() : 0,
+                        e.hasHealth() ? e.getHealth() : -1,
+                        e.hasAttackerTeam() ? e.getAttackerTeam() : 0,
+                        e.hasTargetTeam() ? e.getTargetTeam() : 0,
+                        assistCsv(e),
+                        e.hasAbilityLevel() ? e.getAbilityLevel() : 0,
+                        ex, ey);
+                }
                 return;
             }
             if (type == DOTACombatLog.DOTA_COMBATLOG_TYPES.DOTA_COMBATLOG_DAMAGE) {
@@ -384,6 +457,22 @@ public class MatchJsonMain {
                 if (target != null && target.startsWith("npc_dota_hero_")) {
                     allTaken.merge(pretty(target), (long) v, Long::sum);
                 }
+                boolean attackerHero = attacker != null && attacker.startsWith("npc_dota_hero_");
+                boolean illusion = e.hasAttackerIllusion() && e.isAttackerIllusion();
+                if (attackerHero && target != null && target.startsWith("npc_dota_hero_") && !illusion) {
+                    float ex = e.hasLocationX() ? e.getLocationX() : 0f;
+                    float ey = e.hasLocationY() ? e.getLocationY() : 0f;
+                    addCombatEvent(gameT, "DAMAGE", attacker, target,
+                        e.hasInflictorName() ? e.getInflictorName() : "",
+                        v,
+                        e.hasDamageType() ? e.getDamageType() : 0,
+                        e.hasHealth() ? e.getHealth() : -1,
+                        e.hasAttackerTeam() ? e.getAttackerTeam() : 0,
+                        e.hasTargetTeam() ? e.getTargetTeam() : 0,
+                        "",
+                        e.hasAbilityLevel() ? e.getAbilityLevel() : 0,
+                        ex, ey);
+                }
                 return;
             }
             if (type == DOTACombatLog.DOTA_COMBATLOG_TYPES.DOTA_COMBATLOG_ABILITY) {
@@ -393,6 +482,33 @@ public class MatchJsonMain {
                     if (!Float.isNaN(t) && t - offsetSec <= 600f) {
                         focusCasts10.merge(ab, 1, Integer::sum);
                     }
+                }
+                if (attacker != null && attacker.startsWith("npc_dota_hero_")) {
+                    float ex = e.hasLocationX() ? e.getLocationX() : 0f;
+                    float ey = e.hasLocationY() ? e.getLocationY() : 0f;
+                    addCombatEvent(gameT, "ABILITY", attacker, target, ab,
+                        e.hasValue() ? e.getValue() : 0, 0, -1,
+                        e.hasAttackerTeam() ? e.getAttackerTeam() : 0,
+                        e.hasTargetTeam() ? e.getTargetTeam() : 0,
+                        "",
+                        e.hasAbilityLevel() ? e.getAbilityLevel() : 0,
+                        ex, ey);
+                }
+                return;
+            }
+            if (type == DOTACombatLog.DOTA_COMBATLOG_TYPES.DOTA_COMBATLOG_HEAL) {
+                if (attacker != null && attacker.startsWith("npc_dota_hero_")
+                    && target != null && target.startsWith("npc_dota_hero_")) {
+                    float ex = e.hasLocationX() ? e.getLocationX() : 0f;
+                    float ey = e.hasLocationY() ? e.getLocationY() : 0f;
+                    addCombatEvent(gameT, "HEAL", attacker, target,
+                        e.hasInflictorName() ? e.getInflictorName() : "",
+                        e.hasValue() ? e.getValue() : 0, 0, -1,
+                        e.hasAttackerTeam() ? e.getAttackerTeam() : 0,
+                        e.hasTargetTeam() ? e.getTargetTeam() : 0,
+                        "",
+                        e.hasAbilityLevel() ? e.getAbilityLevel() : 0,
+                        ex, ey);
                 }
                 return;
             }
@@ -406,6 +522,18 @@ public class MatchJsonMain {
                         String targetName = e.hasTargetName() ? e.getTargetName() : "";
                         focusUses.add(new String[]{Float.toString(t), item, targetName == null ? "" : targetName});
                     }
+                }
+                if (attacker != null && attacker.startsWith("npc_dota_hero_")) {
+                    String item = e.hasInflictorName() ? e.getInflictorName() : "";
+                    float ex = e.hasLocationX() ? e.getLocationX() : 0f;
+                    float ey = e.hasLocationY() ? e.getLocationY() : 0f;
+                    addCombatEvent(gameT, "ITEM", attacker, target, item,
+                        e.hasValue() ? e.getValue() : 0, 0, -1,
+                        e.hasAttackerTeam() ? e.getAttackerTeam() : 0,
+                        e.hasTargetTeam() ? e.getTargetTeam() : 0,
+                        "",
+                        e.hasAbilityLevel() ? e.getAbilityLevel() : 0,
+                        ex, ey);
                 }
                 return;
             }
@@ -533,6 +661,11 @@ public class MatchJsonMain {
             }
             lastEntityTick = tick;
             float t = Math.max(0f, tick * ctx.getMillisPerTick() / 1000f - entityOffsetSec);
+
+            if (t >= nextCombatSampleAt) {
+                sampleCombat(t);
+                nextCombatSampleAt = (float) (Math.floor(t) + 1);
+            }
 
             if (t >= nextPositionAt) {
                 for (Entity hero : heroEntities) {
@@ -715,6 +848,55 @@ public class MatchJsonMain {
         }
 
         // --- 5 秒采样：录像里的实时经济/补刀/经验/伤害/等级/KDA ---
+        // --- 1s combat-node samples: HP/MP/gold/XP/level/position ---
+        private void sampleCombat(float t) {
+            Entity pr = findEntity("CDOTA_PlayerResource");
+            if (pr == null) {
+                return;
+            }
+            Entity radiant = findEntity("CDOTA_DataRadiant");
+            Entity dire = findEntity("CDOTA_DataDire");
+            for (PlayerSeries series : playerSeries) {
+                int slot = series.slot;
+                Entity hero = selectedHeroEntity(pr, slot);
+                if (hero == null || !hero.isExistent()) {
+                    continue;
+                }
+                Entity data = slot < 5 ? radiant : dire;
+                int teamSlot = slot < 5 ? slot : slot - 5;
+                String prBase = "m_vecPlayerTeamData." + String.format("%04d", slot) + ".";
+                String dataBase = "m_vecDataTeam." + String.format("%04d", teamSlot) + ".";
+
+                Integer hp = percent(intProp(hero, "m_iHealth"), intProp(hero, "m_iMaxHealth"));
+                Integer mp = percent(floatProp(hero, "m_flMana"), floatProp(hero, "m_flMaxMana"));
+                Integer level = intProp(hero, "m_iCurrentLevel");
+                if (level == null) {
+                    level = intProp(pr, prBase + "m_iLevel");
+                }
+                Integer xp = intProp(data, dataBase + "m_iTotalEarnedXP");
+                if (xp == null) {
+                    xp = intProp(hero, "m_iCurrentXP");
+                }
+                Integer gold = intProp(data, dataBase + "m_iNetWorth");
+                Integer x = intProp(hero, "CBodyComponent.m_cellX");
+                Integer y = intProp(hero, "CBodyComponent.m_cellY");
+                if (hp == null || mp == null) {
+                    continue;
+                }
+                combatSamples.add(new String[]{
+                    String.format(java.util.Locale.ROOT, "%.1f", t),
+                    Integer.toString(slot),
+                    Integer.toString(hp),
+                    Integer.toString(mp),
+                    gold == null ? "-1" : Integer.toString(gold),
+                    xp == null ? "-1" : Integer.toString(xp),
+                    level == null ? "-1" : Integer.toString(level),
+                    x == null ? "0" : Integer.toString(x),
+                    y == null ? "0" : Integer.toString(y)
+                });
+            }
+        }
+
         private void sampleSeries(float t) {
             Entity pr = findEntity("CDOTA_PlayerResource");
             Entity radiant = findEntity("CDOTA_DataRadiant");
@@ -914,7 +1096,7 @@ public class MatchJsonMain {
         String toJson(Demo.CDemoFileInfo info, Demo.CGameInfo.CDotaGameInfo dota) {
             var sb = new StringBuilder();
             sb.append('{');
-            sb.append("\"schema\":8,");
+            sb.append("\"schema\":9,");
             sb.append("\"build\":").append(ctx.getBuildNumber()).append(',');
             sb.append("\"gameVersion\":").append(ctx.getGameVersion()).append(',');
             sb.append("\"matchId\":").append(dota.getMatchId()).append(',');
@@ -989,6 +1171,37 @@ public class MatchJsonMain {
                 sb.append('[').append(row[0]).append(',').append(row[1]).append(',')
                     .append(row[2]).append(',').append(row[3]).append(',')
                     .append(row[4]).append(',').append(row[5]).append(',').append(row[6]).append(']');
+            }
+            sb.append("]}");
+            sb.append(",\"combat\":{\"events\":[");
+            for (int i = 0; i < combatEvents.size(); i++) {
+                String[] row = combatEvents.get(i);
+                if (i > 0) sb.append(',');
+                sb.append('[').append(row[0]).append(',').append(js(row[1])).append(',')
+                    .append(js(row[2])).append(',').append(js(row[3])).append(',')
+                    .append(js(row[4])).append(',').append(row[5]).append(',')
+                    .append(row[6]).append(',').append(row[7]).append(',')
+                    .append(row[8]).append(',').append(row[9]).append(","
+                    );
+                String assists = row[10] == null ? "" : row[10];
+                if (!assists.isEmpty()) {
+                    String[] ids = assists.split(",");
+                    sb.append('[').append(String.join(",", ids)).append("],");
+                } else {
+                    sb.append("[],");
+                }
+                sb.append(row[11]).append(',').append(row[12]).append(',').append(row[13]).append(']');
+            }
+            sb.append("],\"samples\":[");
+            for (int i = 0; i < combatSamples.size(); i++) {
+                String[] row = combatSamples.get(i);
+                if (i > 0) sb.append(',');
+                sb.append('[');
+                for (int j = 0; j < row.length; j++) {
+                    if (j > 0) sb.append(',');
+                    sb.append(row[j]);
+                }
+                sb.append(']');
             }
             sb.append("]}");
             sb.append(",\"series\":");

@@ -3,6 +3,7 @@ import type { RosterPlayer } from './roster'
 import type { ReplayInventorySnapshot, ReplayParse, ReplayPositions } from './replay'
 import type { NamesIndex } from './names'
 import { buildTeamfights, type TeamfightInfo } from './teamfights'
+import { buildCombatNodes, type CombatNode } from './combatNodes'
 
 export type MetricKey = 'netWorth' | 'lastHits' | 'xp' | 'heroDamage'
 
@@ -134,6 +135,7 @@ export interface TimelineModel {
   selected: TimelinePlayer[]
   focus: TimelinePlayer | null
   teamfights: TeamfightInfo[]
+  combatNodes: CombatNode[]
   positions: ReplayPositions | null
   hasItems: boolean
   hasSkills: boolean
@@ -1001,6 +1003,7 @@ export function buildTimelineModel(input: BuildTimelineInput): TimelineModel {
     selected,
     focus,
     teamfights: buildTeamfights(input.match, input.replay, input.names ?? null),
+    combatNodes: buildCombatNodes(input.match, input.replay, input.names ?? null),
     positions: input.replay?.positions ?? null,
     hasItems,
     hasSkills,

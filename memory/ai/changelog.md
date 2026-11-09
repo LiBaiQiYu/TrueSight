@@ -4,6 +4,7 @@
 
 ## 2026-11-09
 
+- 时间轴「团战」Tab 升级为「战斗节点」：以分析对象击杀/助攻/阵亡为锚点，支持单杀、小规模、团战、多杀与助攻节点；schema 9 导出战斗事件、助攻、伤害类型和 1 秒 HP/MP/金钱/经验采样；新面板展示参战英雄、技能/普攻、承伤来源与时间线。
 - 官网改为桌面客户端导向：Hero 下载客户端、安装版/便携版下载卡、版本/大小/系统信息、四步安装使用、FAQ 与 AI 提供商展示；下载文件通过 Worker `DOWNLOADS` 绑定从 R2 `truesight-downloads` 提供。
 - 修复 Portable 高级分析找不到 Clarity：首次启动把 `resources/backend` 复制到 `%APPDATA%\TrueSight\portable-backend`，避免系统清理临时目录后 classes/lib/jre 丢失；使用稳定 backend 启动 Python/Java。
 - 自定义推理档位改为标签编辑器：预设低/中/高/xhigh/max/ultra 可选，支持逗号/回车生成标签、× 移除和任意补充档位。

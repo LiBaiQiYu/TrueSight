@@ -22,7 +22,7 @@
 
 TrueSight 是一个本地运行的 Dota 2 对局分析工具，将 **OpenDota / STRATZ 公开数据**、**本地 Clarity 回放解析** 与 **AI 复盘** 整合在同一套界面中。
 
-它既能快速生成整场概览，也能展开逐分钟时间轴，查看出装路线、真实背包、技能加点、天赋选择、对位换血与团战参与情况。所有 API Key 只保存在浏览器本地，由本地服务转发请求，不进入前端静态资源或代码仓库。
+它既能快速生成整场概览，也能展开逐分钟时间轴，查看出装路线、真实背包、技能加点、天赋选择、对位换血与战斗节点。所有 API Key 只保存在浏览器本地，由本地服务转发请求，不进入前端静态资源或代码仓库。
 
 <p align="center">
   <img src="docs/readme-home.png" alt="TrueSight 主界面" width="100%" />
@@ -81,11 +81,11 @@ TrueSight 是一个本地运行的 Dota 2 对局分析工具，将 **OpenDota / 
 - 同一录像后台解析全部英雄，切换分析对象无需重新分析；
 - 已有录像解析缓存时，选择英雄并处于高级分析会直接显示时间轴按钮，无需重新跑 AI。
 
-### 对位与团战
+### 对位与战斗节点
 
 - 对位 2v2 前 10 分钟：HP/MP、技能释放次数、补给、真假眼、击杀与死亡；
-- 团战分析：伤害 / 治疗 / 增益 / 技能与物品行为；
-- 即使没有造成英雄伤害，只要在战场附近提供治疗、护盾、增益或控制，也计入参团；
+- 战斗节点分析：击杀 / 助攻 / 阵亡相关的单杀、小规模与团战；包含技能、普攻、伤害类型、HP/MP、金钱、经验与承伤来源；
+- 即使没有造成英雄伤害，只要技能、治疗、护盾、增益或控制参与了节点，也计入参战英雄；
 - 参团要求结合战场距离，全球伤害与全球治疗技能单独放行；
 - 战场中心使用伤害玩家位置中位数，避免全屏技能玩家带偏。
 
@@ -121,10 +121,10 @@ TrueSight 是一个本地运行的 Dota 2 对局分析工具，将 **OpenDota / 
 
 <p align="center"><em>技能加点序列、本体/小熊双天赋树与可延后补选提示</em></p>
 
-### 团战分析
+### 战斗节点
 
 <p align="center">
-  <img src="docs/readme-teamfights.png" alt="团战分析" width="100%" />
+  <img src="docs/readme-teamfights.png" alt="战斗节点" width="100%" />
 </p>
 
 <p align="center"><em>参团玩家、伤害/治疗/经济/经验、关键技能，以及未参团玩家的位置与原因</em></p>
@@ -286,8 +286,8 @@ javac --release 21 -encoding UTF-8 -cp "classes;lib/*" -d classes java\MatchJson
 ```text
 dota-chat/
 ├─ ui/                        Vue 前端
-│  ├─ src/components/         时间轴、结果卡、比赛卡、设置、团战面板
-│  ├─ src/lib/                数据模型、提示词、时间轴/团战/名称逻辑
+│  ├─ src/components/         时间轴、结果卡、比赛卡、设置、战斗节点面板
+│  ├─ src/lib/                数据模型、提示词、时间轴/战斗节点/名称逻辑
 │  ├─ scripts/build-names.mjs 名称库压缩
 │  └─ public/                 品牌、favicon、静态名称库
 ├─ server.py                  本地 HTTP 服务 / API 代理 / 解析任务
@@ -387,7 +387,7 @@ powershell -ExecutionPolicy Bypass -File tools/memory/install.ps1
 - 高级分析依赖 Java 21 + Clarity jar，首次使用需要准备运行时；
 - 守卫在战争迷雾中可能延迟出现，真假眼类型按插眼顺序校准；
 - 全球技能白名单为手动维护，新版本技能需要补充；
-- 基础模式没有回放坐标，无法进行团战距离判断；
+- 基础模式没有回放事件，战斗节点仅支持旧版 OpenDota 团战回退；
 - 部分新天赋 / 装备在 OpenDota、官方 datafeed 中可能滞后，需要人工补充；
 - 当前主要面向 Windows 本地运行，其他平台需要自行调整启动脚本。
 

@@ -87,6 +87,45 @@ export interface ReplayFocus {
 /** [t, playerIndex, cellX, cellY, hp, maxHp, team] */
 export type ReplayPositionSample = [number, number, number, number, number, number, number]
 
+/**
+ * [t, kind, attacker, target, inflictor, value, damageType, health,
+ *  attackerTeam, targetTeam, assistSlots, abilityLevel, x, y]
+ */
+export type ReplayCombatEvent = [
+  number,
+  'DAMAGE' | 'ABILITY' | 'ITEM' | 'HEAL' | 'DEATH',
+  string,
+  string,
+  string,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number[],
+  number,
+  number,
+  number
+]
+
+/** [t, playerSlot, hpPct, mpPct, gold, xp, level, cellX, cellY] */
+export type ReplayCombatSample = [
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number
+]
+
+export interface ReplayCombat {
+  events: ReplayCombatEvent[]
+  samples: ReplayCombatSample[]
+}
+
 export interface ReplayPositions {
   step: number
   samples: ReplayPositionSample[]
@@ -110,6 +149,7 @@ export interface ReplayParse {
   final: { radiant: number; dire: number }
   series?: ReplaySeries
   positions?: ReplayPositions
+  combat?: ReplayCombat
   focus: ReplayFocus
 }
 
