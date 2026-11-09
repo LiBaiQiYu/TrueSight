@@ -2,6 +2,14 @@
 
 记录会影响长期实现的决策；新决定追加在顶部。
 
+## 2026-11-09 多模型提供商
+
+- 提供商：OpenCode Go、MiniMax、DeepSeek、OpenAI/Codex API、小米 MiMo、自定义；
+- 自定义 provider 走 OpenAI 兼容协议，允许空 Key 以支持 Ollama / LM Studio；
+- 自定义模型名由设置页手动填写，不请求 `/models`；
+- Claude Code / Codex 的订阅登录与 API Key 不是同一件事；当前只接 API Key 类服务，不把订阅 OAuth 混入模型设置；
+- DeepSeek / MiMo 不发送 `reasoning_effort`。
+
 ## 2026-11-09 Electron 渲染策略
 
 - 桌面客户端默认启用硬件加速，不再无条件调用 `app.disableHardwareAcceleration()`；

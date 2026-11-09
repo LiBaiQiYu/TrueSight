@@ -93,7 +93,7 @@ const statusText = computed(() => {
       </div>
       <p class="provider-desc">
         {{ provider.desc }}
-        <a :href="provider.siteUrl" target="_blank" rel="noopener">获取 API Key</a>
+        <a v-if="provider.siteUrl" :href="provider.siteUrl" target="_blank" rel="noopener">获取 API Key</a>
       </p>
 
       <label class="field-label" for="settings-key">{{ provider.name }} API Key</label>
@@ -119,6 +119,21 @@ const statusText = computed(() => {
           <AppIcon :name="revealKey ? 'eyeOff' : 'eye'" :size="16" />
         </button>
       </div>
+      <p v-if="provider.allowEmptyKey" class="note key-note">
+        本地 Ollama / LM Studio 可以留空；远程服务请填写 Key。
+      </p>
+
+      <template v-if="provider.requiresModel">
+        <label class="field-label" for="settings-model">模型名称</label>
+        <input
+          id="settings-model"
+          v-model="config.customModel"
+          class="field mono"
+          spellcheck="false"
+          autocomplete="off"
+          placeholder="例如：qwen2.5-72b-instruct"
+        />
+      </template>
 
       <label class="field-label" for="settings-base">接口地址</label>
       <input
@@ -127,7 +142,7 @@ const statusText = computed(() => {
         class="field mono"
         spellcheck="false"
         autocomplete="off"
-        :placeholder="provider.defaultBaseUrl"
+        :placeholder="provider.defaultBaseUrl || 'https://your-endpoint/v1'"
       />
 
       <div v-if="provider.altBaseUrl" class="line-row">
@@ -352,6 +367,11 @@ const statusText = computed(() => {
   font-size: 12px;
   color: var(--text-mute);
   margin: -4px 0 8px;
+}
+
+.key-note {
+  margin: 7px 0 0;
+  font-size: 10.5px;
 }
 
 .providers {

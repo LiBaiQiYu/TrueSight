@@ -29,7 +29,11 @@ export const modelState = reactive({
 let seq = 0
 let timer: number | undefined
 
-export const hasApiKey = computed(() => normalizeKey(activeApiKey()).key.length > 0)
+export const hasApiKey = computed(() => {
+  const provider = PROVIDERS[config.provider]
+  if (provider.allowEmptyKey) return true
+  return normalizeKey(activeApiKey()).key.length > 0
+})
 
 export function normalizeKey(raw: string): { key: string; error: string } {
   const key = raw.replace(/[\u200b-\u200d\ufeff]/g, '').trim()
@@ -75,9 +79,21 @@ export async function refreshModels(): Promise<void> {
     modelState.loading = false
     return
   }
-  if (!key) {
+  if (!key && !provider.allowEmptyKey) {
     clearModels()
     modelState.loading = false
+    return
+  }
+  // 自定义服务使用手动模型名，不请求 /v1/models
+  if (provider.id === 'custom') {
+    const model = config.customModel.trim()
+    if (!model) {
+      clearModels()
+      modelState.error = '请填写自定义模型名称'
+      modelState.loading = false
+      return
+    }
+    useStaticModels([model])
     return
   }
   // MiniMax 等内置模型清单：不依赖 /v1/models（该接口在 MiniMax 上不可用）
@@ -146,7 +162,11 @@ function schedule(delay: number): void {
 }
 
 watch(
-  [() => config.keys[config.provider], () => config.baseUrls[config.provider]],
+  [
+    () => config.keys[config.provider],
+    () => config.baseUrls[config.provider],
+    () => config.customModel
+  ],
   () => schedule(600)
 )
 

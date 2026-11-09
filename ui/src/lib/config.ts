@@ -4,7 +4,7 @@ export type Theme = 'truesight' | 'standard'
 export type ThemeMode = 'light' | 'dark'
 export type Depth = 'rough' | 'advanced'
 export type SourceMode = 'auto' | 'opendota' | 'stratz' | 'both'
-export type ProviderId = 'opencode' | 'minimax' | 'deepseek'
+export type ProviderId = 'opencode' | 'minimax' | 'deepseek' | 'openai' | 'xiaomi' | 'custom'
 
 export interface ProviderDef {
   id: ProviderId
@@ -19,6 +19,10 @@ export interface ProviderDef {
   defaultEffort: string
   keyHint: string
   siteUrl: string
+  /** 自定义 OpenAI 兼容服务：允许空 Key（Ollama / LM Studio 等本地服务） */
+  allowEmptyKey?: boolean
+  /** 自定义服务需要在设置页填写模型名 */
+  requiresModel?: boolean
 }
 
 export const PROVIDERS: Record<ProviderId, ProviderDef> = {
@@ -56,10 +60,55 @@ export const PROVIDERS: Record<ProviderId, ProviderDef> = {
     defaultEffort: '',
     keyHint: 'sk-...',
     siteUrl: 'https://platform.deepseek.com/api_keys'
+  },
+  openai: {
+    id: 'openai',
+    name: 'OpenAI / Codex',
+    desc: 'OpenAI 官方 API Key；Codex 订阅/CLI 登录不走此入口。',
+    defaultBaseUrl: 'https://api.openai.com/v1',
+    models: [],
+    efforts: ['low', 'medium', 'high', 'xhigh'],
+    defaultEffort: 'medium',
+    keyHint: 'sk-proj-...',
+    siteUrl: 'https://platform.openai.com/api-keys'
+  },
+  xiaomi: {
+    id: 'xiaomi',
+    name: '小米 MiMo',
+    desc: '小米 MiMo 官方 API，OpenAI 兼容，内置 MiMo-V2.6 系列。',
+    defaultBaseUrl: 'https://api.xiaomimimo.com/v1',
+    models: [
+      'mimo-v2.6-flash',
+      'mimo-v2.6-pro',
+      'mimo-v2.6-pro-ultraspeed',
+      'mimo-v2.5',
+      'mimo-v2.5-pro'
+    ],
+    efforts: [],
+    defaultEffort: '',
+    keyHint: 'API Key',
+    siteUrl: 'https://platform.xiaomimimo.com'
+  },
+  custom: {
+    id: 'custom',
+    name: '自定义',
+    desc: '任意 OpenAI 兼容接口；自行填写 Base URL 和模型名，可用于 Ollama、LM Studio、OpenRouter 等。',
+    defaultBaseUrl: '',
+    models: [],
+    efforts: [],
+    defaultEffort: '',
+    keyHint: 'sk-... / 本地服务可留空',
+    siteUrl: '',
+    allowEmptyKey: true,
+    requiresModel: true
   }
 }
 
 export const PROVIDER_LIST = Object.values(PROVIDERS)
+
+function isProviderId(value: unknown): value is ProviderId {
+  return typeof value === 'string' && Object.prototype.hasOwnProperty.call(PROVIDERS, value)
+}
 
 export interface PersistedConfig {
   provider: ProviderId
@@ -67,6 +116,7 @@ export interface PersistedConfig {
   baseUrls: Record<ProviderId, string>
   stratzToken: string
   model: string
+  customModel: string
   effortLevel: string
   depth: Depth
   sourceMode: SourceMode
@@ -87,14 +137,18 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function defaults(): PersistedConfig {
   return {
     provider: 'opencode',
-    keys: { opencode: '', minimax: '', deepseek: '' },
+    keys: { opencode: '', minimax: '', deepseek: '', openai: '', xiaomi: '', custom: '' },
     baseUrls: {
       opencode: PROVIDERS.opencode.defaultBaseUrl,
       minimax: PROVIDERS.minimax.defaultBaseUrl,
-      deepseek: PROVIDERS.deepseek.defaultBaseUrl
+      deepseek: PROVIDERS.deepseek.defaultBaseUrl,
+      openai: PROVIDERS.openai.defaultBaseUrl,
+      xiaomi: PROVIDERS.xiaomi.defaultBaseUrl,
+      custom: ''
     },
     stratzToken: '',
     model: '',
+    customModel: '',
     effortLevel: '',
     depth: 'rough',
     sourceMode: 'auto',
@@ -122,6 +176,7 @@ function load(): PersistedConfig {
 
     merged.stratzToken = text(parsed.stratzToken)
     merged.model = text(parsed.model)
+    merged.customModel = text(parsed.customModel)
     merged.effortLevel = text(parsed.effortLevel)
     merged.depth = parsed.depth === 'advanced' ? 'advanced' : 'rough'
     merged.sourceMode =
@@ -130,12 +185,7 @@ function load(): PersistedConfig {
       parsed.sourceMode === 'both'
         ? parsed.sourceMode
         : 'auto'
-    merged.provider =
-      parsed.provider === 'minimax'
-        ? 'minimax'
-        : parsed.provider === 'deepseek'
-          ? 'deepseek'
-          : 'opencode'
+    merged.provider = isProviderId(parsed.provider) ? parsed.provider : 'opencode'
 
     const storedTheme = String(parsed.theme ?? '')
     const storedMode = String(parsed.mode ?? '')
@@ -157,10 +207,8 @@ function load(): PersistedConfig {
     }
 
     const params = new URLSearchParams(location.search)
-    const paramProvider = params.get('provider')
-    if (paramProvider === 'minimax' || paramProvider === 'opencode' || paramProvider === 'deepseek') {
-      merged.provider = paramProvider
-    }
+    const param = params.get('provider')
+    if (isProviderId(param)) merged.provider = param
     const paramBase = params.get('base')
     if (paramBase) merged.baseUrls[merged.provider] = paramBase
 

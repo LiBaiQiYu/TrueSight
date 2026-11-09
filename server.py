@@ -89,8 +89,17 @@ PROVIDER_BASES = {
     'opencode': DEFAULT_GO_BASE,
     'minimax': os.environ.get('MINIMAX_BASE', 'https://api.minimax.cn/v1'),
     'deepseek': os.environ.get('DEEPSEEK_BASE', 'https://api.deepseek.com'),
+    'openai': os.environ.get('OPENAI_BASE', 'https://api.openai.com/v1'),
+    'xiaomi': os.environ.get('XIAOMI_BASE', 'https://api.xiaomimimo.com/v1'),
 }
-PROVIDER_NAMES = {'opencode': 'OpenCode Go', 'minimax': 'MiniMax', 'deepseek': 'DeepSeek'}
+PROVIDER_NAMES = {
+    'opencode': 'OpenCode Go',
+    'minimax': 'MiniMax',
+    'deepseek': 'DeepSeek',
+    'openai': 'OpenAI / Codex',
+    'xiaomi': '小米 MiMo',
+    'custom': '自定义模型',
+}
 CHAT_PATH = '/chat/completions'
 CONNECT_TIMEOUT = 15
 READ_TIMEOUT = 300
@@ -299,12 +308,17 @@ class Handler(BaseHTTPRequestHandler):
         messages = payload.get('messages')
         provider = (payload.get('provider') or 'opencode').strip().lower()
         provider_name = PROVIDER_NAMES.get(provider, provider)
-        base = (payload.get('baseUrl') or provider_base(provider)).strip()
+        raw_base = (payload.get('baseUrl') or '').strip()
+        base = raw_base or provider_base(provider)
         session_id = (payload.get('sessionId') or 'dota-chat-local').strip()
         if key_err:
             return self.send_json(400, {'error': key_err})
-        if not api_key:
+        if not api_key and provider != 'custom':
             return self.send_json(400, {'error': '缺少 apiKey（请在「设置」中填写 %s API Key）' % provider_name})
+        if provider == 'custom' and not raw_base:
+            return self.send_json(400, {'error': '自定义模型需要填写接口地址（Base URL）'})
+        if provider == 'custom' and not model:
+            return self.send_json(400, {'error': '自定义模型需要填写模型名称'})
         if not model or not isinstance(messages, list) or not messages:
             return self.send_json(400, {'error': '缺少 model 或 messages'})
 
@@ -316,7 +330,7 @@ class Handler(BaseHTTPRequestHandler):
         if isinstance(payload.get('temperature'), (int, float)):
             upstream['temperature'] = payload['temperature']
         effort = payload.get('reasoning_effort')
-        if provider != 'deepseek' and isinstance(effort, str):
+        if provider not in ('deepseek', 'xiaomi') and isinstance(effort, str):
             effort = effort.strip()[:20]
             # '__omit__' = 用户明确选择不传档位；空字符串同样不传
             if effort and effort != '__omit__':
@@ -325,10 +339,12 @@ class Handler(BaseHTTPRequestHandler):
         headers = {
             'Content-Type': 'application/json',
             'Accept': 'text/event-stream',
-            'Authorization': 'Bearer ' + api_key,
+            'Authorization': 'Bearer ' + api_key if api_key else '',
             'Connection': 'close',
             'User-Agent': 'TrueSight/0.1',
         }
+        if not api_key:
+            headers.pop('Authorization', None)
         if provider == 'opencode':
             # 按 Go 文档要求：自有 UA + 稳定会话 ID
             headers['X-OpenCode-Session'] = session_id

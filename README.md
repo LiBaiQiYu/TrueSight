@@ -52,7 +52,7 @@ TrueSight 是一个本地运行的 Dota 2 对局分析工具，将 **OpenDota / 
 
 - 粗略分析：基于 OpenDota / STRATZ 的分钟级数据；
 - 高级分析：本地 Clarity 解析录像，提供 5 秒级经济、技能、装备与战斗日志；
-- 支持 OpenCode Go、MiniMax、DeepSeek 官方 API 等 OpenAI 兼容服务；
+- 支持 OpenCode Go、MiniMax、DeepSeek、小米 MiMo、OpenAI 等 OpenAI 兼容服务，以及自定义模型接口；
 - 自动注入双方阵容、KDA、经济曲线、出装、技能与关键事件；
 - 支持停止分析、保留已生成内容。
 
@@ -137,7 +137,7 @@ flowchart LR
   B <--> C["OpenDota / STRATZ<br/>公开数据"]
   B <--> D["Clarity 回放解析<br/>java/MatchJsonMain.java"]
   D --> E["回放 .dem"]
-  B <--> F["LLM Provider<br/>OpenCode Go / MiniMax / DeepSeek"]
+  B <--> F["LLM Provider<br/>OpenCode / MiniMax / DeepSeek / MiMo / Custom"]
   A --> G["静态名称库<br/>ui/public/names"]
   B --> H["AI 记忆库<br/>memory/ai"]
 ```
@@ -260,11 +260,11 @@ javac --release 21 -encoding UTF-8 -cp "classes;lib/*" -d classes java\MatchJson
 
 | 配置 | 说明 |
 | --- | --- |
-| AI 提供商 | OpenCode Go / MiniMax / DeepSeek |
+| AI 提供商 | OpenCode Go / MiniMax / DeepSeek / OpenAI / 小米 MiMo / 自定义 |
 | API Key | 仅保存在浏览器 `localStorage` |
-| Base URL | 默认使用提供商官方地址，可自定义 |
-| 模型 | 由提供商模型列表或内置模型提供 |
-| 推理强度 | low / medium / high / xhigh / max；DeepSeek 不传档位 |
+| Base URL | 默认使用提供商官方地址，可自定义；自定义模型必填 |
+| 模型 | 由提供商模型列表或内置模型提供；自定义模型手动填写 |
+| 推理强度 | low / medium / high / xhigh / max；DeepSeek、MiMo 不传档位 |
 | STRATZ Token | 可选，用于精确位置与角色数据 |
 | 数据源 | 自动 / 仅 OpenDota / 仅 STRATZ / 双源 |
 | 主题 | TrueSight / 标准；深色 / 浅色 |
