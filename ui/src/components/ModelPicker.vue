@@ -416,7 +416,10 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
 
 .rail {
   position: absolute;
-  inset: 0;
+  top: 0;
+  bottom: 0;
+  left: 12px;
+  right: 12px;
   border-radius: 999px;
   background: var(--line);
 }
