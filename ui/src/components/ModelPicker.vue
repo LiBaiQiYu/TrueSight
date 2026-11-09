@@ -17,12 +17,15 @@ const index = computed(() => {
   return i < 0 ? 0 : i
 })
 const single = computed(() => levels.value.length <= 1)
-const pct = computed(() => {
-  if (!ready.value) return 0
+const fraction = computed(() => {
   const n = levels.value.length
-  if (n <= 1) return 100
-  return (index.value / (n - 1)) * 100
+  if (n <= 1) return 0
+  return index.value / (n - 1)
 })
+const fillStyle = computed(() => ({
+  left: '12px',
+  width: `calc((100% - 24px) * ${fraction.value})`
+}))
 const isMax = computed(
   () => ready.value && levels.value.length > 0 && index.value === levels.value.length - 1
 )
@@ -48,9 +51,10 @@ const particles = computed(() =>
   }))
 )
 
-function stopPct(i: number): number {
+function stopPct(i: number): string {
   const n = levels.value.length
-  return n <= 1 ? 0 : (i / (n - 1)) * 100
+  const fraction = n <= 1 ? 0 : i / (n - 1)
+  return `calc(12px + (100% - 24px) * ${fraction})`
 }
 
 function onSlide(event: Event): void {
@@ -128,8 +132,8 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
           <div class="slider-wrap" :class="{ maxed: isMax, disabled: !ready }">
             <div class="track">
               <span class="rail" />
-              <span class="fill" :class="{ maxed: isMax }" :style="{ width: pct + '%' }" />
-              <span v-if="isMax" class="sparkles" :style="{ width: pct + '%' }">
+              <span class="fill" :class="{ maxed: isMax }" :style="fillStyle" />
+              <span v-if="isMax" class="sparkles" :style="fillStyle">
                 <b
                   v-for="(p, i) in particles"
                   :key="i"
@@ -147,7 +151,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
                 :key="lv"
                 class="stop"
                 :class="{ on: i <= index }"
-                :style="{ left: stopPct(i) + '%' }"
+                :style="{ left: stopPct(i) }"
               />
               <input
                 v-if="!single"

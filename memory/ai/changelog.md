@@ -4,6 +4,7 @@
 
 ## 2026-11-09
 
+- 修复推理级别滑块点位错位：停靠点与填充宽度改为按原生 range 滑块 12px 内边距计算，5 档点位与 thumb 对齐。
 - 自定义模型补齐 Provider ID、显示名称、API 地址、协议、API Key、模型 ID、模型目录；支持 OpenAI Chat Completions / OpenAI Responses / Anthropic Messages，并实现 Responses/Anthropic SSE 转换。
 - 设置页新增 OpenAI/Codex API、小米 MiMo、自定义 OpenAI 兼容模型；自定义模型支持 Base URL 和模型名，Ollama/LM Studio 可空 Key。
 - 新增 DeepSeek 官方 API 提供商：内置 `deepseek-chat` / `deepseek-reasoner`，独立 Key/Base URL，本地代理不发送 `reasoning_effort`。
