@@ -1,6 +1,6 @@
 # 战斗节点（Combat Nodes）
 
-> 状态：已实现 schema 9 + 新面板。  
+> 状态：已实现 schema 10 + 新面板。  
 > 目标位置：时间轴弹窗 → 原「团战」Tab。
 
 ## 0. 实现状态
@@ -155,6 +155,18 @@ MP 开始 → 结束，最低 MP
 普攻次数 / 普攻伤害
 ```
 
+### 伤害来源修正
+
+- 无 `inflictor` 的物理伤害才可能标记为普通攻击；
+- 无 `inflictor` 的魔法/纯粹伤害如果 2.5 秒内同一施法者对同一目标有明确技能/物品伤害，继承该来源（例如血腥榴弹 DoT 的最后一跳）；
+- 裂魂人的 Greater Bash 等被动伤害使用明确来源标签，不再误标普通攻击；
+- `item_madstone_bundle` 等中立道具管理事件不进入战斗节点；
+- Invoker 的 `quas / wex / exort / invoke` 组件不进入技能列表，只保留实际释放的 invoked 技能。
+
+### 时间精度
+
+战斗时间线显示 `MM:SS.mmm`，底层回放事件精度为 0.1 秒。
+
 ### 5.4 谁伤害了分析对象
 
 按“施法者 + 伤害来源 + 伤害类型”聚合：
@@ -243,7 +255,7 @@ getNetworth()
 getGoldReason() / getXpReason()
 ```
 
-可新增 schema 9：
+可新增 schema 10：
 
 ```text
 combat: {
@@ -310,7 +322,7 @@ K/A/D
 - `TeamfightPanel` 保留作为旧缓存 fallback；
 - 新组件 `CombatNodePanel` 替换新解析结果的 Tab；
 - Tab 名称从「团战」改为「战斗节点」；
-- 没有 schema 9 数据时提示「此录像为旧缓存，重新解析后可使用战斗节点」。
+- 没有 schema 10 数据时提示「此录像为旧缓存，重新解析后可使用战斗节点」。
 
 ## 8. 统计口径
 
@@ -336,7 +348,7 @@ K/A/D
 
 ## 10. 实施阶段
 
-1. **数据层**：扩展 `MatchJsonMain`，schema 9，增加 combat events 与 1 秒采样；测试两场录像。
+1. **数据层**：扩展 `MatchJsonMain`，schema 10，增加 combat events 与 1 秒采样；测试两场录像。
 2. **节点算法**：新增 `ui/src/lib/combatNodes.ts`，实现锚点、合并、参战者和聚合。
 3. **UI**：新增 `CombatNodePanel.vue`，接入时间轴 Tab。
 4. **兼容**：旧 schema fallback、缓存版本提示。

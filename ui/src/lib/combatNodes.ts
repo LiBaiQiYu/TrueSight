@@ -311,6 +311,7 @@ export function buildCombatNodes(
     }
 
     const incomingMap = new Map<string, IncomingDamage>()
+    const recentDamageSource = new Map<string, { source: string; t: number }>()
     const deathRows: CombatDeath[] = []
     const timeline: CombatTimelineEvent[] = []
     const radiantDeaths = { radiant: 0, dire: 0 }
@@ -381,7 +382,20 @@ export function buildCombatNodes(
       }
 
       if (kind === 'DAMAGE') {
-        const resolvedSource = inflictor || damageSource
+        const contextKey = `${actorUnit}|${targetUnit}|${event[6]}`
+        const previous = recentDamageSource.get(contextKey)
+        let resolvedSource = inflictor
+        // Some DoT ticks lose their inflictor. Reuse the source of the same
+        // attacker → target damage type when it happened in the previous 2.5s.
+        if (!resolvedSource && previous && event[6] !== 1 && event[0] - previous.t <= 2.5) {
+          resolvedSource = previous.source
+        }
+        if (!resolvedSource && damageSource && !damageSource.startsWith('npc_dota_hero_')) {
+          resolvedSource = damageSource
+        }
+        if (resolvedSource && (inflictor || !resolvedSource.startsWith('npc_dota_hero_'))) {
+          recentDamageSource.set(contextKey, { source: resolvedSource, t: event[0] })
+        }
         if (actor) {
           actor.damage[type] += value
           actor.damage.total += value

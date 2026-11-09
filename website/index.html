@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TrueSight 鈥?Windows Dota 2 瀵瑰眬鍒嗘瀽瀹㈡埛绔?/title>
+    <title>TrueSight — Windows Dota 2 对局分析客户端</title>
     <meta
       name="description"
-      content="TrueSight 鏄竴涓?Windows 妗岄潰瀹㈡埛绔細鍐呯疆 Python銆丣ava 涓?Clarity锛屼笅杞藉畨瑁呭嵆鍙娇鐢ㄣ€傛暣鍚?OpenDota / STRATZ 鏁版嵁銆佹湰鍦板綍鍍忚В鏋愪笌 AI 澶嶇洏銆?
+      content="TrueSight 是一个 Windows 桌面客户端：内置 Python、Java 与 Clarity，下载安装即可使用。整合 OpenDota / STRATZ 数据、本地录像解析与 AI 复盘。"
     />
     <meta name="theme-color" content="#f6fbf8" />
     <link rel="canonical" href="https://truesight.carloswhitea1e.workers.dev/" />
@@ -14,10 +14,10 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://truesight.carloswhitea1e.workers.dev/" />
     <meta property="og:site_name" content="TrueSight" />
-    <meta property="og:title" content="TrueSight 鈥?Windows Dota 2 瀵瑰眬鍒嗘瀽瀹㈡埛绔? />
+    <meta property="og:title" content="TrueSight — Windows Dota 2 对局分析客户端" />
     <meta
       property="og:description"
-      content="涓嬭浇鍗崇敤鐨?Dota 2 澶嶇洏瀹㈡埛绔細鏃堕棿杞淬€佸嚭瑁呫€佸浣嶃€佸洟鎴樹笌 AI 鍒嗘瀽锛屽叏閮ㄥ湪鏈湴瀹屾垚銆?
+      content="下载即用的 Dota 2 复盘客户端：时间轴、出装、对位、团战与 AI 分析，全部在本地完成。"
     />
     <meta property="og:image" content="https://truesight.carloswhitea1e.workers.dev/assets/home.png" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -34,11 +34,11 @@
     <script src="main.js" defer></script>
   </head>
   <body>
-    <a class="skip-link" href="#main">璺冲埌涓昏鍐呭</a>
+    <a class="skip-link" href="#main">跳到主要内容</a>
 
     <header class="site-header" id="top">
       <div class="container header-inner">
-        <a class="brand" href="#top" aria-label="TrueSight 棣栭〉">
+        <a class="brand" href="#top" aria-label="TrueSight 首页">
           <img class="brand-mark" src="assets/truesight-mark.svg" alt="" width="38" height="38" />
           <span class="brand-text">
             <strong>TrueSight</strong>
@@ -46,12 +46,12 @@
           </span>
         </a>
 
-        <nav class="main-nav" id="main-nav" aria-label="涓诲鑸?>
-          <a href="#features">鍔熻兘</a>
-          <a href="#preview">鐣岄潰</a>
-          <a href="#download">涓嬭浇</a>
-          <a href="#start">寮€濮嬩娇鐢?/a>
-          <a href="#faq">甯歌闂</a>
+        <nav class="main-nav" id="main-nav" aria-label="主导航">
+          <a href="#features">功能</a>
+          <a href="#preview">界面</a>
+          <a href="#download">下载</a>
+          <a href="#start">开始使用</a>
+          <a href="#faq">常见问题</a>
           <a class="nav-github" href="https://github.com/LiBaiQiYu/TrueSight" target="_blank" rel="noreferrer">
             GitHub
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg>
@@ -59,12 +59,12 @@
         </nav>
 
         <div class="header-actions">
-          <div class="theme-switch" role="group" aria-label="绔欑偣涓婚">
+          <div class="theme-switch" role="group" aria-label="站点主题">
             <button type="button" data-theme-choice="truesight" aria-pressed="true">TrueSight</button>
-            <button type="button" data-theme-choice="standard" aria-pressed="false">鏍囧噯</button>
+            <button type="button" data-theme-choice="standard" aria-pressed="false">标准</button>
           </div>
-          <a class="btn btn-small btn-primary" href="#download">涓嬭浇瀹㈡埛绔?/a>
-          <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" aria-label="鎵撳紑瀵艰埅">
+          <a class="btn btn-small btn-primary" href="#download">下载客户端</a>
+          <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" aria-label="打开导航">
             <span></span><span></span>
           </button>
         </div>
@@ -76,21 +76,24 @@
         <div class="hero-bg" aria-hidden="true"></div>
         <div class="container hero-inner">
           <div class="hero-copy reveal">
-            <p class="eyebrow"><span></span> WINDOWS DESKTOP 路 LOCAL-FIRST</p>
-            <div class="hero-badge"><strong>v0.1.0</strong><i></i><span>Windows 10 / 11 路 x64</span></div>
-            <h1>鎶?Dota 2 澶嶇洏锛?br /><em>瑁呰繘涓€涓鎴风銆?/em></h1>
+            <p class="eyebrow"><span></span> WINDOWS DESKTOP · LOCAL-FIRST</p>
+            <div class="hero-badge"><strong>v0.1.0</strong><i></i><span>Windows 10 / 11 · x64</span></div>
+            <h1>把 Dota 2 复盘，<br /><em>装进一个客户端。</em></h1>
             <p class="hero-lead">
-              TrueSight 妗岄潰瀹㈡埛绔唴缃?Python銆丣ava 涓?Clarity锛屼笅杞藉畨瑁呭嵆鍙紑濮嬨€?              OpenDota / STRATZ 鏁版嵁銆佹湰鍦板綍鍍忚В鏋愪笌 AI 澶嶇洏锛屽叏閮ㄥ湪鍚屼竴涓晫闈㈠畬鎴愩€?            </p>
+              TrueSight 桌面客户端内置 Python、Java 与 Clarity，下载安装即可开始。
+              OpenDota / STRATZ 数据、本地录像解析与 AI 复盘，全部在同一个界面完成。
+            </p>
             <div class="hero-actions">
               <a class="btn btn-primary btn-lg" href="#download">
-                涓嬭浇 Windows 瀹㈡埛绔?                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m0 0 5-5m-5 5-5-5M5 20h14" /></svg>
+                下载 Windows 客户端
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m0 0 5-5m-5 5-5-5M5 20h14" /></svg>
               </a>
-              <a class="btn btn-ghost btn-lg" href="#preview">鏌ョ湅鐣岄潰</a>
+              <a class="btn btn-ghost btn-lg" href="#preview">查看界面</a>
             </div>
             <ul class="hero-points">
-              <li><span class="dot"></span>瀹夎鐗?/ 渚挎惡鐗?/li>
-              <li><span class="dot"></span>鏃犻渶鍗曠嫭閰嶇疆 Python / Java</li>
-              <li><span class="dot"></span>API Key 浠呬繚瀛樺湪鏈湴</li>
+              <li><span class="dot"></span>安装版 / 便携版</li>
+              <li><span class="dot"></span>无需单独配置 Python / Java</li>
+              <li><span class="dot"></span>API Key 仅保存在本地</li>
             </ul>
           </div>
 
@@ -100,31 +103,31 @@
             <div class="shot-window">
               <div class="shot-bar">
                 <span class="shot-dots"><i></i><i></i><i></i></span>
-                <span>TrueSight 路 姣旇禌鍒嗘瀽</span>
+                <span>TrueSight · 比赛分析</span>
                 <span class="shot-live"><i></i>LOCAL</span>
               </div>
-              <img src="assets/home.png" alt="TrueSight 瀹㈡埛绔富鐣岄潰锛氭瘮璧涙煡璇笌鑻遍泟閫夋嫨" width="1600" height="1000" />
+              <img src="assets/home.png" alt="TrueSight 客户端主界面：比赛查询与英雄选择" width="1600" height="1000" />
             </div>
             <div class="float-card float-card-a">
               <span class="float-icon">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h16M7 15l3-4 3 2 5-6" /></svg>
               </span>
-              <span><strong>鏃堕棿杞?/strong><small>5 绉掔骇缁忔祹涓庡嚭瑁?/small></span>
+              <span><strong>时间轴</strong><small>5 秒级经济与出装</small></span>
             </div>
             <div class="float-card float-card-b">
               <span class="float-icon">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4m0 10v4M3 12h4m10 0h4M6 6l3 3m6 6 3 3M18 6l-3 3M9 15l-3 3" /></svg>
               </span>
-              <span><strong>AI 澶嶇洏</strong><small>澶氭彁渚涘晢涓庤嚜瀹氫箟妯″瀷</small></span>
+              <span><strong>AI 复盘</strong><small>多提供商与自定义模型</small></span>
             </div>
           </div>
         </div>
 
         <div class="container stats reveal" data-delay="200">
-          <div><strong>鍐呯疆</strong><span>Python 路 Java 路 Clarity</span></div>
-          <div><strong>5s</strong><span>楂樼骇鍒嗘瀽閲囨牱闂撮殧</span></div>
-          <div><strong>6+</strong><span>AI 鎻愪緵鍟嗕笌鑷畾涔夋帴鍙?/span></div>
-          <div><strong>0</strong><span>API Key 涓婁紶鍒版湇鍔″櫒</span></div>
+          <div><strong>内置</strong><span>Python · Java · Clarity</span></div>
+          <div><strong>5s</strong><span>高级分析采样间隔</span></div>
+          <div><strong>6+</strong><span>AI 提供商与自定义接口</span></div>
+          <div><strong>0</strong><span>API Key 上传到服务器</span></div>
         </div>
       </section>
 
@@ -132,17 +135,17 @@
         <div class="container">
           <div class="section-head reveal">
             <p class="eyebrow"><span></span> WHAT YOU GET</p>
-            <h2>浠庡畨瑁呭埌澶嶇洏锛?br />涓€濂楀畬鏁寸殑妗岄潰宸ヤ綔娴併€?/h2>
-            <p>涓嶆姌鑵捐繍琛岀幆澧冿紝涓嶅啀鍒嗗埆鎵撳紑鏁版嵁缃戠珯銆佸綍鍍忓伐鍏峰拰鑱婂ぉ绐楀彛銆俆rueSight 鎶婂鐩橀渶瑕佺殑閮ㄥ垎瑁呰繘涓€涓鎴风銆?/p>
+            <h2>从安装到复盘，<br />一套完整的桌面工作流。</h2>
+            <p>不折腾运行环境，不再分别打开数据网站、录像工具和聊天窗口。TrueSight 把复盘需要的部分装进一个客户端。</p>
           </div>
 
-          <div class="provider-chips reveal" data-delay="60" aria-label="鏀寔鐨?AI 鎻愪緵鍟?>
+          <div class="provider-chips reveal" data-delay="60" aria-label="支持的 AI 提供商">
             <span>OpenCode Go</span>
             <span>MiniMax</span>
             <span>DeepSeek</span>
             <span>OpenAI / Codex API</span>
-            <span>灏忕背 MiMo</span>
-            <em>+ 鑷畾涔夋ā鍨?/em>
+            <span>小米 MiMo</span>
+            <em>+ 自定义模型</em>
           </div>
 
           <div class="feature-grid">
@@ -150,8 +153,8 @@
               <span class="feature-icon">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2" /><path d="M8 21h8M12 17v4" /></svg>
               </span>
-              <h3>Windows 妗岄潰瀹㈡埛绔?/h3>
-              <p>瀹夎鐗堜笌渚挎惡鐗堜袱绉嶅舰鎬併€侲lectron 绐楀彛鍐呯疆瀹屾暣鍚庣銆丣RE銆丆larity 涓庡墠绔紝涓嶉渶瑕佸彟瑁?Python銆丣ava 鎴?Node銆?/p>
+              <h3>Windows 桌面客户端</h3>
+              <p>安装版与便携版两种形态。Electron 窗口内置完整后端、JRE、Clarity 与前端，不需要另装 Python、Java 或 Node。</p>
               <span class="feature-tag">Setup / Portable</span>
             </article>
 
@@ -159,8 +162,8 @@
               <span class="feature-icon">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8L12 3Z" /><path d="m19 15 .8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z" /></svg>
               </span>
-              <h3>AI 瀵瑰眬澶嶇洏</h3>
-              <p>鏀寔 OpenCode Go銆丮iniMax銆丏eepSeek銆丱penAI/Codex API銆佸皬绫?MiMo锛屼互鍙婂甫 OpenAI Chat銆丷esponses銆丄nthropic Messages 鍗忚鐨勮嚜瀹氫箟妯″瀷銆?/p>
+              <h3>AI 对局复盘</h3>
+              <p>支持 OpenCode Go、MiniMax、DeepSeek、OpenAI/Codex API、小米 MiMo，以及带 OpenAI Chat、Responses、Anthropic Messages 协议的自定义模型。</p>
               <span class="feature-tag">Multi-provider</span>
             </article>
 
@@ -168,26 +171,26 @@
               <span class="feature-icon">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h16M7 15l3-4 3 2 5-6" /><circle cx="18" cy="7" r="1.2" /></svg>
               </span>
-              <h3>閫愬垎閽熸椂闂磋酱</h3>
-              <p>缁忔祹銆佽ˉ鍒€銆佺粡楠屻€佺瓑绾т笌鑻遍泟浼ゅ鏇茬嚎锛涚偣鍑讳换鎰忔椂闂寸偣锛岃仈鍔ㄥ嚭瑁呫€佹妧鑳姐€佸ぉ璧嬪拰鑳屽寘蹇収銆?/p>
-              <span class="feature-tag">5 绉掗噰鏍?/span>
+              <h3>逐分钟时间轴</h3>
+              <p>经济、补刀、经验、等级与英雄伤害曲线；点击任意时间点，联动出装、技能、天赋和背包快照。</p>
+              <span class="feature-tag">5 秒采样</span>
             </article>
 
             <article class="feature-card reveal" data-delay="180">
               <span class="feature-icon">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20 20 4M7 4h5v5M17 20h-5v-5" /><path d="M5 14h4v4H5zM15 6h4v4h-4z" /></svg>
               </span>
-              <h3>瀵逛綅涓庨樀瀹瑰垏鎹?/h3>
-              <p>杈硅矾 2v2 / 2v3 瀹屾暣鏄剧ず锛屽垎鏋愬璞′竴閿垏鎹紱瀵逛綅鍙窡闅忓垎璺嚜鍔ㄨ皟鏁达紝涔熷彲鑷畾涔変繚鐣欍€?/p>
-              <span class="feature-tag">1v1 路 2v2 路 3v3</span>
+              <h3>对位与阵容切换</h3>
+              <p>边路 2v2 / 2v3 完整显示，分析对象一键切换；对位可跟随分路自动调整，也可自定义保留。</p>
+              <span class="feature-tag">1v1 · 2v2 · 3v3</span>
             </article>
 
             <article class="feature-card reveal" data-delay="240">
               <span class="feature-icon">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7v5c0 5 3.4 8 8 9 4.6-1 8-4 8-9V7l-8-4Z" /><path d="m9 12 2 2 4-5" /></svg>
               </span>
-              <h3>鍑鸿銆佽儗鍖呬笌鍥㈡垬</h3>
-              <p>鍚堟垚銆佸嵎杞淬€佷拱鍗栦笌娑堣€楁寜鐪熷疄鏍间綅杩樺師锛涘洟鎴樼粨鍚堜激瀹炽€佹不鐤椼€佸鐩娿€佹妧鑳戒笌鎴樺満璺濈锛岀己甯師鍥犳竻鏅板彲瑙併€?/p>
+              <h3>出装、背包与团战</h3>
+              <p>合成、卷轴、买卖与消耗按真实格位还原；团战结合伤害、治疗、增益、技能与战场距离，缺席原因清晰可见。</p>
               <span class="feature-tag">Replay exact</span>
             </article>
 
@@ -195,8 +198,8 @@
               <span class="feature-icon">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7v5c0 5 3.4 8 8 9 4.6-1 8-4 8-9V7l-8-4Z" /><path d="M12 8v5m0 3v.2" /></svg>
               </span>
-              <h3>鏈湴浼樺厛锛屾暟鎹彲鎺?/h3>
-              <p>鍓嶇鍙闂湰鏈烘湇鍔★紝绗笁鏂硅姹傜敱鍐呯疆 Python 浠ｇ悊锛汚PI Key 浠呭瓨浜庡綋鍓嶅鎴风锛屼笉鍐欏叆鏃ュ織銆佸畨瑁呭寘鎴栦唬鐮佷粨搴撱€?/p>
+              <h3>本地优先，数据可控</h3>
+              <p>前端只访问本机服务，第三方请求由内置 Python 代理；API Key 仅存于当前客户端，不写入日志、安装包或代码仓库。</p>
               <span class="feature-tag">Privacy first</span>
             </article>
           </div>
@@ -207,38 +210,38 @@
         <div class="container">
           <div class="section-head reveal">
             <p class="eyebrow"><span></span> INTERFACE</p>
-            <h2>淇℃伅瀵嗗害寰堥珮锛?br />闃呰璧锋潵鍗村緢瀹夐潤銆?/h2>
-            <p>缁熶竴鐨勬椂闂磋酱寮圭獥銆佸浣嶅ご閮ㄣ€佹妧鑳藉ぉ璧嬪拰鍥㈡垬闈㈡澘锛岃鏁版嵁鍦ㄥ悓涓€绉嶈瑙夎瑷€閲屽睍寮€銆?/p>
+            <h2>信息密度很高，<br />阅读起来却很安静。</h2>
+            <p>统一的时间轴弹窗、对位头部、技能天赋和团战面板，让数据在同一种视觉语言里展开。</p>
           </div>
 
           <figure class="showcase-main reveal">
             <div class="showcase-frame">
-              <img src="assets/timeline.png" alt="TrueSight 鏃堕棿杞达細缁忔祹鏇茬嚎銆佸嚭瑁呰矾绾裤€佹湰浣撲笌灏忕唺鑳屽寘" width="1600" height="1300" loading="lazy" />
+              <img src="assets/timeline.png" alt="TrueSight 时间轴：经济曲线、出装路线、本体与小熊背包" width="1600" height="1300" loading="lazy" />
             </div>
             <figcaption>
               <span class="caption-index">01</span>
-              <span><strong>瀹屾暣鏃堕棿杞?/strong><small>鍑鸿銆佽儗鍖呫€佹妧鑳戒笌瀵逛綅锛屽洿缁曞悓涓€涓椂闂存父鏍囪仈鍔ㄣ€?/small></span>
+              <span><strong>完整时间轴</strong><small>出装、背包、技能与对位，围绕同一个时间游标联动。</small></span>
             </figcaption>
           </figure>
 
           <div class="showcase-grid">
             <figure class="showcase-small reveal" data-delay="80">
               <div class="showcase-frame">
-                <img src="assets/talents-panel.png" alt="TrueSight 鎶€鑳戒笌澶╄祴锛氭湰浣撲笌灏忕唺鍙屽ぉ璧嬫爲" width="1534" height="903" loading="lazy" />
+                <img src="assets/talents-panel.png" alt="TrueSight 技能与天赋：本体与小熊双天赋树" width="1534" height="903" loading="lazy" />
               </div>
               <figcaption>
                 <span class="caption-index">02</span>
-                <span><strong>鎶€鑳戒笌澶╄祴</strong><small>鏈綋銆佸皬鐔婂弻澶╄祴鏍戯紝鍙欢鍚庤ˉ閫夈€?/small></span>
+                <span><strong>技能与天赋</strong><small>本体、小熊双天赋树，可延后补选。</small></span>
               </figcaption>
             </figure>
 
             <figure class="showcase-small reveal" data-delay="160">
               <div class="showcase-frame">
-                <img src="assets/teamfights.png" alt="TrueSight 鍥㈡垬鍒嗘瀽锛氬弬鍥㈢帺瀹朵笌缂哄腑鍘熷洜" width="1600" height="1000" loading="lazy" />
+                <img src="assets/teamfights.png" alt="TrueSight 团战分析：参团玩家与缺席原因" width="1600" height="1000" loading="lazy" />
               </div>
               <figcaption>
                 <span class="caption-index">03</span>
-                <span><strong>鍥㈡垬澶嶇洏</strong><small>鍙傚洟鑰呫€佷激瀹虫不鐤椼€佸叧閿妧鑳戒笌缂哄腑鍘熷洜銆?/small></span>
+                <span><strong>团战复盘</strong><small>参团者、伤害治疗、关键技能与缺席原因。</small></span>
               </figcaption>
             </figure>
           </div>
@@ -250,63 +253,68 @@
           <div class="download-panel reveal">
             <div class="download-copy">
               <p class="eyebrow eyebrow-light"><span></span> DOWNLOAD FOR WINDOWS</p>
-              <h2>涓嬭浇 TrueSight 瀹㈡埛绔€?/h2>
+              <h2>下载 TrueSight 客户端。</h2>
               <p>
-                閫夋嫨瀹夎鐗堟垨渚挎惡鐗堛€傚畨瑁呭悗鏃犻渶鍗曠嫭閰嶇疆 Python銆丣ava銆丯ode 鎴?Clarity锛?                棣栨鍚姩鍗冲彲杩涘叆姣旇禌鍒嗘瀽銆?              </p>
+                选择安装版或便携版。安装后无需单独配置 Python、Java、Node 或 Clarity，
+                首次启动即可进入比赛分析。
+              </p>
               <div class="download-actions">
                 <a class="btn btn-light btn-lg" href="/downloads/TrueSight-Setup-0.1.0-x64.exe" download>
-                  涓嬭浇瀹夎鐗?                  <span class="btn-meta">164 MB</span>
+                  下载安装版
+                  <span class="btn-meta">164 MB</span>
                 </a>
                 <a class="btn btn-outline-light btn-lg" href="/downloads/TrueSight-Portable-0.1.0-x64.exe" download>
-                  渚挎惡鐗?                  <span class="btn-meta">152 MB</span>
+                  便携版
+                  <span class="btn-meta">152 MB</span>
                 </a>
               </div>
               <div class="download-badges">
                 <span>v0.1.0</span>
                 <span>Windows 10 / 11 x64</span>
-                <span>鏃犻渶绠＄悊鍛樻潈闄?/span>
+                <span>无需管理员权限</span>
               </div>
               <p class="download-note">
-                褰撳墠鏋勫缓鏈厤缃唬鐮佺鍚嶏紝Windows SmartScreen 鍙兘鎻愮ず鈥滄湭鐭ュ彂甯冭€呪€濄€傞€夋嫨鈥滄洿澶氫俊鎭?鈫?浠嶈杩愯鈥濆嵆鍙€?              </p>
+                当前构建未配置代码签名，Windows SmartScreen 可能提示“未知发布者”。选择“更多信息 → 仍要运行”即可。
+              </p>
               <ul class="download-includes">
-                <li>Python / Java / Clarity 宸插唴缃?/li>
-                <li>鏈湴褰曞儚瑙ｆ瀽涓?AI 澶嶇洏</li>
-                <li>瀹夎鐗堝垱寤哄揩鎹锋柟寮?/li>
-                <li>渚挎惡鐗堟棤闇€鍐欏叆瀹夎鐩綍</li>
+                <li>Python / Java / Clarity 已内置</li>
+                <li>本地录像解析与 AI 复盘</li>
+                <li>安装版创建快捷方式</li>
+                <li>便携版无需写入安装目录</li>
               </ul>
             </div>
 
             <div class="download-methods">
               <div class="method-card method-recommended">
                 <span class="method-label">RECOMMENDED</span>
-                <h3>瀹夎鐗?/h3>
-                <p>鍥哄畾瀹夎鍒版湰鏈猴紝鍒涘缓寮€濮嬭彍鍗曞拰妗岄潰蹇嵎鏂瑰紡锛岄€傚悎闀挎湡浣跨敤鍜岃嚜鍔ㄦ洿鏂般€?/p>
+                <h3>安装版</h3>
+                <p>固定安装到本机，创建开始菜单和桌面快捷方式，适合长期使用和自动更新。</p>
                 <ul class="download-meta">
-                  <li><span>鏂囦欢</span><em>TrueSight-Setup-0.1.0-x64.exe</em></li>
-                  <li><span>澶у皬</span><em>绾?164 MB</em></li>
-                  <li><span>瀹夎</span><em>褰撳墠鐢ㄦ埛 路 鏃犻渶绠＄悊鍛?/em></li>
+                  <li><span>文件</span><em>TrueSight-Setup-0.1.0-x64.exe</em></li>
+                  <li><span>大小</span><em>约 164 MB</em></li>
+                  <li><span>安装</span><em>当前用户 · 无需管理员</em></li>
                 </ul>
-                <a class="text-link" href="/downloads/TrueSight-Setup-0.1.0-x64.exe" download>涓嬭浇瀹夎鐗?<span>鈫?/span></a>
+                <a class="text-link" href="/downloads/TrueSight-Setup-0.1.0-x64.exe" download>下载安装版 <span>→</span></a>
               </div>
 
               <div class="method-card">
                 <span class="method-label">PORTABLE</span>
-                <h3>渚挎惡鐗?/h3>
-                <p>鍗曚釜 exe锛屼笉鍐欏畨瑁呯洰褰曘€傞娆¤繍琛屼細灏嗗悗绔噯澶囧埌鐢ㄦ埛鏁版嵁鐩綍锛屼箣鍚庣洿鎺ュ惎鍔ㄣ€?/p>
+                <h3>便携版</h3>
+                <p>单个 exe，不写安装目录。首次运行会将后端准备到用户数据目录，之后直接启动。</p>
                 <ul class="download-meta">
-                  <li><span>鏂囦欢</span><em>TrueSight-Portable-0.1.0-x64.exe</em></li>
-                  <li><span>澶у皬</span><em>绾?152 MB</em></li>
-                  <li><span>鏁版嵁</span><em>%APPDATA%\TrueSight</em></li>
+                  <li><span>文件</span><em>TrueSight-Portable-0.1.0-x64.exe</em></li>
+                  <li><span>大小</span><em>约 152 MB</em></li>
+                  <li><span>数据</span><em>%APPDATA%\TrueSight</em></li>
                 </ul>
-                <a class="text-link" href="/downloads/TrueSight-Portable-0.1.0-x64.exe" download>涓嬭浇渚挎惡鐗?<span>鈫?/span></a>
+                <a class="text-link" href="/downloads/TrueSight-Portable-0.1.0-x64.exe" download>下载便携版 <span>→</span></a>
               </div>
 
               <div class="method-card">
                 <span class="method-label">DEVELOPER</span>
-                <h3>婧愮爜 / 鏃х増鏈?/h3>
-                <p>寮€鍙戣€呬粛鍙娇鐢ㄥ師鏈?Web 妯″紡锛氬厠闅嗕粨搴撱€佽繍琛?Clarity 鐜骞跺弬涓庢闈㈢寮€鍙戙€?/p>
-                <a class="text-link" href="https://github.com/LiBaiQiYu/TrueSight" target="_blank" rel="noreferrer">鎵撳紑 GitHub <span>鈫?/span></a>
-                <a class="text-link" href="https://github.com/LiBaiQiYu/TrueSight/releases" target="_blank" rel="noreferrer">鏌ョ湅 Releases <span>鈫?/span></a>
+                <h3>源码 / 旧版本</h3>
+                <p>开发者仍可使用原有 Web 模式：克隆仓库、运行 Clarity 环境并参与桌面端开发。</p>
+                <a class="text-link" href="https://github.com/LiBaiQiYu/TrueSight" target="_blank" rel="noreferrer">打开 GitHub <span>→</span></a>
+                <a class="text-link" href="https://github.com/LiBaiQiYu/TrueSight/releases" target="_blank" rel="noreferrer">查看 Releases <span>→</span></a>
               </div>
             </div>
           </div>
@@ -317,53 +325,53 @@
         <div class="container start-layout">
           <div class="start-intro reveal">
             <p class="eyebrow"><span></span> GETTING STARTED</p>
-            <h2>涓嬭浇銆佸惎鍔ㄣ€佸紑涓€灞€銆?/h2>
-            <p>涓嶅啀闇€瑕佸厛瀹夎 Python 鎴?Java銆傚鎴风宸茬粡鍐呯疆瀹屾暣杩愯鏃朵笌 Clarity 瑙ｆ瀽鍣ㄣ€?/p>
+            <h2>下载、启动、开一局。</h2>
+            <p>不再需要先安装 Python 或 Java。客户端已经内置完整运行时与 Clarity 解析器。</p>
 
             <div class="requirement-box">
-              <span class="requirement-title">杩愯鐜</span>
+              <span class="requirement-title">运行环境</span>
               <ul>
-                <li><span>Windows</span><em>10 / 11 路 x64</em></li>
-                <li><span>杩愯鏃?/span><em>宸插唴缃紝鏃犻渶瀹夎</em></li>
-                <li><span>纾佺洏</span><em>绾?500 MB</em></li>
-                <li><span>鏄惧崱</span><em>鏀寔 D3D11 鍔犻€?/em></li>
-                <li><span>缃戠粶</span><em>鑾峰彇姣旇禌涓?AI 鏃堕渶瑕?/em></li>
+                <li><span>Windows</span><em>10 / 11 · x64</em></li>
+                <li><span>运行时</span><em>已内置，无需安装</em></li>
+                <li><span>磁盘</span><em>约 500 MB</em></li>
+                <li><span>显卡</span><em>支持 D3D11 加速</em></li>
+                <li><span>网络</span><em>获取比赛与 AI 时需要</em></li>
               </ul>
             </div>
 
-            <a class="text-link" href="https://github.com/LiBaiQiYu/TrueSight#readme" target="_blank" rel="noreferrer">寮€鍙戣€呮枃妗?<span>鈫?/span></a>
+            <a class="text-link" href="https://github.com/LiBaiQiYu/TrueSight#readme" target="_blank" rel="noreferrer">开发者文档 <span>→</span></a>
           </div>
 
           <div class="steps">
             <article class="step reveal">
               <span class="step-number">01</span>
               <div class="step-body">
-                <h3>涓嬭浇骞跺畨瑁?/h3>
-                <p>閫夋嫨瀹夎鐗堬紝鎸夊悜瀵煎畬鎴愬畨瑁咃紱鎴栫洿鎺ヨ繍琛屼究鎼虹増 exe銆備袱涓増鏈姛鑳戒竴鑷淬€?/p>
+                <h3>下载并安装</h3>
+                <p>选择安装版，按向导完成安装；或直接运行便携版 exe。两个版本功能一致。</p>
               </div>
             </article>
 
             <article class="step reveal" data-delay="60">
               <span class="step-number">02</span>
               <div class="step-body">
-                <h3>鍚姩瀹㈡埛绔?/h3>
-                <p>鍙屽嚮 TrueSight銆傚唴缃?Python銆丣ava銆丆larity 涓庡墠绔細鑷姩鍚姩锛屼笉闇€瑕佸懡浠よ鎴栫幆澧冨彉閲忋€?/p>
+                <h3>启动客户端</h3>
+                <p>双击 TrueSight。内置 Python、Java、Clarity 与前端会自动启动，不需要命令行或环境变量。</p>
               </div>
             </article>
 
             <article class="step reveal" data-delay="120">
               <span class="step-number">03</span>
               <div class="step-body">
-                <h3>閫夋嫨姣旇禌涓庣帺瀹?/h3>
-                <p>杈撳叆姣旇禌 ID锛岄€夋嫨鍒嗘瀽瀵硅薄锛涢渶瑕佹洿缁嗙殑澶嶇洏鏃跺垏鎹㈠埌銆岄珮绾у垎鏋愩€嶏紝璁╂湰鍦?Clarity 瑙ｆ瀽褰曞儚銆?/p>
+                <h3>选择比赛与玩家</h3>
+                <p>输入比赛 ID，选择分析对象；需要更细的复盘时切换到「高级分析」，让本地 Clarity 解析录像。</p>
               </div>
             </article>
 
             <article class="step reveal" data-delay="180">
               <span class="step-number">04</span>
               <div class="step-body">
-                <h3>閰嶇疆 AI 骞跺垎鏋?/h3>
-                <p>鍦ㄨ缃〉濉啓妯″瀷 API Key锛岄€夋嫨鎻愪緵鍟嗘垨鑷畾涔夋帴鍙ｃ€侹ey 鍙繚瀛樺湪鏈湴锛岀敱鍐呯疆鏈嶅姟杞彂銆?/p>
+                <h3>配置 AI 并分析</h3>
+                <p>在设置页填写模型 API Key，选择提供商或自定义接口。Key 只保存在本地，由内置服务转发。</p>
               </div>
             </article>
           </div>
@@ -374,35 +382,35 @@
         <div class="container faq-layout">
           <div class="section-head reveal">
             <p class="eyebrow"><span></span> FAQ</p>
-            <h2>涓嬭浇涔嬪墠锛?br />浣犲彲鑳芥兂鐭ラ亾銆?/h2>
-            <p>鏇村缁嗚妭涓庡懡浠よ鏄庯紝璇锋煡鐪嬩粨搴?README 涓?docs銆?/p>
-            <a class="text-link" href="https://github.com/LiBaiQiYu/TrueSight#readme" target="_blank" rel="noreferrer">鎵撳紑 README <span>鈫?/span></a>
+            <h2>下载之前，<br />你可能想知道。</h2>
+            <p>更多细节与命令说明，请查看仓库 README 与 docs。</p>
+            <a class="text-link" href="https://github.com/LiBaiQiYu/TrueSight#readme" target="_blank" rel="noreferrer">打开 README <span>→</span></a>
           </div>
 
           <div class="faq-list">
             <details class="faq-item reveal" open>
-              <summary>瀹夎鐗堝拰渚挎惡鐗堟湁浠€涔堝尯鍒紵<span></span></summary>
-              <p>鍔熻兘涓€鑷淬€傚畨瑁呯増浼氬畨瑁呭埌鏈満骞跺垱寤哄揩鎹锋柟寮忥紱渚挎惡鐗堟槸鍗曚釜 exe锛岄€傚悎鏀?U 鐩樻垨涓存椂浣跨敤銆備究鎼虹増棣栨鍚姩浼氭妸鍚庣鍑嗗鍒扮敤鎴锋暟鎹洰褰曪紝鍥犳绗竴娆′細绋嶆參銆?/p>
+              <summary>安装版和便携版有什么区别？<span></span></summary>
+              <p>功能一致。安装版会安装到本机并创建快捷方式；便携版是单个 exe，适合放 U 盘或临时使用。便携版首次启动会把后端准备到用户数据目录，因此第一次会稍慢。</p>
             </details>
             <details class="faq-item reveal">
-              <summary>杩橀渶瑕佽嚜宸卞畨瑁?Python / Java / Clarity 鍚楋紵<span></span></summary>
-              <p>涓嶉渶瑕併€傚鎴风宸插唴缃?Python銆丣RE 21銆丆larity 涓庤В鏋愬櫒銆傚彧鏈変娇鐢ㄦ簮鐮?Web 妯″紡寮€鍙戞椂鎵嶉渶瑕佹寜 README 鍑嗗鐜銆?/p>
+              <summary>还需要自己安装 Python / Java / Clarity 吗？<span></span></summary>
+              <p>不需要。客户端已内置 Python、JRE 21、Clarity 与解析器。只有使用源码 Web 模式开发时才需要按 README 准备环境。</p>
             </details>
             <details class="faq-item reveal">
-              <summary>AI Key 鏀寔鍝簺鏈嶅姟锛?span></span></summary>
-              <p>鏀寔 OpenCode Go銆丮iniMax銆丏eepSeek銆丱penAI/Codex API銆佸皬绫?MiMo锛屼互鍙?OpenAI Chat Completions銆丱penAI Responses銆丄nthropic Messages 鍗忚鐨勮嚜瀹氫箟鎺ュ彛銆侹ey 鍙繚瀛樺湪鏈湴瀹㈡埛绔€?/p>
+              <summary>AI Key 支持哪些服务？<span></span></summary>
+              <p>支持 OpenCode Go、MiniMax、DeepSeek、OpenAI/Codex API、小米 MiMo，以及带 OpenAI Chat Completions、OpenAI Responses、Anthropic Messages 协议的自定义接口。Key 只保存在本地客户端。</p>
             </details>
             <details class="faq-item reveal">
-              <summary>涓轰粈涔?Windows 鎻愮ず鈥滄湭鐭ュ彂甯冭€呪€濓紵<span></span></summary>
-              <p>褰撳墠瀹夎鍖呭皻鏈厤缃唬鐮佺鍚嶈瘉涔︼紝Windows SmartScreen 浼氭樉绀烘湭鐭ュ彂甯冭€呫€傜‘璁ゆ枃浠舵潵鑷湰椤垫垨 GitHub Releases 鍚庯紝閫夋嫨鈥滄洿澶氫俊鎭?鈫?浠嶈杩愯鈥濄€?/p>
+              <summary>为什么 Windows 提示“未知发布者”？<span></span></summary>
+              <p>当前安装包尚未配置代码签名证书，Windows SmartScreen 会显示未知发布者。确认文件来自本页或 GitHub Releases 后，选择“更多信息 → 仍要运行”。</p>
             </details>
             <details class="faq-item reveal">
-              <summary>鏀寔 macOS / Linux 鍚楋紵<span></span></summary>
-              <p>褰撳墠瀹㈡埛绔潰鍚?Windows 10 / 11 x64銆傛牳蹇冨墠绔笌 Python 鏈嶅姟鍙Щ妞嶏紝浣?Java 杩愯鏃躲€佸畨瑁呭櫒鍜岄儴鍒嗚矾寰勪粛闇€鎸夊钩鍙伴€傞厤銆?/p>
+              <summary>支持 macOS / Linux 吗？<span></span></summary>
+              <p>当前客户端面向 Windows 10 / 11 x64。核心前端与 Python 服务可移植，但 Java 运行时、安装器和部分路径仍需按平台适配。</p>
             </details>
             <details class="faq-item reveal">
-              <summary>濡備綍鏇存柊鎴栧嵏杞斤紵<span></span></summary>
-              <p>涓嬭浇鏂扮増鏈畨瑁呭寘瑕嗙洊瀹夎鍗冲彲銆傚畨瑁呯増鍙湪 Windows銆屽簲鐢ㄥ拰鍔熻兘銆嶄腑鍗歌浇锛涗究鎼虹増閫€鍑哄悗鍒犻櫎 exe銆傜敤鎴锋暟鎹綅浜?<code>%APPDATA%\TrueSight</code>銆?/p>
+              <summary>如何更新或卸载？<span></span></summary>
+              <p>下载新版本安装包覆盖安装即可。安装版可在 Windows「应用和功能」中卸载；便携版退出后删除 exe。用户数据位于 <code>%APPDATA%\TrueSight</code>。</p>
             </details>
           </div>
         </div>
@@ -415,12 +423,12 @@
           <img src="assets/truesight-mark.svg" alt="" width="28" height="28" />
           <span><strong>TrueSight</strong><small>DOTA 2 MATCH ANALYZER</small></span>
         </div>
-        <p class="footer-note">鐢?AI 娲炲療姣忎竴鍦?Dota 2 姣旇禌銆傛湰鍦拌繍琛岋紝鏁版嵁鍙帶銆?/p>
+        <p class="footer-note">用 AI 洞察每一场 Dota 2 比赛。本地运行，数据可控。</p>
         <div class="footer-links">
           <a href="https://github.com/LiBaiQiYu/TrueSight" target="_blank" rel="noreferrer">GitHub</a>
           <a href="https://github.com/LiBaiQiYu/TrueSight#readme" target="_blank" rel="noreferrer">README</a>
           <a href="https://github.com/LiBaiQiYu/TrueSight/issues" target="_blank" rel="noreferrer">Issues</a>
-          <a href="#top">鍥炲埌椤堕儴</a>
+          <a href="#top">回到顶部</a>
         </div>
       </div>
       <div class="container footer-meta">
@@ -432,14 +440,13 @@
         <p class="footer-powered">
           <span>POWERED BY</span>
           <a href="https://www.opendota.com/" target="_blank" rel="noreferrer">OpenDota</a>
-          <b>路</b>
+          <b>·</b>
           <a href="https://stratz.com/" target="_blank" rel="noreferrer">STRATZ</a>
-          <b>路</b>
+          <b>·</b>
           <a href="https://github.com/skadistats/clarity" target="_blank" rel="noreferrer">Clarity</a>
         </p>
-        <p class="footer-copy">漏 2026 TrueSight</p>
+        <p class="footer-copy">© 2026 TrueSight</p>
       </div>
     </footer>
   </body>
 </html>
-

@@ -28,6 +28,14 @@ function clock(sec: number): string {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 }
 
+function clockPrecise(sec: number): string {
+  const total = Math.max(0, sec)
+  const [whole, fraction = '000'] = total.toFixed(3).split('.')
+  const minutes = Math.floor(Number(whole) / 60)
+  const seconds = Number(whole) % 60
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${fraction}`
+}
+
 function compact(value: number | null | undefined): string {
   if (value == null) return '—'
   if (Math.abs(value) >= 1000) return `${(value / 1000).toFixed(1)}k`
@@ -256,11 +264,11 @@ function mpText(hero: CombatHero): string {
       <div class="cn-block">
         <div class="cn-block-head">
           <span>战斗时间线</span>
-          <small>只显示参战英雄事件</small>
+          <small>事件时间精确到 0.1 秒</small>
         </div>
         <div class="cn-timeline">
           <div v-for="(event, index) in current.timeline" :key="index" class="cn-event" :class="event.kind.toLowerCase()">
-            <span class="cn-event-time">{{ clock(event.t) }}</span>
+            <span class="cn-event-time">{{ clockPrecise(event.t) }}</span>
             <span class="cn-event-dot" />
             <span class="cn-event-label">{{ event.label }}</span>
             <span v-if="event.value" class="cn-event-value">

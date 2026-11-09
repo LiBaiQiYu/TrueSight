@@ -22,7 +22,8 @@
 
 - 官网主入口改为 Windows 桌面客户端；安装版/便携版链接为 `/downloads/*`；
 - 安装包存放在 Cloudflare R2 `truesight-downloads`，Worker `DOWNLOADS` 绑定输出；
-- 新增版本需同步 `website/index.html`、`cloudflare/worker.js` 白名单、R2 对象和部署。
+- 新增版本需同步 `website/index.html`、`cloudflare/worker.js` 白名单、R2 对象和部署；
+- `website/index.html` 必须用 UTF-8 写入并用浏览器实际渲染校验：曾在改版时被写成乱码，`<title>` 的 `<` 被吞后整页会被浏览器当作文本，GitHub 上的同一提交也受影响。
 
 ## 2026-11-09 Electron 渲染策略
 

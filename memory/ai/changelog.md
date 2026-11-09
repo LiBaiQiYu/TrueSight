@@ -4,7 +4,8 @@
 
 ## 2026-11-09
 
-- 战斗节点数据修正：过滤中立道具「狂石包」与 Invoker 的宝珠/Invoke 组件；普通攻击只认物理且无技能来源的伤害；Greater Bash 等无 inflictor 伤害改为明确来源，避免误标“普通攻击”。
+- 修复官网打不开：`website/index.html` 中文编码损坏，且 `<title>` 的 `<` 被吞导致浏览器把整页当文本；重写页面并部署（版本 `e7dc592b`），已验证桌面/移动端渲染与下载链接。
+- 战斗节点数据修正：过滤中立道具「狂石包」与 Invoker 的宝珠/Invoke 组件；普通攻击只认物理且无技能来源的伤害；无 inflictor 的 DoT 继承 2.5 秒内同目标来源（血腥榴弹），时间线显示 `MM:SS.mmm`。
 - 时间轴「团战」Tab 升级为「战斗节点」：以分析对象击杀/助攻/阵亡为锚点，支持单杀、小规模、团战、多杀与助攻节点；schema 10 导出战斗事件、助攻、伤害类型和 1 秒 HP/MP/金钱/经验采样；新面板展示参战英雄、技能/普攻、承伤来源与时间线。
 - 官网改为桌面客户端导向：Hero 下载客户端、安装版/便携版下载卡、版本/大小/系统信息、四步安装使用、FAQ 与 AI 提供商展示；下载文件通过 Worker `DOWNLOADS` 绑定从 R2 `truesight-downloads` 提供。
 - 修复 Portable 高级分析找不到 Clarity：首次启动把 `resources/backend` 复制到 `%APPDATA%\TrueSight\portable-backend`，避免系统清理临时目录后 classes/lib/jre 丢失；使用稳定 backend 启动 Python/Java。
