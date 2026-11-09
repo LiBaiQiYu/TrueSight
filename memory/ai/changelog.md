@@ -4,6 +4,7 @@
 
 ## 2026-11-09
 
+- 桌面打包区分产物名：`TrueSight-Portable-*` 与 `TrueSight-Setup-*`，NSIS per-user 安装包已可产出。
 - 桌面客户端性能修复：移除无条件软件渲染，默认启用 D3D11/GPU 合成；桌面模式关闭卡片与时间轴 backdrop blur，并关闭失焦节流；GPU 状态写入 backend.log。
 
 ## 2026-11-06

@@ -10,8 +10,8 @@
     "dev": "electron .",
     "start": "electron .",
     "pack": "npm --prefix ../ui run build && electron-builder --dir",
-    "dist": "npm --prefix ../ui run build && electron-builder --win portable",
-    "dist:installer": "npm --prefix ../ui run build && electron-builder --win nsis",
+    "dist": "npm --prefix ../ui run build && electron-builder --win portable --config.artifactName=TrueSight-Portable-${version}-${arch}.${ext}",
+    "dist:installer": "npm --prefix ../ui run build && electron-builder --win nsis --config.artifactName=TrueSight-Setup-${version}-${arch}.${ext}",
     "fix:integrity": "powershell -ExecutionPolicy Bypass -File ../tools/desktop/fix-integrity.ps1"
   },
   "devDependencies": {

@@ -85,13 +85,21 @@ npm run dist
 
 输出位于 `desktop/release/`，默认生成：
 
-- `TrueSight-0.1.0-x64.exe`：Portable 便携版，单文件运行。
+- `TrueSight-Portable-0.1.0-x64.exe`：Portable 便携版，单文件运行。
 
 如需 NSIS 安装包：
 
 ```powershell
 npm run dist:installer
 ```
+
+安装包输出：
+
+```text
+TrueSight-Setup-0.1.0-x64.exe
+```
+
+安装器为 per-user 安装，会创建开始菜单和桌面快捷方式。
 
 打包会包含：
 
