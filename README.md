@@ -272,7 +272,7 @@ javac --release 21 -encoding UTF-8 -cp "classes;lib/*" -d classes java\MatchJson
 - `OpenAI Responses`
 - `Anthropic Messages`
 
-可填写 Provider ID、显示名称、API 地址、协议、API Key、模型 ID、模型目录和推理档位。目录为空时不显示模型，但手填的模型 ID 仍会直接发送。获取模型目录时会尝试读取 `capabilities.reasoning.effort`、`reasoning.effort` 或 `thinkingLevelMap`，自动填充 `low / medium / high / xhigh / max / ultra` 等档位；接口不提供时再手动填写，留空则不发送 `reasoning_effort`。
+可填写 Provider ID、显示名称、API 地址、协议、API Key、模型 ID、模型目录和推理档位。目录为空时不显示模型，但手填的模型 ID 仍会直接发送。获取模型目录时会尝试读取 `capabilities.reasoning.effort`、`reasoning.effort` 或 `thinkingLevelMap`，自动填充 `low / medium / high / xhigh / max / ultra` 等档位；推理档位使用标签编辑，点选预设或输入逗号/回车生成标签，点 × 移除，留空则不发送 `reasoning_effort`。
 
 > Claude Code / Codex 的订阅登录与 API Key 是两套机制；当前支持的是 API Key 与自定义协议接口，不包含订阅 OAuth/CLI 登录。
 | STRATZ Token | 可选，用于精确位置与角色数据 |

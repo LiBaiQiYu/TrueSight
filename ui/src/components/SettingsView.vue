@@ -44,6 +44,45 @@ const catalogText = computed({
       .filter((item, index, list) => item.length > 0 && list.indexOf(item) === index)
   }
 })
+const effortInput = ref('')
+const effortPresets = ['low', 'medium', 'high', 'xhigh', 'max', 'ultra'] as const
+
+function addEfforts(raw: string): void {
+  const additions = raw
+    .split(/[\s,，]+/)
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean)
+  for (const level of additions) {
+    if (!config.customEfforts.includes(level)) config.customEfforts.push(level)
+  }
+}
+
+function commitEffortInput(): void {
+  addEfforts(effortInput.value)
+  effortInput.value = ''
+}
+
+function removeEffort(level: string): void {
+  const index = config.customEfforts.indexOf(level)
+  if (index >= 0) config.customEfforts.splice(index, 1)
+}
+
+function toggleEffort(level: string): void {
+  if (config.customEfforts.includes(level)) removeEffort(level)
+  else addEfforts(level)
+}
+
+function onEffortKeydown(event: KeyboardEvent): void {
+  if (event.isComposing) return
+  if (event.key === 'Enter' || event.key === ',' || event.key === '，') {
+    event.preventDefault()
+    commitEffortInput()
+    return
+  }
+  if (event.key === 'Backspace' && !effortInput.value && config.customEfforts.length) {
+    config.customEfforts.pop()
+  }
+}
 const effortText = computed({
   get: () => config.customEfforts.join(', '),
   set: (value: string) => {
@@ -194,15 +233,46 @@ const statusText = computed(() => {
         </select>
 
         <label class="field-label" for="settings-efforts">推理档位</label>
-        <input
-          id="settings-efforts"
-          v-model="effortText"
-          class="field mono"
-          spellcheck="false"
-          autocomplete="off"
-          placeholder="low, medium, high, xhigh, max, ultra"
-        />
-        <p class="note field-note">留空不发送档位；ultra 等非标准档位也可直接填写。</p>
+        <div class="effort-editor">
+          <div class="effort-tags">
+            <span v-for="level in config.customEfforts" :key="level" class="effort-tag">
+              {{ level }}
+              <button
+                type="button"
+                class="effort-remove"
+                :aria-label="'移除 ' + level"
+                @click="removeEffort(level)"
+              >
+                ×
+              </button>
+            </span>
+            <input
+              id="settings-efforts"
+              v-model="effortInput"
+              class="effort-entry"
+              spellcheck="false"
+              autocomplete="off"
+              placeholder="输入档位，逗号或回车生成标签"
+              @keydown="onEffortKeydown"
+              @blur="commitEffortInput"
+            />
+          </div>
+          <div class="effort-presets">
+            <span class="preset-label">快捷</span>
+            <button
+              v-for="preset in effortPresets"
+              :key="preset"
+              type="button"
+              class="preset-btn"
+              :class="{ on: config.customEfforts.includes(preset) }"
+              :aria-pressed="config.customEfforts.includes(preset)"
+              @click="toggleEffort(preset)"
+            >
+              {{ preset }}
+            </button>
+          </div>
+        </div>
+        <p class="note field-note">输入逗号或回车生成标签，点 × 移除；留空则不发送档位。</p>
 
         <label class="field-label" for="settings-custom-key">API 密钥</label>
         <div class="input-wrap">
@@ -554,6 +624,113 @@ const statusText = computed(() => {
   margin: 6px 0 0;
   font-size: 10.5px;
   line-height: 1.5;
+}
+
+.effort-editor {
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--input-bg);
+  transition: border-color 0.16s, box-shadow 0.16s;
+}
+
+.effort-editor:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.effort-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 26px;
+}
+
+.effort-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 3px 2px 7px;
+  border-radius: 6px;
+  border: 1px solid var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.effort-remove {
+  width: 17px;
+  height: 17px;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  color: var(--accent-text);
+  opacity: 0.7;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.effort-remove:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.effort-entry {
+  flex: 1;
+  min-width: 150px;
+  height: 26px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11.5px;
+}
+
+.effort-entry::placeholder {
+  color: var(--text-mute);
+  font-family: inherit;
+}
+
+.effort-presets {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.preset-label {
+  margin-right: 2px;
+  color: var(--text-mute);
+  font-size: 10.5px;
+}
+
+.preset-btn {
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 5px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  transition: color 0.16s, border-color 0.16s, background 0.16s;
+}
+
+.preset-btn:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+
+.preset-btn.on {
+  color: var(--accent-text);
+  border-color: var(--accent-line);
+  background: var(--accent-soft);
 }
 
 .catalog-field {
