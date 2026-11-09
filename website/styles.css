@@ -2104,7 +2104,7 @@ button {
 }
 
 .download-includes li::before {
-  content: '✓';
+  content: '鉁?;
   flex: none;
   color: #6ee7b7;
   font-size: 9px;
@@ -2114,4 +2114,28 @@ button {
   .download-includes {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+[data-theme='standard'] .download-badges span,
+[data-theme='standard'] .download-includes,
+[data-theme='standard'] .download-meta {
+  border-color: rgba(147, 197, 253, 0.16);
+}
+
+[data-theme='standard'] .download-badges span,
+[data-theme='standard'] .download-includes li,
+[data-theme='standard'] .download-meta li span {
+  color: rgba(191, 219, 254, 0.58);
+}
+
+[data-theme='standard'] .download-includes li::before {
+  color: #93c5fd;
+}
+
+[data-theme='standard'] .download-meta li em {
+  color: rgba(219, 234, 254, 0.76);
+}
+
+[data-theme='standard'] .method-recommended {
+  border-color: rgba(147, 197, 253, 0.38);
+  background: rgba(37, 99, 235, 0.14);
 }
