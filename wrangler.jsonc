@@ -8,6 +8,12 @@
     "binding": "ASSETS",
     "not_found_handling": "404-page"
   },
+  "r2_buckets": [
+    {
+      "binding": "DOWNLOADS",
+      "bucket_name": "truesight-downloads"
+    }
+  ],
   "observability": {
     "enabled": true
   }

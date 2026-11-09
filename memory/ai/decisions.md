@@ -11,6 +11,12 @@
 - Claude Code / Codex 的订阅登录与 API Key 不是同一件事；当前只接 API Key 类服务，不把订阅 OAuth 混入模型设置；
 - DeepSeek / MiMo 不发送 `reasoning_effort`。
 
+## 2026-11-09 官网下载分发
+
+- 官网主入口改为 Windows 桌面客户端；安装版/便携版链接为 `/downloads/*`；
+- 安装包存放在 Cloudflare R2 `truesight-downloads`，Worker `DOWNLOADS` 绑定输出；
+- 新增版本需同步 `website/index.html`、`cloudflare/worker.js` 白名单、R2 对象和部署。
+
 ## 2026-11-09 Electron 渲染策略
 
 - Portable 首次启动复制 `resources/backend` 到 `%APPDATA%\TrueSight\portable-backend`，避免临时目录清理丢失 classes/lib/jre；

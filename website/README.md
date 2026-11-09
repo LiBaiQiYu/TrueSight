@@ -1,86 +1,86 @@
 # TrueSight 官网
 
-官方项目主页，纯静态实现，无构建步骤、无外部 CDN 依赖。
+Windows 桌面客户端官网，纯静态站，无构建步骤、无外部 CDN。
+
+## 页面
+
+- Hero：客户端定位、版本、Windows 要求与主下载按钮；
+- 功能：桌面客户端、AI 提供商、时间轴、对位、出装/团战、隐私；
+- 界面：主页、时间轴、天赋、团战截图；
+- 下载：安装版、便携版、源码/Releases；
+- 开始使用：下载 → 启动 → 选择比赛 → 配置 AI；
+- FAQ：安装版/便携版、运行时、SmartScreen、更新与卸载。
 
 ## 文件
 
 ```text
 website/
-├─ index.html      页面结构
-├─ styles.css      视觉样式与响应式布局
-├─ main.js         导航、滚动动效、复制命令
-├─ assets/         品牌与界面截图
+├─ index.html       页面结构
+├─ styles.css       视觉样式与响应式布局
+├─ main.js          导航、滚动动效、复制、主题
+├─ assets/          品牌与界面截图
 └─ README.md
 ```
 
 ## 本地预览
 
-在项目根目录执行：
-
 ```powershell
 python -m http.server 4173 --directory website
 ```
 
-浏览器打开 <http://127.0.0.1:4173/>。
+打开 <http://127.0.0.1:4173/>。
 
-## 维护者
+本地预览时 `/downloads/...` 会 404；下载由线上 Cloudflare Worker 的 R2 绑定提供。
 
-- 开发者：`CarlosWhite_A1E`
-- 个人网站：<https://cwa1e.top>
+## 下载文件
+
+线上下载地址：
+
+```text
+/downloads/TrueSight-Setup-0.1.0-x64.exe
+/downloads/TrueSight-Portable-0.1.0-x64.exe
+```
+
+R2 bucket：`truesight-downloads`，Worker 绑定：`DOWNLOADS`。
+
+上传新版本：
+
+```powershell
+npx wrangler r2 object put "truesight-downloads/TrueSight-Setup-0.1.0-x64.exe" `
+  --file="desktop\release\TrueSight-Setup-0.1.0-x64.exe" `
+  --content-type="application/octet-stream" `
+  --cache-control="public, max-age=3600" --remote
+
+npx wrangler r2 object put "truesight-downloads/TrueSight-Portable-0.1.0-x64.exe" `
+  --file="desktop\release\TrueSight-Portable-0.1.0-x64.exe" `
+  --content-type="application/octet-stream" `
+  --cache-control="public, max-age=3600" --remote
+```
+
+版本更新时需要同步：
+
+1. `website/index.html` 中的下载文件名、版本号与大小；
+2. `cloudflare/worker.js` 的 `DOWNLOAD_FILES` 白名单；
+3. 上传新的 R2 对象；
+4. `npx wrangler deploy`。
 
 ## 主题
 
-官网支持两套主题，可在页面右上角切换：
-
 - **TrueSight**：祖母绿品牌主题（默认）；
-- **标准**：中性蓝灰主题。
+- **标准**：中性蓝灰主题；
+- 选择写入 `localStorage` 的 `truesight.site.theme`。
 
-选择写入 `localStorage` 的 `truesight.site.theme`，刷新后保留。
-
-## 部署到 Cloudflare Workers
-
-项目根目录已提供：
-
-```text
-wrangler.jsonc         Cloudflare Worker 配置
-cloudflare/worker.js   ASSETS 绑定入口
-website/               静态资源目录
-```
-
-首次部署前登录：
-
-```powershell
-npx wrangler login
-```
-
-部署：
+## 部署
 
 ```powershell
 npx wrangler deploy
 ```
 
-成功后 Wrangler 会输出 Worker 地址：
+线上地址：
 
-```text
-https://truesight.carloswhitea1e.workers.dev
-```
+<https://truesight.carloswhitea1e.workers.dev/>
 
-静态资源变更后重新执行 `npx wrangler deploy` 即可。`wrangler.jsonc` 中的 `assets.directory` 指向 `website/`。
+## 维护者
 
-## 更新截图
-
-官网截图来自 `docs/`，如需更新，覆盖以下文件后同步到 `website/assets/`：
-
-```text
-docs/readme-home.png       -> website/assets/home.png
-docs/readme-timeline.png   -> website/assets/timeline.png
-docs/readme-talents.png    -> website/assets/talents-panel.png（裁到天赋区域）
-docs/readme-teamfights.png -> website/assets/teamfights.png
-```
-
-## 修改注意
-
-- 下载链接指向 `LiBaiQiYu/TrueSight` 的仓库 ZIP / Releases；
-- 页面中的命令、环境要求与根目录 README 保持一致；
-- 新增外部链接使用 `target="_blank"` 与 `rel="noreferrer"`；
-- 不写入任何 API Key、Token 或账号信息。
+- 开发者：`CarlosWhite_A1E`
+- 个人网站：<https://cwa1e.top>

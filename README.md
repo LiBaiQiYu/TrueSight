@@ -328,7 +328,9 @@ python tools/names/build.py
 
 ## 官网
 
-项目官网为纯静态站点，源码位于 [`website/`](website/README.md)，包含功能展示、界面预览、下载入口和图文使用说明。官网支持 **TrueSight / 标准** 双主题切换。
+项目官网为桌面客户端官网，源码位于 [`website/`](website/README.md)，包含客户端功能展示、界面预览、安装版/便携版下载和图文使用说明。官网支持 **TrueSight / 标准** 双主题切换。
+
+安装包与便携版由 Cloudflare R2 的 `truesight-downloads` bucket 提供，Worker 通过 `DOWNLOADS` 绑定输出 `/downloads/*`。新增版本时需同步修改 `website/index.html`、`cloudflare/worker.js` 白名单，上传 R2 后重新部署。
 
 本地预览：
 
