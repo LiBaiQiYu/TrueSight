@@ -88,8 +88,9 @@ DEFAULT_GO_BASE = 'https://opencode.ai/inference/go/openai/v1'
 PROVIDER_BASES = {
     'opencode': DEFAULT_GO_BASE,
     'minimax': os.environ.get('MINIMAX_BASE', 'https://api.minimax.cn/v1'),
+    'deepseek': os.environ.get('DEEPSEEK_BASE', 'https://api.deepseek.com'),
 }
-PROVIDER_NAMES = {'opencode': 'OpenCode Go', 'minimax': 'MiniMax'}
+PROVIDER_NAMES = {'opencode': 'OpenCode Go', 'minimax': 'MiniMax', 'deepseek': 'DeepSeek'}
 CHAT_PATH = '/chat/completions'
 CONNECT_TIMEOUT = 15
 READ_TIMEOUT = 300
@@ -315,7 +316,7 @@ class Handler(BaseHTTPRequestHandler):
         if isinstance(payload.get('temperature'), (int, float)):
             upstream['temperature'] = payload['temperature']
         effort = payload.get('reasoning_effort')
-        if isinstance(effort, str):
+        if provider != 'deepseek' and isinstance(effort, str):
             effort = effort.strip()[:20]
             # '__omit__' = 用户明确选择不传档位；空字符串同样不传
             if effort and effort != '__omit__':

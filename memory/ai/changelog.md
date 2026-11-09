@@ -4,6 +4,7 @@
 
 ## 2026-11-09
 
+- 新增 DeepSeek 官方 API 提供商：内置 `deepseek-chat` / `deepseek-reasoner`，独立 Key/Base URL，本地代理不发送 `reasoning_effort`。
 - 桌面打包区分产物名：`TrueSight-Portable-*` 与 `TrueSight-Setup-*`，NSIS per-user 安装包已可产出。
 - 桌面客户端性能修复：移除无条件软件渲染，默认启用 D3D11/GPU 合成；桌面模式关闭卡片与时间轴 backdrop blur，并关闭失焦节流；GPU 状态写入 backend.log。
 

@@ -356,6 +356,8 @@ const statusText = computed(() => {
 
 .providers {
   display: inline-flex;
+  flex-wrap: wrap;
+  max-width: 100%;
   gap: 3px;
   padding: 3px;
   border-radius: 9px;

@@ -4,7 +4,7 @@ export type Theme = 'truesight' | 'standard'
 export type ThemeMode = 'light' | 'dark'
 export type Depth = 'rough' | 'advanced'
 export type SourceMode = 'auto' | 'opendota' | 'stratz' | 'both'
-export type ProviderId = 'opencode' | 'minimax'
+export type ProviderId = 'opencode' | 'minimax' | 'deepseek'
 
 export interface ProviderDef {
   id: ProviderId
@@ -45,6 +45,17 @@ export const PROVIDERS: Record<ProviderId, ProviderDef> = {
     defaultEffort: 'high',
     keyHint: 'eyJhbGciOi...',
     siteUrl: 'https://platform.minimax.cn'
+  },
+  deepseek: {
+    id: 'deepseek',
+    name: 'DeepSeek',
+    desc: 'DeepSeek 官方 API，支持 deepseek-chat 与 deepseek-reasoner 深度思考。',
+    defaultBaseUrl: 'https://api.deepseek.com',
+    models: ['deepseek-chat', 'deepseek-reasoner'],
+    efforts: [],
+    defaultEffort: '',
+    keyHint: 'sk-...',
+    siteUrl: 'https://platform.deepseek.com/api_keys'
   }
 }
 
@@ -76,10 +87,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function defaults(): PersistedConfig {
   return {
     provider: 'opencode',
-    keys: { opencode: '', minimax: '' },
+    keys: { opencode: '', minimax: '', deepseek: '' },
     baseUrls: {
       opencode: PROVIDERS.opencode.defaultBaseUrl,
-      minimax: PROVIDERS.minimax.defaultBaseUrl
+      minimax: PROVIDERS.minimax.defaultBaseUrl,
+      deepseek: PROVIDERS.deepseek.defaultBaseUrl
     },
     stratzToken: '',
     model: '',
@@ -118,7 +130,12 @@ function load(): PersistedConfig {
       parsed.sourceMode === 'both'
         ? parsed.sourceMode
         : 'auto'
-    merged.provider = parsed.provider === 'minimax' ? 'minimax' : 'opencode'
+    merged.provider =
+      parsed.provider === 'minimax'
+        ? 'minimax'
+        : parsed.provider === 'deepseek'
+          ? 'deepseek'
+          : 'opencode'
 
     const storedTheme = String(parsed.theme ?? '')
     const storedMode = String(parsed.mode ?? '')
@@ -141,7 +158,7 @@ function load(): PersistedConfig {
 
     const params = new URLSearchParams(location.search)
     const paramProvider = params.get('provider')
-    if (paramProvider === 'minimax' || paramProvider === 'opencode') {
+    if (paramProvider === 'minimax' || paramProvider === 'opencode' || paramProvider === 'deepseek') {
       merged.provider = paramProvider
     }
     const paramBase = params.get('base')

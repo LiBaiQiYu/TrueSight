@@ -7,7 +7,7 @@ TrueSight（`dota-chat`）是一个 Dota 2 对局分析工具：
 - 前端：Vue 3.5 + TypeScript + Vite 8，Chart.js 4；
 - 本地后端：Python 3 标准库 HTTP 服务（`server.py`），负责 OpenDota/STRATZ 代理、AI 流式代理、Clarity 录像解析任务；
 - 录像解析：Java + Clarity（`java/MatchJsonMain.java`，编译到 `classes/`）；
-- AI：OpenAI 兼容接口，支持 OpenCode Go 与 MiniMax；
+- AI：OpenAI 兼容接口，支持 OpenCode Go、MiniMax 与 DeepSeek 官方 API；
 - 静态名称库：`data/names/*.json` → 前端 `ui/public/names/*.json`。
 
 ## 关键目录

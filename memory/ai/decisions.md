@@ -42,7 +42,9 @@
 
 ## 2026-11-03 AI 提供商
 
-- 支持 OpenCode Go、MiniMax；
+- 支持 OpenCode Go、MiniMax、DeepSeek 官方 API；
+- DeepSeek 使用官方 `https://api.deepseek.com`，内置 `deepseek-chat` / `deepseek-reasoner` 两个模型；
+- DeepSeek 不发送 `reasoning_effort`，`deepseek-reasoner` 的思考内容由 `reasoning_content` 透传；
 - 每个 provider 独立 key/baseUrl；
 - MiniMax 默认模型 `MiniMax-M3.1-Flash`；
 - 通过本地 `server.py` 代理，避免浏览器 CORS/Key 暴露。
