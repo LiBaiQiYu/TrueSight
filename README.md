@@ -398,6 +398,7 @@ powershell -ExecutionPolicy Bypass -File tools/memory/install.ps1
 - [装备与图标数据](docs/item-catalog.md)
 - [背包模型](docs/item-inventory.md)
 - [团战分析](docs/teamfights.md)
+- [战斗节点设计](docs/combat-nodes.md)
 - [AI 记忆库](memory/ai/README.md)
 
 ---
