@@ -23,8 +23,8 @@ const fraction = computed(() => {
   return index.value / (n - 1)
 })
 const fillStyle = computed(() => ({
-  left: '12px',
-  width: `calc((100% - 24px) * ${fraction.value})`
+  left: '0',
+  width: `calc(12px + (100% - 24px) * ${fraction.value})`
 }))
 const isMax = computed(
   () => ready.value && levels.value.length > 0 && index.value === levels.value.length - 1
@@ -416,10 +416,7 @@ onBeforeUnmount(() => document.removeEventListener('mousedown', onDocClick))
 
 .rail {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 12px;
-  right: 12px;
+  inset: 0;
   border-radius: 999px;
   background: var(--line);
 }
