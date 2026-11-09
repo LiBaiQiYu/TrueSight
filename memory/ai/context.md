@@ -17,7 +17,7 @@ TrueSight（`dota-chat`）是一个 Dota 2 对局分析工具：
 | `ui/src/` | 前端源码（App、Timeline、ResultCard、Settings 等） |
 | `ui/scripts/build-names.mjs` | 压缩名称库，生成前端静态 JSON |
 | `server.py` | 本地 HTTP 服务、API 代理、解析任务 |
-| `java/MatchJsonMain.java` | 回放解析器（schema 9） |
+| `java/MatchJsonMain.java` | 回放解析器（schema 10） |
 | `data/names/` | 名称源数据（英雄/技能/天赋/装备） |
 | `memory/dota-*.md` | 游戏数据记忆 |
 | `memory/ai/` | 本目录，AI 开发记忆 |
@@ -79,7 +79,7 @@ javac --release 21 -encoding UTF-8 -cp "classes;lib/*" -d classes java\MatchJson
 ## 当前版本要点
 
 - 本地 Clarity 更新至 `53e60b1`（`clarity-5.0.1.jar`，跟随 master；`lib/clarity.commit` 记录 commit）；
-- 回放解析 schema 9：战斗事件（伤害类型/助攻/技能/物品）、1 秒 HP/MP/金钱/经验采样、5 秒时间轴、守卫插眼、德鲁伊小熊背包；
+- 回放解析 schema 10：战斗事件（伤害类型/助攻/技能/物品）、1 秒 HP/MP/金钱/经验采样、5 秒时间轴、守卫插眼、德鲁伊小熊背包；
 - 时间轴：出装路线、真假眼拆分、FIFO 消耗、卷轴合成、此刻背包、双天赋树；
 - 名称/图标：中文名称、Steam CDN 图标、Lone Druid 8 条小熊天赋（含通用天赋）；
 - 战斗节点：以分析对象击杀/助攻/阵亡为锚点，展示技能、普攻、伤害类型、资源变化与承伤来源；

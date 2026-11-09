@@ -5,9 +5,9 @@
 
 ## 0. 实现状态
 
-- 回放导出器 schema 9 增加 `combat.events` 与 1 秒 `combat.samples`；
+- 回放导出器 schema 10 增加 `combat.events`、伤害来源、伤害分类与 1 秒 `combat.samples`；
 - 新面板 `CombatNodePanel.vue` 已接入时间轴；
-- 旧 schema 8 缓存会自动失效并重新解析；
+- 旧 schema 缓存会自动失效并重新解析；
 - 当前节点算法集中在 `ui/src/lib/combatNodes.ts`。
 
 

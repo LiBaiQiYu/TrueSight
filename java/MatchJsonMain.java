@@ -29,7 +29,7 @@ import java.util.TreeMap;
  * JSON exporter for the local Dota chat app. Args: &lt;replay&gt; &lt;hero-unit-name&gt;.
  * Prints one JSON object to stdout. All timestamps are GAME time (demo clock minus
  * the state=5 offset measured from this same replay; "clockOffsetSec"). Events
- * before game start are labeled "赛前".
+ * before game start are labeled "璧涘墠".
  */
 public class MatchJsonMain {
 
@@ -61,7 +61,7 @@ public class MatchJsonMain {
             return "??:??";
         }
         if (t < off) {
-            return "赛前";
+            return "璧涘墠";
         }
         int s = (int) (t - off);
         return (s / 60) + ":" + String.format("%02d", s % 60);
@@ -121,8 +121,8 @@ public class MatchJsonMain {
 
         static final Map<String, String> ITEM_ALIASES = new HashMap<>();
         /**
-         * 版本相关的内部类名映射。内部类名可能在版本间复用/改名，
-         * 不能把所有版本都套同一个别名；只登记已验证的 build。
+         * 鐗堟湰鐩稿叧鐨勫唴閮ㄧ被鍚嶆槧灏勩€傚唴閮ㄧ被鍚嶅彲鑳藉湪鐗堟湰闂村鐢?鏀瑰悕锛?
+         * 涓嶈兘鎶婃墍鏈夌増鏈兘濂楀悓涓€涓埆鍚嶏紱鍙櫥璁板凡楠岃瘉鐨?build銆?
          */
         static final Map<Integer, Map<String, String>> ITEM_ALIASES_BY_BUILD = new HashMap<>();
 
@@ -257,7 +257,7 @@ public class MatchJsonMain {
             final List<Integer> deaths = new ArrayList<>();
             final List<Integer> assists = new ArrayList<>();
             final List<Float> heroDamage = new ArrayList<>();
-            /** 0–100 百分比，便于跨英雄比较；死亡/未选取时为空。 */
+            /** 0鈥?00 鐧惧垎姣旓紝渚夸簬璺ㄨ嫳闆勬瘮杈冿紱姝讳骸/鏈€夊彇鏃朵负绌恒€?*/
             final List<Integer> hpPct = new ArrayList<>();
             final List<Integer> mpPct = new ArrayList<>();
 
@@ -287,9 +287,9 @@ public class MatchJsonMain {
         final List<String[]> focusKills = new ArrayList<>();
         final List<String[]> focusDeaths = new ArrayList<>();
         final List<String[]> focusPurchases = new ArrayList<>();
-        /** 主动使用物品的事件（真假眼、吃树、清晰等），用于按队列归属消耗。 */
+        /** 涓诲姩浣跨敤鐗╁搧鐨勪簨浠讹紙鐪熷亣鐪笺€佸悆鏍戙€佹竻鏅扮瓑锛夛紝鐢ㄤ簬鎸夐槦鍒楀綊灞炴秷鑰椼€?*/
         final List<String[]> focusUses = new ArrayList<>();
-        /** 焦点英雄实际插下的守卫：真眼/假眼类型由守卫单位决定。 */
+        /** 鐒︾偣鑻遍泟瀹為檯鎻掍笅鐨勫畧鍗細鐪熺溂/鍋囩溂绫诲瀷鐢卞畧鍗崟浣嶅喅瀹氥€?*/
         final List<String[]> focusWardPlacements = new ArrayList<>();
         /** Real inventory changes read from the focus hero's m_hItems slots. */
         final List<String[]> focusSells = new ArrayList<>();
@@ -364,7 +364,8 @@ public class MatchJsonMain {
         private void addCombatEvent(float gameT, String kind, String attacker, String target,
                                     String inflictor, int value, int damageType, int health,
                                     int attackerTeam, int targetTeam, String assists,
-                                    int abilityLevel, float x, float y) {
+                                    int abilityLevel, float x, float y, int damageCategory,
+                                    String damageSource) {
             if (Float.isNaN(gameT) || gameT < 0f) {
                 return;
             }
@@ -382,7 +383,9 @@ public class MatchJsonMain {
                 assists == null ? "" : assists,
                 Integer.toString(abilityLevel),
                 String.format(java.util.Locale.ROOT, "%.0f", x),
-                String.format(java.util.Locale.ROOT, "%.0f", y)
+                String.format(java.util.Locale.ROOT, "%.0f", y),
+                Integer.toString(damageCategory),
+                unitOrEmpty(damageSource)
             });
         }
 
@@ -396,6 +399,7 @@ public class MatchJsonMain {
             var target = e.hasTargetName() ? e.getTargetName() : null;
             float t = e.hasTimestamp() ? e.getTimestamp() : Float.NaN;
             float gameT = offsetOk && !Float.isNaN(t) ? t - offsetSec : Float.NaN;
+            String damageSource = e.hasDamageSourceName() ? e.getDamageSourceName() : "";
 
             if (type == DOTACombatLog.DOTA_COMBATLOG_TYPES.DOTA_COMBATLOG_GAME_STATE) {
                 if (e.hasValue() && e.getValue() == 5 && !Float.isNaN(t) && !offsetOk) {
@@ -444,7 +448,7 @@ public class MatchJsonMain {
                         e.hasTargetTeam() ? e.getTargetTeam() : 0,
                         assistCsv(e),
                         e.hasAbilityLevel() ? e.getAbilityLevel() : 0,
-                        ex, ey);
+                        ex, ey, e.hasDamageCategory() ? e.getDamageCategory() : 0, damageSource);
                 }
                 return;
             }
@@ -471,7 +475,7 @@ public class MatchJsonMain {
                         e.hasTargetTeam() ? e.getTargetTeam() : 0,
                         "",
                         e.hasAbilityLevel() ? e.getAbilityLevel() : 0,
-                        ex, ey);
+                        ex, ey, e.hasDamageCategory() ? e.getDamageCategory() : 0, damageSource);
                 }
                 return;
             }
@@ -492,7 +496,7 @@ public class MatchJsonMain {
                         e.hasTargetTeam() ? e.getTargetTeam() : 0,
                         "",
                         e.hasAbilityLevel() ? e.getAbilityLevel() : 0,
-                        ex, ey);
+                        ex, ey, 0, damageSource);
                 }
                 return;
             }
@@ -508,7 +512,7 @@ public class MatchJsonMain {
                         e.hasTargetTeam() ? e.getTargetTeam() : 0,
                         "",
                         e.hasAbilityLevel() ? e.getAbilityLevel() : 0,
-                        ex, ey);
+                        ex, ey, 0, damageSource);
                 }
                 return;
             }
@@ -533,7 +537,7 @@ public class MatchJsonMain {
                         e.hasTargetTeam() ? e.getTargetTeam() : 0,
                         "",
                         e.hasAbilityLevel() ? e.getAbilityLevel() : 0,
-                        ex, ey);
+                        ex, ey, 0, damageSource);
                 }
                 return;
             }
@@ -582,8 +586,8 @@ public class MatchJsonMain {
             if (!e.getDtClass().getDtName().startsWith("CDOTA_Unit_")) {
                 return;
             }
-            // 先收下候选熊；输出时再按 focus 英雄和 owner 过滤，避免熊实体
-            // 比英雄实体更早出现时漏掉德鲁伊自己的熊。
+            // 鍏堟敹涓嬪€欓€夌唺锛涜緭鍑烘椂鍐嶆寜 focus 鑻遍泟鍜?owner 杩囨护锛岄伩鍏嶇唺瀹炰綋
+            // 姣旇嫳闆勫疄浣撴洿鏃╁嚭鐜版椂婕忔帀寰烽瞾浼婅嚜宸辩殑鐔娿€?
             if (focusBear == null || !focusBear.isExistent()) {
                 focusBear = e;
             }
@@ -601,7 +605,7 @@ public class MatchJsonMain {
             return entities.getByHandle(handle);
         }
 
-        /** 只有德鲁伊本人的熊才写入 bearItems/inBear；其他英雄的解析结果保持为空。 */
+        /** 鍙湁寰烽瞾浼婃湰浜虹殑鐔婃墠鍐欏叆 bearItems/inBear锛涘叾浠栬嫳闆勭殑瑙ｆ瀽缁撴灉淇濇寔涓虹┖銆?*/
         private boolean focusBearVisible() {
             if (focusHero == null || focusBear == null
                 || !focusHero.isExistent() || !focusBear.isExistent()) {
@@ -627,7 +631,7 @@ public class MatchJsonMain {
                     return;
                 }
                 String cls = e.getDtClass().getDtName();
-                // 普通观察者守卫 / TrueSight 变体（哨兵守卫）
+                // 鏅€氳瀵熻€呭畧鍗?/ TrueSight 鍙樹綋锛堝摠鍏靛畧鍗級
                 String type = cls.endsWith("TrueSight") ? "item_ward_sentry" : "item_ward_observer";
                 float t = ctx.getTick() * ctx.getMillisPerTick() / 1000f
                     - (Float.isNaN(entityOffsetSec) ? offsetSec : entityOffsetSec);
@@ -697,7 +701,7 @@ public class MatchJsonMain {
                             Integer.toString(hp), Integer.toString(maxHp), Integer.toString(team)
                         });
                     } catch (Exception ex) {
-                        /* 英雄还没生成位置 */
+                        /* 鑻遍泟杩樻病鐢熸垚浣嶇疆 */
                     }
                 }
                 nextPositionAt = (float) (Math.floor(t / 5f) + 1) * 5f;
@@ -847,7 +851,7 @@ public class MatchJsonMain {
             return out;
         }
 
-        // --- 5 秒采样：录像里的实时经济/补刀/经验/伤害/等级/KDA ---
+        // --- 5 绉掗噰鏍凤細褰曞儚閲岀殑瀹炴椂缁忔祹/琛ュ垁/缁忛獙/浼ゅ/绛夌骇/KDA ---
         // --- 1s combat-node samples: HP/MP/gold/XP/level/position ---
         private void sampleCombat(float t) {
             Entity pr = findEntity("CDOTA_PlayerResource");
@@ -1096,7 +1100,7 @@ public class MatchJsonMain {
         String toJson(Demo.CDemoFileInfo info, Demo.CGameInfo.CDotaGameInfo dota) {
             var sb = new StringBuilder();
             sb.append('{');
-            sb.append("\"schema\":9,");
+            sb.append("\"schema\":10,");
             sb.append("\"build\":").append(ctx.getBuildNumber()).append(',');
             sb.append("\"gameVersion\":").append(ctx.getGameVersion()).append(',');
             sb.append("\"matchId\":").append(dota.getMatchId()).append(',');
@@ -1190,7 +1194,8 @@ public class MatchJsonMain {
                 } else {
                     sb.append("[],");
                 }
-                sb.append(row[11]).append(',').append(row[12]).append(',').append(row[13]).append(']');
+                sb.append(row[11]).append(',').append(row[12]).append(',').append(row[13]).append(',')
+                    .append(row[14]).append(',').append(js(row[15])).append(']');
             }
             sb.append("],\"samples\":[");
             for (int i = 0; i < combatSamples.size(); i++) {
@@ -1364,3 +1369,4 @@ public class MatchJsonMain {
         }
     }
 }
+

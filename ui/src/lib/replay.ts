@@ -89,7 +89,8 @@ export type ReplayPositionSample = [number, number, number, number, number, numb
 
 /**
  * [t, kind, attacker, target, inflictor, value, damageType, health,
- *  attackerTeam, targetTeam, assistSlots, abilityLevel, x, y]
+ *  attackerTeam, targetTeam, assistSlots, abilityLevel, x, y, damageCategory,
+ *  damageSource]
  */
 export type ReplayCombatEvent = [
   number,
@@ -105,7 +106,9 @@ export type ReplayCombatEvent = [
   number[],
   number,
   number,
-  number
+  number,
+  number,
+  string
 ]
 
 /** [t, playerSlot, hpPct, mpPct, gold, xp, level, cellX, cellY] */

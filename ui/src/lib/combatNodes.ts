@@ -113,22 +113,33 @@ function normalizedUnit(unit: string): string {
   return value
 }
 
-function sourceType(inflictor: string): 'basic' | 'ability' | 'item' | 'other' {
-  if (!inflictor) return 'basic'
-  if (inflictor.startsWith('item_')) return 'item'
-  if (inflictor.startsWith('npc_dota_')) return 'other'
-  return 'ability'
+function sourceType(source: string, damageType: number, category: number): 'basic' | 'ability' | 'item' | 'other' {
+  if (source.startsWith('item_')) return 'item'
+  if (source && !source.startsWith('npc_dota_hero_')) return 'ability'
+  if (damageType === 1 && (category === 0 || category === 1)) return 'basic'
+  return 'other'
 }
 
 function sourceLabel(
-  inflictor: string,
-  names: NamesIndex | null
+  source: string,
+  names: NamesIndex | null,
+  damageType: number,
+  category: number,
+  actorUnit = ''
 ): string {
-  if (!inflictor) return '普通攻击'
-  if (inflictor.startsWith('item_')) {
-    return names?.itemByKey.get(inflictor)?.cn || names?.itemByKey.get(inflictor)?.en || inflictor
+  if (!source || source.startsWith('npc_dota_hero_')) {
+    if ((source === 'npc_dota_hero_spirit_breaker' || actorUnit === 'npc_dota_hero_spirit_breaker') && damageType === 2) {
+      return '强化攻击（Greater Bash）'
+    }
+    return damageType === 1 && (category === 0 || category === 1)
+      ? '普通攻击'
+      : '未归因伤害'
   }
-  return names?.abilityByKey.get(inflictor)?.cn || names?.abilityByKey.get(inflictor)?.en || inflictor
+  if (source === 'spirit_breaker_greater_bash') return '强化攻击（Greater Bash）'
+  if (source.startsWith('item_')) {
+    return names?.itemByKey.get(source)?.cn || names?.itemByKey.get(source)?.en || source
+  }
+  return names?.abilityByKey.get(source)?.cn || names?.abilityByKey.get(source)?.en || source
 }
 
 function emptyHero(
@@ -325,6 +336,8 @@ export function buildCombatNodes(
       const inflictor = event[4] || ''
       const value = Math.max(0, event[5] || 0)
       const type = damageType(event[6])
+      const category = event[14] ?? 0
+      const damageSource = event[15] || ''
       const actorUnit = event[2] ? normalizedUnit(event[2]) : ''
       const targetUnit = event[3] ? normalizedUnit(event[3]) : ''
       const actorInNode = actorSlot != null && heroes.has(actorSlot)
@@ -368,10 +381,11 @@ export function buildCombatNodes(
       }
 
       if (kind === 'DAMAGE') {
+        const resolvedSource = inflictor || damageSource
         if (actor) {
           actor.damage[type] += value
           actor.damage.total += value
-          if (sourceType(inflictor) === 'basic') {
+          if (sourceType(resolvedSource, event[6], category) === 'basic') {
             actor.basicHits += 1
             actor.basicDamage += value
           }
@@ -381,14 +395,14 @@ export function buildCombatNodes(
           target.taken.total += value
         }
         if (targetSlot === focusSlot && actorSlot != null) {
-          const label = sourceLabel(inflictor, names)
-          const key = `${actorSlot}|${inflictor}|${type}`
+          const label = sourceLabel(resolvedSource, names, event[6], category, actorUnit)
+          const key = `${actorSlot}|${resolvedSource}|${type}`
           const hit = incomingMap.get(key) ?? {
             actorSlot,
             actorHero: actor?.heroName ?? actorUnit,
             actorName: actor?.playerName ?? '',
             source: label,
-            sourceType: sourceType(inflictor),
+            sourceType: sourceType(resolvedSource, event[6], category),
             damageType: type,
             hits: 0,
             damage: 0
@@ -404,7 +418,7 @@ export function buildCombatNodes(
           actorHero: actor?.heroName ?? actorUnit,
           targetSlot,
           targetHero: target?.heroName ?? targetUnit,
-          label: `${actor?.heroName ?? actorUnit} → ${target?.heroName ?? targetUnit} · ${sourceLabel(inflictor, names)}`,
+          label: `${actor?.heroName ?? actorUnit} → ${target?.heroName ?? targetUnit} · ${sourceLabel(resolvedSource, names, event[6], category, actorUnit)}`,
           value,
           damageType: type
         })
@@ -412,9 +426,13 @@ export function buildCombatNodes(
       }
 
       if (kind === 'ABILITY' || kind === 'ITEM') {
+        if (kind === 'ITEM' && inflictor === 'item_madstone_bundle') continue
+        if (kind === 'ABILITY' && ['invoker_quas', 'invoker_wex', 'invoker_exort', 'invoker_invoke'].includes(inflictor)) {
+          continue
+        }
         const sourceKey = inflictor || (kind === 'ABILITY' ? 'ability' : 'item')
         const sourceText = inflictor
-          ? sourceLabel(inflictor, names)
+          ? sourceLabel(inflictor, names, 0, 0)
           : kind === 'ABILITY'
             ? '技能'
             : '物品'

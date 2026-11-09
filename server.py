@@ -44,7 +44,7 @@ _JOB_SEQ = [0]
 
 def valid_cached_replay(result):
     """与 run_parse 的缓存条件保持一致，供 /api/parse/cache 预检复用。"""
-    if not isinstance(result, dict) or result.get('schema') != 9:
+    if not isinstance(result, dict) or result.get('schema') != 10:
         return False
     if not isinstance(result.get('combat'), dict):
         return False
