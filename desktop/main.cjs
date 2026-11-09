@@ -7,7 +7,17 @@ const { app, BrowserWindow, Menu, dialog, shell } = require('electron')
 
 app.setName('TrueSight')
 app.setAppUserModelId('top.cwa1e.truesight')
-app.disableHardwareAcceleration()
+
+// 默认使用 GPU 合成；只有在显卡驱动异常时才通过环境变量降级。
+if (process.env.TRUESIGHT_DISABLE_GPU === '1') {
+  app.disableHardwareAcceleration()
+} else {
+  app.commandLine.appendSwitch('ignore-gpu-blocklist')
+  app.commandLine.appendSwitch('enable-gpu-rasterization')
+  app.commandLine.appendSwitch('enable-zero-copy')
+  app.commandLine.appendSwitch('use-angle', 'd3d11')
+  app.commandLine.appendSwitch('force_high_performance_gpu')
+}
 
 const projectRoot = path.resolve(__dirname, '..')
 const packagedBackendDir = path.join(process.resourcesPath, 'backend')
@@ -184,6 +194,7 @@ function createWindow(port) {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
+      backgroundThrottling: false,
       spellcheck: false
     }
   })
@@ -212,6 +223,15 @@ function createWindow(port) {
 
   mainWindow.webContents.on('did-fail-load', function (event, code, description) {
     dialog.showErrorBox('TrueSight 页面加载失败', description + '（' + code + '）')
+  })
+
+  mainWindow.webContents.on('did-finish-load', function () {
+    writeLog('gpu feature status: ' + JSON.stringify(app.getGPUFeatureStatus()))
+    mainWindow.webContents
+      .executeJavaScript("document.documentElement.classList.add('desktop-shell')")
+      .catch(function () {
+        /* optional rendering hint */
+      })
   })
 
   mainWindow.on('closed', function () {

@@ -149,6 +149,33 @@ runtime/python/
 
 当前固定使用 **Electron 44.0.0**。Electron 45 在该机器上启动异常，因此未采用。
 
+## 性能
+
+桌面模式默认启用 GPU 合成（ANGLE D3D11），并在窗口加载后检查 GPU 状态。
+
+启动日志：
+
+```text
+%APPDATA%\TrueSight\data\logs\backend.log
+```
+
+正常应包含：
+
+```text
+gpu_compositing: enabled
+rasterization: enabled_force
+```
+
+- 桌面模式会注入 `desktop-shell`，关闭卡片、时间轴遮罩和 scrubber 的 `backdrop-filter`，减少大面积模糊合成；
+- `backgroundThrottling: false`，避免窗口失焦时时间轴动画被降到 1 FPS；
+- 如果窗口卡顿且日志显示 `disabled_software`，优先更新显卡驱动，或避免通过 ToDesk / RDP 虚拟显示器运行；
+- 仅当显卡驱动异常导致崩溃时，才用以下方式降级软件渲染：
+
+  ```powershell
+  $env:TRUESIGHT_DISABLE_GPU = '1'
+  .\release\win-unpacked\TrueSight.exe
+  ```
+
 ## 调试
 
 - 开发模式按 `F12` 打开 DevTools；

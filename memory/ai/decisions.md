@@ -2,6 +2,15 @@
 
 记录会影响长期实现的决策；新决定追加在顶部。
 
+## 2026-11-09 Electron 渲染策略
+
+- 桌面客户端默认启用硬件加速，不再无条件调用 `app.disableHardwareAcceleration()`；
+- 启动时加 `ignore-gpu-blocklist`、`enable-gpu-rasterization`、`use-angle=d3d11`、`force_high_performance_gpu`；
+- 仅在驱动异常时用 `TRUESIGHT_DISABLE_GPU=1` 降级；
+- Electron 注入 `desktop-shell` class，关闭 `.card` / `.timeline-overlay` / `.scrubber` 的 backdrop blur；
+- `backgroundThrottling: false`，避免窗口失焦时时间轴动画降到 1 FPS；
+- GPU 状态写入 `%APPDATA%\TrueSight\data\logs\backend.log`，正常应为 `gpu_compositing: enabled`。
+
 ## 2026-11-04 团战参团判定
 
 - 位置：用造成伤害玩家的位置中位数作为战场中心；

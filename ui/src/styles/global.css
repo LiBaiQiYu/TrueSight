@@ -236,3 +236,11 @@ select.field {
 .brand-tagline::after {
   background: linear-gradient(90deg, var(--line-strong), transparent);
 }
+
+/* Desktop shell: skip expensive backdrop compositing while keeping the same palette. */
+html.desktop-shell .card,
+html.desktop-shell .timeline-overlay,
+html.desktop-shell .scrubber {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}

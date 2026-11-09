@@ -2,6 +2,10 @@
 
 按时间倒序；每次功能/修复完成后在顶部追加一条。自动快照见 `state.md`。
 
+## 2026-11-09
+
+- 桌面客户端性能修复：移除无条件软件渲染，默认启用 D3D11/GPU 合成；桌面模式关闭卡片与时间轴 backdrop blur，并关闭失焦节流；GPU 状态写入 backend.log。
+
 ## 2026-11-06
 
 - 修复 Electron 客户端双击无反应：固定 Electron 44.0.0、修正打包后的 backend 目录识别，并新增 `tools/desktop/fix-integrity.ps1` 处理沙箱产物 Low integrity 问题；Portable 与 win-unpacked 均已验证可启动。
