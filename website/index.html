@@ -282,12 +282,12 @@
               <div class="download-head">
                 <span class="badge badge-quiet">便携</span>
                 <h3>便携版</h3>
-                <p>单个可执行文件，不写安装目录，适合多台电脑或移动硬盘。</p>
+                <p>单个自解压 exe，不写安装目录；首次运行会解压到临时目录，并把后端准备到用户数据目录。</p>
               </div>
               <ul class="spec-list">
                 <li><span>版本</span><strong>0.1.0</strong></li>
                 <li><span>大小</span><strong>185 MB</strong></li>
-                <li><span>安装</span><strong>免安装 · 解压即用</strong></li>
+                <li><span>安装</span><strong>免安装 · 双击运行</strong></li>
               </ul>
               <a class="pill pill-full pill-quiet" href="/downloads/TrueSight-Portable-0.1.0-x64.exe" download>
                 下载便携版
@@ -323,6 +323,10 @@
             <details>
               <summary>安装版和便携版怎么选？</summary>
               <p>长期使用选安装版，会创建快捷方式；不想写安装目录、需要放到移动硬盘或多台电脑使用，选便携版。</p>
+            </details>
+            <details>
+              <summary>便携版是压缩包吗？为什么比安装版小？</summary>
+              <p>不是压缩包，是一个自解压 exe：双击后自动解压到临时目录并启动，首次运行还会把后端准备到用户数据目录。它比安装版小，是因为不含安装向导、卸载器和安装/升级组件，不是少了运行文件。</p>
             </details>
             <details>
               <summary>需要单独安装 Python、Java 或 Clarity 吗？</summary>

@@ -258,6 +258,8 @@ npm run dist:installer  # Setup:    TrueSight-Setup-0.1.0-x64.exe (~202 MB)
 
 Artifacts are written to `desktop/release/`. The app bundles Python, Java 21, Clarity, and all hero / ability / item images. It uses a random loopback port and stores data in `%APPDATA%\TrueSight\data`, so it can run alongside the web mode on port 8077.
 
+The portable build is a **self-extracting single EXE**, not a ZIP archive: it unpacks into a temporary directory at launch and prepares the backend under `%APPDATA%\TrueSight\portable-backend`. It is smaller than the installer because it omits the installer wizard, uninstaller, and install/upgrade components, not because any runtime files are missing.
+
 If packaged files end up with low mandatory integrity in a sandboxed environment, run:
 
 ```powershell

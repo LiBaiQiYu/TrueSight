@@ -258,6 +258,8 @@ npm run dist:installer  # 安装版：TrueSight-Setup-0.1.0-x64.exe（约 202 MB
 
 产物在 `desktop/release/`，已内置 Python、Java 21、Clarity 与全部英雄 / 技能 / 装备图标。桌面模式使用随机本地端口，数据写入 `%APPDATA%\TrueSight\data`，不会与 Web 模式的 8077 冲突。
 
+便携版是一个**自解压单文件 exe**，不是 zip 压缩包：双击后解压到临时目录并启动，首次运行还会把后端准备到 `%APPDATA%\TrueSight\portable-backend`。它比安装版小，是因为不含安装向导、卸载器和安装/升级组件，并不是少了运行文件。
+
 打包后如遇沙箱产物低完整性导致无法启动：
 
 ```powershell
