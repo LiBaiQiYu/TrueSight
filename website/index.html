@@ -8,7 +8,7 @@
       name="description"
       content="TrueSight 是一个 Windows 桌面客户端：内置 Python、Java 与 Clarity，下载安装即可使用。整合 OpenDota / STRATZ 数据、本地录像解析、时间轴、战斗节点与 AI 复盘。"
     />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#f5f5f7" />
     <link rel="canonical" href="https://truesight.carloswhitea1e.workers.dev/" />
     <link rel="preload" as="image" href="assets/standard-analysis-light.png" />
     <meta property="og:type" content="website" />
@@ -97,13 +97,15 @@
             </div>
             <img
               src="assets/standard-analysis-light.png"
+              data-light="assets/standard-analysis-light.png"
+              data-dark="assets/standard-analysis-dark.png"
               alt="TrueSight 客户端主界面：比赛查询、英雄选择与分析面板"
               width="1600"
               height="1000"
               fetchpriority="high"
             />
           </div>
-          <p class="shot-caption">标准主题 · 浅色 · 实际界面截图</p>
+          <p class="shot-caption">标准主题 · 随站点深浅自动切换</p>
         </div>
       </section>
 
@@ -155,24 +157,26 @@
             <img
               class="plain-shot"
               src="assets/standard-timeline-dock.png"
+              data-light="assets/standard-timeline-dock.png"
+              data-dark="assets/standard-timeline-dark-dock.png"
               alt="TrueSight 时间轴：经济曲线、出装路线、技能与天赋"
               width="1488"
               height="920"
             />
-            <figcaption>标准主题 · 浅色 · 时间轴与出装路线</figcaption>
+            <figcaption>时间轴与出装路线 · 随站点深浅自动切换</figcaption>
           </figure>
         </div>
       </section>
 
-      <section class="section section-dark feature feature-reverse" id="combat">
+      <section class="section section-band feature feature-reverse" id="combat">
         <div class="wrap feature-grid">
           <div class="feature-copy">
-            <p class="kicker kicker-cool">COMBAT NODES</p>
+            <p class="kicker">COMBAT NODES</p>
             <h2>每一次击杀，<br />都有前因后果。</h2>
             <p class="feature-lede">
               以你为圆心，自动切分单杀、小规模遭遇、团队团战和多杀。谁先手、谁补伤害、谁承受了最多技能，都在一条 0.1 秒精度的时间线上。
             </p>
-            <ul class="checks checks-light">
+            <ul class="checks">
               <li>单杀 / 小规模 / 团战 / 多杀自动识别</li>
               <li>承伤来源、技能、物品与伤害类型</li>
               <li>参战英雄 HP / MP、金钱与经验变化</li>
@@ -182,12 +186,14 @@
           <figure class="feature-visual">
             <img
               class="plain-shot"
-              src="assets/standard-combat-dock.png"
+              src="assets/standard-combat-light-dock.png"
+              data-light="assets/standard-combat-light-dock.png"
+              data-dark="assets/standard-combat-dock.png"
               alt="TrueSight 战斗节点：参战英雄、承伤来源与战斗时间线"
               width="1488"
               height="920"
             />
-            <figcaption>标准主题 · 深色 · 战斗节点</figcaption>
+            <figcaption>战斗节点 · 随站点深浅自动切换</figcaption>
           </figure>
         </div>
       </section>
@@ -211,18 +217,20 @@
             <img
               class="plain-shot"
               src="assets/standard-settings-light.png"
+              data-light="assets/standard-settings-light.png"
+              data-dark="assets/standard-settings-dark.png"
               alt="TrueSight 设置页：模型服务、STRATZ Token、缓存与外观"
               width="1600"
               height="1000"
             />
-            <figcaption>标准主题 · 浅色 · 模型服务设置</figcaption>
+            <figcaption>模型服务设置 · 随站点深浅自动切换</figcaption>
           </figure>
         </div>
       </section>
 
-      <section class="section section-dark privacy">
+      <section class="section section-band privacy">
         <div class="wrap">
-          <p class="kicker kicker-cool">PRIVACY</p>
+          <p class="kicker">PRIVACY</p>
           <h2 class="display">你的比赛，<br />只属于你。</h2>
           <div class="privacy-grid">
             <article>

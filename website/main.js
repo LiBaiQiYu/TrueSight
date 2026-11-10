@@ -14,6 +14,15 @@
     }
   }
 
+  function applyShots(theme) {
+    var images = document.querySelectorAll('img[data-light][data-dark]')
+    for (var i = 0; i < images.length; i += 1) {
+      var image = images[i]
+      var next = theme === 'truesight' ? image.dataset.dark : image.dataset.light
+      if (next && image.getAttribute('src') !== next) image.src = next
+    }
+  }
+
   function applyTheme(theme) {
     root.dataset.theme = theme
     try {
@@ -28,7 +37,8 @@
       toggle.setAttribute('title', '切换到' + next)
     }
     var meta = document.querySelector('meta[name="theme-color"]')
-    if (meta) meta.setAttribute('content', theme === 'standard' ? '#000000' : '#0a0a0c')
+    if (meta) meta.setAttribute('content', theme === 'standard' ? '#f5f5f7' : '#0a0a0c')
+    applyShots(theme)
   }
 
   applyTheme(savedTheme())
@@ -44,33 +54,10 @@
 
     function onScroll() {
       if (!nav) return
-      // 保持在黑色 Hero 上时导航保持深色；离开 Hero 后才切换为浅色玻璃
+      // 离开 Hero 后导航才切换为玻璃背景，避免在首屏压住大标题
       var limit = 24
       if (hero) limit = hero.offsetTop + hero.offsetHeight - 56
-      var scrolled = window.scrollY > limit
-      nav.classList.toggle('is-scrolled', scrolled)
-
-      if (!scrolled) {
-        nav.classList.remove('is-dark')
-        return
-      }
-      // 黑色区块上使用深色玻璃，避免白条压在战斗节点上
-      var stack = document.elementsFromPoint(window.innerWidth / 2, 24) || []
-      var dark = false
-      for (var i = 0; i < stack.length; i += 1) {
-        var element = stack[i]
-        if (!element || !element.closest) continue
-        if (element.closest('.hero')) {
-          dark = true
-          break
-        }
-        var section = element.closest('.section')
-        if (section) {
-          dark = section.classList.contains('section-dark')
-          break
-        }
-      }
-      nav.classList.toggle('is-dark', dark)
+      nav.classList.toggle('is-scrolled', window.scrollY > limit)
     }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })

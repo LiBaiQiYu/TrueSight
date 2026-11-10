@@ -26,20 +26,21 @@ website/
 
 ## 主题
 
-- 默认 **标准**：白底 + 蓝色强调色，Hero 与战斗节点保持黑色；
-- **TrueSight**：深色底 + 绿色强调色，整体同构；
-- 切换写入 `localStorage` 的 `truesight.site.theme`，页面加载时在 `<head>` 内提前设置，避免闪烁。
+- **标准（浅色）**：浅色页面 + 蓝色强调色，Hero 为浅灰渐变；
+- **TrueSight（深色）**：深色页面 + 绿色强调色，Hero 为黑色；
+- 切换写入 `localStorage` 的 `truesight.site.theme`，页面加载时在 `<head>` 内提前设置，避免闪烁；
+- 界面截图通过 `img[data-light][data-dark]` 自动跟随主题切换：浅色模式用浅色截图，深色模式用深色截图。
 
 ## 界面截图
 
-截图全部使用客户端 **标准主题**：
+截图全部使用客户端 **标准主题**，并同时准备浅色/深色两套：
 
-- `standard-analysis-light.png`：分析主界面（浅色）；
-- `standard-timeline-dock.png`：时间轴弹窗（浅色，已裁切）；
-- `standard-combat-dock.png`：战斗节点（深色，已裁切）；
-- `standard-settings-light.png`：模型服务设置（浅色）。
+- `standard-analysis-light.png` / `standard-analysis-dark.png`：分析主界面；
+- `standard-timeline-dock.png` / `standard-timeline-dark-dock.png`：时间轴弹窗（已裁切）；
+- `standard-combat-light-dock.png` / `standard-combat-dock.png`：战斗节点（已裁切）；
+- `standard-settings-light.png` / `standard-settings-dark.png`：模型服务设置。
 
-截图由真实客户端通过 Electron 远程调试截取，尺寸 1600×1000（弹窗裁切为 1488×920）。更新界面后需要重新截图并保持文件名不变。
+截图由真实客户端通过 Electron 远程调试截取，尺寸 1600×1000（弹窗裁切为 1488×920）。更新界面后需要重新截图浅色与深色两套，并保持文件名不变。
 
 ## 本地预览
 

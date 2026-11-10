@@ -20,11 +20,26 @@ html[data-theme="standard"] {
   --text: #1d1d1f;
   --muted: #6e6e73;
   --line: rgba(0, 0, 0, 0.1);
-  --nav-bg: rgba(255, 255, 255, 0.78);
-  --nav-text: #1d1d1f;
+  --nav-bg: rgba(255, 255, 255, 0.82);
   --accent: #0071e3;
+  --accent-2: #0071e3;
   --accent-soft: rgba(0, 113, 227, 0.08);
   --card: #ffffff;
+  --hero-bg: radial-gradient(46% 46% at 50% 10%, rgba(0, 113, 227, 0.16), transparent 70%), #f5f5f7;
+  --hero-glow: radial-gradient(46% 46% at 50% 22%, rgba(0, 113, 227, 0.26), transparent 70%);
+  --hero-text: #1d1d1f;
+  --hero-muted: #6e6e73;
+  --band-bg: #f5f5f7;
+  --band-text: #1d1d1f;
+  --band-muted: #6e6e73;
+  --band-line: rgba(0, 0, 0, 0.1);
+  --window-bar-bg: #f5f5f7;
+  --window-bar-text: #6e6e73;
+  --window-border: rgba(0, 0, 0, 0.12);
+  --window-dot: #d2d2d7;
+  --shot-border: rgba(0, 0, 0, 0.1);
+  --shot-shadow: 0 30px 80px rgba(0, 0, 0, 0.16);
+  --hero-shadow: 0 40px 100px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.6);
 }
 
 html[data-theme="truesight"] {
@@ -34,11 +49,26 @@ html[data-theme="truesight"] {
   --text: #f5f5f7;
   --muted: #a1a1a6;
   --line: rgba(255, 255, 255, 0.14);
-  --nav-bg: rgba(16, 16, 19, 0.78);
-  --nav-text: #f5f5f7;
+  --nav-bg: rgba(16, 16, 19, 0.8);
   --accent: #30d158;
+  --accent-2: #4ade80;
   --accent-soft: rgba(48, 209, 88, 0.1);
   --card: #17171a;
+  --hero-bg: radial-gradient(46% 46% at 50% 8%, rgba(48, 209, 88, 0.22), transparent 72%), #000000;
+  --hero-glow: radial-gradient(46% 46% at 50% 10%, rgba(48, 209, 88, 0.3), transparent 72%);
+  --hero-text: #f5f5f7;
+  --hero-muted: #a1a1a6;
+  --band-bg: #000000;
+  --band-text: #f5f5f7;
+  --band-muted: #a1a1a6;
+  --band-line: rgba(255, 255, 255, 0.16);
+  --window-bar-bg: #16161a;
+  --window-bar-text: #a1a1a6;
+  --window-border: rgba(255, 255, 255, 0.14);
+  --window-dot: #3a3a3e;
+  --shot-border: rgba(255, 255, 255, 0.14);
+  --shot-shadow: 0 30px 90px rgba(0, 0, 0, 0.62);
+  --hero-shadow: 0 50px 140px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 * {
@@ -113,23 +143,17 @@ code {
   inset: 0 0 auto;
   z-index: 100;
   height: 48px;
-  color: #f5f5f7;
+  color: var(--text);
   transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, backdrop-filter 0.3s ease;
   border-bottom: 1px solid transparent;
 }
 
 .nav.is-scrolled {
-  color: var(--nav-text);
+  color: var(--text);
   background: var(--nav-bg);
   border-bottom-color: var(--line);
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
-}
-
-.nav.is-scrolled.is-dark {
-  color: #f5f5f7;
-  background: rgba(0, 0, 0, 0.64);
-  border-bottom-color: rgba(255, 255, 255, 0.12);
 }
 
 .nav-inner {
@@ -336,16 +360,12 @@ html[data-theme="truesight"] .pill-quiet:hover {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  color: var(--blue);
+  color: var(--accent);
   font-size: 16px;
 }
 
-html[data-theme="standard"] .hero .text-link {
-  color: #2997ff;
-}
-
-html[data-theme="truesight"] .text-link {
-  color: var(--accent);
+.hero .text-link {
+  color: var(--accent-2);
 }
 
 .text-link span {
@@ -362,21 +382,19 @@ html[data-theme="truesight"] .text-link {
   position: relative;
   overflow: hidden;
   padding: 128px 24px 0;
-  background: #000;
-  color: #f5f5f7;
+  background: var(--hero-bg);
+  color: var(--hero-text);
   text-align: center;
 }
 
 .hero-glow {
   position: absolute;
-  top: -260px;
+  top: -320px;
   left: 50%;
   width: 1200px;
-  height: 760px;
+  height: 820px;
   transform: translateX(-50%);
-  background:
-    radial-gradient(46% 46% at 50% 42%, rgba(0, 113, 227, 0.42), transparent 70%),
-    radial-gradient(30% 30% at 72% 28%, rgba(16, 185, 129, 0.22), transparent 72%);
+  background: var(--hero-glow);
   filter: blur(10px);
   pointer-events: none;
 }
@@ -391,7 +409,7 @@ html[data-theme="truesight"] .text-link {
 .eyebrow,
 .kicker {
   margin: 0;
-  color: #2997ff;
+  color: var(--accent-2);
   font-family: var(--mono);
   font-size: 11px;
   font-weight: 500;
@@ -408,13 +426,13 @@ html[data-theme="truesight"] .text-link {
 }
 
 .hero h1 span {
-  color: #f5f5f7;
+  color: inherit;
 }
 
 .hero-lede {
   max-width: 680px;
   margin: 0 auto;
-  color: #a1a1a6;
+  color: var(--hero-muted);
   font-size: clamp(16px, 1.5vw, 19px);
   line-height: 1.65;
 }
@@ -430,7 +448,7 @@ html[data-theme="truesight"] .text-link {
 
 .hero-meta {
   margin: 0;
-  color: #6e6e73;
+  color: var(--hero-muted);
   font-size: 12px;
   letter-spacing: 0.01em;
 }
@@ -445,14 +463,10 @@ html[data-theme="truesight"] .text-link {
 
 .window {
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid var(--window-border);
   border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06);
-}
-
-.hero-shot .window {
-  box-shadow: 0 50px 140px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  background: var(--window-bar-bg);
+  box-shadow: var(--hero-shadow);
 }
 
 .window-bar {
@@ -461,9 +475,9 @@ html[data-theme="truesight"] .text-link {
   gap: 12px;
   height: 38px;
   padding: 0 14px;
-  background: #f5f5f7;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  color: #6e6e73;
+  background: var(--window-bar-bg);
+  border-bottom: 1px solid var(--window-border);
+  color: var(--window-bar-text);
   font-size: 11px;
 }
 
@@ -476,7 +490,7 @@ html[data-theme="truesight"] .text-link {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #d2d2d7;
+  background: var(--window-dot);
 }
 
 .window-title {
@@ -491,8 +505,8 @@ html[data-theme="truesight"] .text-link {
   flex: none;
   padding: 2px 7px;
   border-radius: 999px;
-  background: rgba(0, 113, 227, 0.1);
-  color: #0071e3;
+  background: var(--accent-soft);
+  color: var(--accent);
   font-family: var(--mono);
   font-size: 8.5px;
   letter-spacing: 0.1em;
@@ -502,24 +516,9 @@ html[data-theme="truesight"] .text-link {
   width: 100%;
 }
 
-.window-dark .window-bar {
-  background: #16161a;
-  border-bottom-color: rgba(255, 255, 255, 0.1);
-  color: #a1a1a6;
-}
-
-.window-dark .dots i {
-  background: #3a3a3e;
-}
-
-.window-dark .window-tag {
-  background: rgba(48, 209, 88, 0.12);
-  color: #30d158;
-}
-
 .shot-caption {
   margin: 18px 0 0;
-  color: #6e6e73;
+  color: var(--hero-muted);
   font-size: 12px;
 }
 
@@ -534,9 +533,9 @@ html[data-theme="truesight"] .text-link {
   color: var(--text);
 }
 
-.section-dark {
-  background: #000;
-  color: #f5f5f7;
+.section-band {
+  background: var(--band-bg);
+  color: var(--band-text);
 }
 
 .section + .section {
@@ -555,9 +554,8 @@ html[data-theme="truesight"] .text-link {
   color: var(--accent);
 }
 
-.section-dark .kicker,
-.kicker-cool {
-  color: #2997ff;
+.section-band .kicker {
+  color: var(--accent-2);
 }
 
 .lede {
@@ -568,8 +566,8 @@ html[data-theme="truesight"] .text-link {
   line-height: 1.65;
 }
 
-.section-dark .lede {
-  color: #a1a1a6;
+.section-band .lede {
+  color: var(--band-muted);
 }
 
 /* Overview metrics */
@@ -639,8 +637,8 @@ html[data-theme="truesight"] .text-link {
   line-height: 1.7;
 }
 
-.section-dark .feature-lede {
-  color: #a1a1a6;
+.section-band .feature-lede {
+  color: var(--band-muted);
 }
 
 .checks {
@@ -683,19 +681,6 @@ html[data-theme="truesight"] .text-link {
   transform: rotate(42deg);
 }
 
-.checks-light li {
-  color: #f5f5f7;
-}
-
-.checks-light li::before {
-  background: rgba(41, 151, 255, 0.12);
-  border-color: #2997ff;
-}
-
-.checks-light li::after {
-  border-color: #2997ff;
-}
-
 .feature-visual {
   margin: 54px 0 0;
   min-width: 0;
@@ -703,15 +688,10 @@ html[data-theme="truesight"] .text-link {
 
 .plain-shot {
   width: 100%;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--shot-border);
   border-radius: 18px;
-  background: #fff;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.16);
-}
-
-.section-dark .plain-shot {
-  border-color: rgba(255, 255, 255, 0.14);
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
+  background: var(--bg-alt);
+  box-shadow: var(--shot-shadow);
 }
 
 .feature-visual figcaption {
@@ -721,8 +701,8 @@ html[data-theme="truesight"] .text-link {
   text-align: left;
 }
 
-.section-dark .feature-visual figcaption {
-  color: #6e6e73;
+.section-band .feature-visual figcaption {
+  color: var(--band-muted);
 }
 
 /* Privacy band */
@@ -736,11 +716,11 @@ html[data-theme="truesight"] .text-link {
 
 .privacy-grid article {
   padding-top: 26px;
-  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  border-top: 1px solid var(--band-line);
 }
 
 .privacy-num {
-  color: #2997ff;
+  color: var(--accent-2);
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: 0.1em;
@@ -755,7 +735,7 @@ html[data-theme="truesight"] .text-link {
 
 .privacy-grid p {
   margin: 0;
-  color: #a1a1a6;
+  color: var(--band-muted);
   font-size: 14px;
   line-height: 1.65;
 }
@@ -1033,8 +1013,7 @@ html[data-theme="truesight"] .text-link {
   }
 
   .nav-open .nav,
-  .nav-open .nav.is-scrolled,
-  .nav-open .nav.is-scrolled.is-dark {
+  .nav-open .nav.is-scrolled {
     color: var(--text);
     background: var(--bg);
     border-bottom-color: var(--line);

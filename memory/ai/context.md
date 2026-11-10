@@ -10,7 +10,7 @@ TrueSight（`dota-chat`）是一个 Dota 2 对局分析工具：
 - AI：OpenAI 兼容接口，支持 OpenCode Go、MiniMax、DeepSeek、OpenAI/Codex API、小米 MiMo 与自定义模型；
 - 静态名称库：`data/names/*.json` → 前端 `ui/public/names/*.json`。
 - 名称兜底：`ui/src/lib/labels.ts` 把回放内部类名（`npc_dota_*`、名称表缺失的技能/物品）统一转成中文或可读名，战斗节点与 AI 提示词共用。
-- 官网：Apple 产品页风格静态站，标准/TrueSight 深浅双主题，截图统一使用客户端标准主题。
+- 官网：Apple 产品页风格静态站；浅色标准主题（浅色页面、蓝色强调）与深色 TrueSight 主题（深色页面、绿色强调），截图按主题自动切换。
 
 ## 关键目录
 
