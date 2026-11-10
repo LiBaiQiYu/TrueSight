@@ -318,6 +318,8 @@ class Handler(BaseHTTPRequestHandler):
         path = urllib.parse.urlparse(self.path).path
         if path == '/api/stratz':
             return self.handle_stratz()
+        if path == '/api/cache/clear':
+            return self.handle_cache_clear()
         if path == '/api/parse':
             return self.handle_parse()
         if path != '/api/chat':
@@ -590,6 +592,39 @@ class Handler(BaseHTTPRequestHandler):
             self.close_connection = True
 
     # ---------- STRATZ GraphQL 转发（浏览器直连会被跨域拦） ----------
+    def handle_cache_clear(self):
+        """清理回放解析缓存与解析临时文件；保留录像、设置和历史记录。"""
+        files = 0
+        freed = 0
+        try:
+            for name in os.listdir(REPLAYS_DIR):
+                if not name.endswith('.json'):
+                    continue
+                path = os.path.join(REPLAYS_DIR, name)
+                if not os.path.isfile(path):
+                    continue
+                freed += os.path.getsize(path)
+                os.remove(path)
+                files += 1
+        except OSError as exc:
+            log('clear replay cache failed: %s' % exc)
+            return self.send_json(500, {'error': '清理回放缓存失败: %s' % exc})
+
+        tmp_dir = os.path.join(BASE_DIR, '.cache', 'tmp')
+        if os.path.isdir(tmp_dir):
+            for name in os.listdir(tmp_dir):
+                path = os.path.join(tmp_dir, name)
+                if not os.path.isfile(path):
+                    continue
+                try:
+                    freed += os.path.getsize(path)
+                    os.remove(path)
+                    files += 1
+                except OSError:
+                    continue
+        log('cache cleared: %d files, %d bytes' % (files, freed))
+        return self.send_json(200, {'ok': True, 'files': files, 'bytes': freed})
+
     def handle_stratz(self):
         try:
             length = int(self.headers.get('Content-Length') or 0)

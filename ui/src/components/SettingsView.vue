@@ -44,6 +44,46 @@ const catalogText = computed({
       .filter((item, index, list) => item.length > 0 && list.indexOf(item) === index)
   }
 })
+const clearing = ref(false)
+const clearResult = ref('')
+const clearError = ref('')
+
+function formatBytes(bytes: number): string {
+  if (!bytes) return '0 B'
+  const units = ['B', 'KB', 'MB', 'GB']
+  let value = bytes
+  let index = 0
+  while (value >= 1024 && index < units.length - 1) {
+    value /= 1024
+    index += 1
+  }
+  return `${value.toFixed(index === 0 ? 0 : 1)} ${units[index]}`
+}
+
+async function clearCache(): Promise<void> {
+  if (!window.confirm('清除所有回放解析缓存和临时文件？录像、设置、API Key 和历史记录不会删除。')) {
+    return
+  }
+  clearing.value = true
+  clearResult.value = ''
+  clearError.value = ''
+  try {
+    const res = await fetch('/api/cache/clear', { method: 'POST' })
+    const data = (await res.json()) as { files?: number; bytes?: number; error?: string }
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`)
+    try {
+      localStorage.removeItem('truesight.names.v2')
+    } catch {
+      /* ignore */
+    }
+    clearResult.value = `已清除 ${data.files ?? 0} 个文件，释放 ${formatBytes(data.bytes ?? 0)}；刷新页面后生效。`
+  } catch (error) {
+    clearError.value = '清除失败：' + (error instanceof Error ? error.message : String(error))
+  } finally {
+    clearing.value = false
+  }
+}
+
 const effortInput = ref('')
 const effortPresets = ['low', 'medium', 'high', 'xhigh', 'max', 'ultra'] as const
 
@@ -437,6 +477,19 @@ const statusText = computed(() => {
     </div>
 
     <div class="card block">
+      <h3><AppIcon name="trash" :size="16" /> 缓存</h3>
+      <p class="note">清除回放解析缓存和解析临时文件，保留录像、API Key、设置与历史记录。下次分析会重新解析。</p>
+      <div class="cache-actions">
+        <button class="btn btn-ghost small" type="button" :disabled="clearing" @click="clearCache">
+          <AppIcon :name="clearing ? 'loader' : 'trash'" :size="14" :class="{ spin: clearing }" />
+          {{ clearing ? '清理中…' : '清除缓存' }}
+        </button>
+        <span v-if="clearResult" class="cache-result">{{ clearResult }}</span>
+        <span v-else-if="clearError" class="cache-error">{{ clearError }}</span>
+      </div>
+    </div>
+
+    <div class="card block">
       <h3><AppIcon name="moon" :size="16" /> 外观</h3>
       <div class="themes">
         <button
@@ -586,6 +639,24 @@ const statusText = computed(() => {
   height: 30px;
   font-size: 12px;
   margin-left: auto;
+}
+
+.cache-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-top: 10px;
+}
+
+.cache-result {
+  color: var(--accent-text);
+  font-size: 11.5px;
+}
+
+.cache-error {
+  color: var(--dock-warn, #fbbf24);
+  font-size: 11.5px;
 }
 
 .note {

@@ -308,6 +308,9 @@ public class MatchJsonMain {
         String[] lastBearBackpack;
         int lastEntityTick = -1;
         final List<Entity> heroEntities = new ArrayList<>();
+        final List<Entity> allBearEntities = new ArrayList<>();
+        final java.util.Map<Integer, Float> lastAttackTimes = new java.util.HashMap<>();
+        final List<String[]> attackEvents = new ArrayList<>();
         final java.util.Set<Integer> heroEntityKeys = new java.util.HashSet<>();
         /** each: {t, playerIndex, cellX, cellY, hp, maxHp, team} */
         final List<String[]> positionSamples = new ArrayList<>();
@@ -463,7 +466,10 @@ public class MatchJsonMain {
                 }
                 boolean attackerHero = attacker != null && attacker.startsWith("npc_dota_hero_");
                 boolean illusion = e.hasAttackerIllusion() && e.isAttackerIllusion();
-                if (attackerHero && target != null && target.startsWith("npc_dota_hero_") && !illusion) {
+                boolean attackerBear = attacker != null && attacker.toLowerCase().contains("lone_druid_bear");
+                boolean targetHeroOrBear = target != null
+                    && (target.startsWith("npc_dota_hero_") || target.toLowerCase().contains("lone_druid_bear"));
+                if ((attackerHero || attackerBear) && targetHeroOrBear && !illusion) {
                     float ex = e.hasLocationX() ? e.getLocationX() : 0f;
                     float ey = e.hasLocationY() ? e.getLocationY() : 0f;
                     addCombatEvent(gameT, "DAMAGE", attacker, target,
@@ -591,6 +597,9 @@ public class MatchJsonMain {
             if (focusBear == null || !focusBear.isExistent()) {
                 focusBear = e;
             }
+            if (e.getIndex() >= 0 && allBearEntities.stream().noneMatch((b) -> b.getIndex() == e.getIndex())) {
+                allBearEntities.add(e);
+            }
         }
 
         private Entity entityOwner(Entity e) {
@@ -707,6 +716,25 @@ public class MatchJsonMain {
                 nextPositionAt = (float) (Math.floor(t / 5f) + 1) * 5f;
             }
 
+            if (t >= 0f) {
+                for (Entity hero : heroEntities) {
+                    if (!hero.isExistent()) continue;
+                    int pid;
+                    try {
+                        pid = hero.hasProperty("m_iPlayerID")
+                            ? ((Number) hero.getProperty("m_iPlayerID")).intValue() : -1;
+                    } catch (Exception ex) {
+                        continue;
+                    }
+                    trackAttack(hero, "hero", pid, t);
+                }
+                for (Entity bear : allBearEntities) {
+                    if (bear.isExistent()) {
+                        trackAttack(bear, "bear", -1, t);
+                    }
+                }
+            }
+
             String[] main = new String[MAIN_SLOTS];
             String[] backpack = new String[BACKPACK_SLOTS];
             for (int i = 0; i < MAIN_SLOTS; i++) {
@@ -780,6 +808,29 @@ public class MatchJsonMain {
                 sampleSeries(t);
                 nextSeriesAt = (float) (Math.floor(t / SERIES_STEP) + 1) * SERIES_STEP;
             }
+        }
+
+        private void trackAttack(Entity unit, String kind, int pid, float t) {
+            if (!unit.hasProperty("m_flLastAttackTime")) {
+                return;
+            }
+            float value;
+            try {
+                value = ((Number) unit.getProperty("m_flLastAttackTime")).floatValue();
+            } catch (Exception ex) {
+                return;
+            }
+            if (value <= 0f) {
+                return;
+            }
+            Float previous = lastAttackTimes.get(unit.getIndex());
+            if (previous != null && Math.abs(previous - value) < 0.01f) {
+                return;
+            }
+            lastAttackTimes.put(unit.getIndex(), value);
+            attackEvents.add(new String[]{
+                String.format(java.util.Locale.ROOT, "%.2f", t), kind, Integer.toString(pid)
+            });
         }
 
         private String readItem(Entity unit, int slot) {
@@ -1177,6 +1228,15 @@ public class MatchJsonMain {
                     .append(row[4]).append(',').append(row[5]).append(',').append(row[6]).append(']');
             }
             sb.append("]}");
+            sb.append(",\"attacks\":[");
+            for (int i = 0; i < attackEvents.size(); i++) {
+                String[] row = attackEvents.get(i);
+                if (i > 0) sb.append(',');
+                sb.append("{\"t\":").append(row[0])
+                    .append(",\"k\":\"").append(row[1]).append("\"")
+                    .append(",\"p\":").append(row[2]).append('}');
+            }
+            sb.append(']');
             sb.append(",\"combat\":{\"events\":[");
             for (int i = 0; i < combatEvents.size(); i++) {
                 String[] row = combatEvents.get(i);

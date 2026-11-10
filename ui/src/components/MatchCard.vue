@@ -17,6 +17,8 @@ const props = defineProps<{
   names?: NamesIndex | null
   loading: boolean
   error: string
+  notice?: string
+  hasBackup?: boolean
   lookupNote: string
   focusSlot: number | null
   busy: boolean
@@ -346,6 +348,14 @@ const canStart = computed(() => Boolean(props.roster.length && props.focusSlot !
               <AppIcon :name="loading ? 'loader' : 'search'" :size="18" :class="{ spin: loading }" />
             </button>
           </div>
+          <p v-if="loading" class="search-hint" role="status">
+            <AppIcon name="loader" :size="13" :class="{ spin: true }" />
+            <span>正在请求 OpenDota，最长 12 秒{{ hasBackup ? '，失败后自动尝试 STRATZ 备用源' : '' }}…</span>
+          </p>
+          <p v-if="notice" class="notice" role="status">
+            <AppIcon name="info" :size="13" />
+            <span>{{ notice }}</span>
+          </p>
           <p v-if="error" class="error" role="alert">
             <AppIcon name="info" :size="13" />
             <span>{{ error }}</span>
@@ -850,6 +860,34 @@ const canStart = computed(() => Boolean(props.roster.length && props.focusSlot !
   to {
     transform: rotate(360deg);
   }
+}
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 6px 0 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--dock-warn);
+}
+
+.notice svg {
+  flex: none;
+  margin-top: 1px;
+}
+
+.search-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0 0;
+  font-size: 11px;
+  color: var(--text-mute);
+}
+
+.search-hint .spin {
+  animation: spin 1s linear infinite;
 }
 
 .error {

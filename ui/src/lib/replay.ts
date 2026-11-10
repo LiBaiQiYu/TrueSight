@@ -129,6 +129,12 @@ export interface ReplayCombat {
   samples: ReplayCombatSample[]
 }
 
+export interface ReplayAttackEvent {
+  t: number
+  k: 'hero' | 'bear'
+  p: number
+}
+
 export interface ReplayPositions {
   step: number
   samples: ReplayPositionSample[]
@@ -152,6 +158,7 @@ export interface ReplayParse {
   final: { radiant: number; dire: number }
   series?: ReplaySeries
   positions?: ReplayPositions
+  attacks?: ReplayAttackEvent[]
   combat?: ReplayCombat
   focus: ReplayFocus
 }

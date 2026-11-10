@@ -72,15 +72,47 @@ export interface OpenDotaMatch {
 
 const cache = new Map<number, OpenDotaMatch>()
 
+/** OpenDota 偶发挂起时不要让加载动画一直转。 */
+const MATCH_TIMEOUT_MS = 12000
+
+async function fetchMatchResponse(id: number): Promise<Response> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), MATCH_TIMEOUT_MS)
+  try {
+    return await fetch(`https://api.opendota.com/api/matches/${id}`, { signal: controller.signal })
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 export async function fetchMatch(matchId: string): Promise<OpenDotaMatch> {
   const id = Number(matchId)
   if (!Number.isFinite(id) || id <= 0) throw new Error('比赛 ID 必须是数字')
   const hit = cache.get(id)
   if (hit) return hit
-  const res = await fetch(`https://api.opendota.com/api/matches/${id}`)
+
+  let res: Response
+  try {
+    res = await fetchMatchResponse(id)
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new Error('OpenDota 请求超时（12 秒），请检查网络/代理或稍后重试')
+    }
+    throw new Error('无法连接 OpenDota，请检查网络/代理后重试')
+  }
+
   if (res.status === 404) throw new Error('OpenDota 查不到这场比赛（ID 错误或尚未收录）')
-  if (!res.ok) throw new Error('OpenDota 请求失败: HTTP ' + res.status)
-  const data = (await res.json()) as OpenDotaMatch | null
+  if (res.status === 429) throw new Error('OpenDota 请求过于频繁，请稍后重试')
+  if (!res.ok) {
+    throw new Error(`OpenDota 服务暂时不可用（HTTP ${res.status}），请稍后重试`)
+  }
+
+  let data: OpenDotaMatch | null = null
+  try {
+    data = (await res.json()) as OpenDotaMatch | null
+  } catch {
+    throw new Error('OpenDota 返回了无法解析的数据，请稍后重试')
+  }
   if (!data || !data.match_id) throw new Error('OpenDota 返回空数据')
   cache.set(id, data)
   return data

@@ -45,6 +45,16 @@ const items = [
         <span>设置</span>
       </button>
 
+      <button
+        class="settings-btn about-btn"
+        :class="{ active: active === 'about' }"
+        type="button"
+        @click="emit('select', 'about')"
+      >
+        <AppIcon name="info" :size="16" />
+        <span>关于</span>
+      </button>
+
       <div class="credits">
         <a href="https://www.opendota.com" target="_blank" rel="noopener">Powered by OpenDota</a>
         <a href="https://stratz.com" target="_blank" rel="noopener">Powered by STRATZ</a>
@@ -147,6 +157,16 @@ const items = [
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.about-btn {
+  margin-top: 4px;
+}
+
+.about-btn.active {
+  color: var(--nav-text);
+  background: var(--nav-grad);
+  box-shadow: var(--nav-shadow);
 }
 
 .settings-btn {

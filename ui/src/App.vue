@@ -9,6 +9,7 @@ import ResultCard from './components/ResultCard.vue'
 import TimelineDock from './components/TimelineDock.vue'
 import HistoryView from './components/HistoryView.vue'
 import SettingsView from './components/SettingsView.vue'
+import AboutView from './components/AboutView.vue'
 import {
   activeApiKey,
   activeBaseUrl,
@@ -19,7 +20,7 @@ import {
 } from './lib/config'
 import { loadHeroes, type HeroInfo } from './lib/heroes'
 import { fetchMatch, type OpenDotaMatch } from './lib/opendota'
-import { fetchStratzMatch, type StratzMatch } from './lib/stratz'
+import { fetchStratzMatch, fetchStratzMatchFallback, type StratzMatch } from './lib/stratz'
 import { fetchCachedReplay, parseReplay, type ReplayParse } from './lib/replay'
 import { buildRoster } from './lib/roster'
 import { buildTimelineModel } from './lib/timeline'
@@ -36,7 +37,7 @@ import {
   type MatchupState
 } from './lib/matchup'
 
-type View = 'assistant' | 'history' | 'settings'
+type View = 'assistant' | 'history' | 'settings' | 'about'
 type Status = 'idle' | 'loading' | 'streaming' | 'done' | 'stopped' | 'error'
 
 const activeView = ref<View>('assistant')
@@ -47,6 +48,7 @@ const lookupStratz = ref<StratzMatch | null>(null)
 const lookupError = ref('')
 const loadingMatch = ref(false)
 const matchError = ref('')
+const matchNotice = ref('')
 const focusSlot = ref<number | null>(null)
 /** 时间轴弹窗内切换查看对象，不影响已经生成的 AI 分析结果。 */
 const dockFocusSlot = ref<number | null>(null)
@@ -291,6 +293,7 @@ async function search(id: string): Promise<void> {
   cancelAnalysis()
   loadingMatch.value = true
   matchError.value = ''
+  matchNotice.value = ''
   match.value = null
   lookupStratz.value = null
   lookupError.value = ''
@@ -299,11 +302,28 @@ async function search(id: string): Promise<void> {
   dockOpen.value = false
   resetResult()
   try {
-    match.value = await fetchMatch(value)
+    try {
+      match.value = await fetchMatch(value)
+    } catch (openDotaError) {
+      const token = config.stratzToken.trim()
+      if (!token) throw openDotaError
+      const odMessage = openDotaError instanceof Error ? openDotaError.message : String(openDotaError)
+      try {
+        match.value = await fetchStratzMatchFallback(Number(value), token)
+        matchNotice.value =
+          `OpenDota 暂不可用（${odMessage}），已使用 STRATZ 备用数据；` +
+          '出装、技能加点、时间线等字段需要等 OpenDota 恢复或解析回放后才有。'
+      } catch (stratzError) {
+        const stratzMessage = (stratzError instanceof Error ? stratzError.message : String(stratzError)).slice(0, 220)
+        throw new Error(`OpenDota 查询失败：${odMessage}；STRATZ 备用源也不可用：${stratzMessage}`)
+      }
+    }
     matchIdInput.value = String(match.value.match_id)
     if (config.stratzToken.trim()) {
       try {
-        lookupStratz.value = await fetchStratzMatch(match.value.match_id, config.stratzToken)
+        if (!lookupStratz.value) {
+          lookupStratz.value = await fetchStratzMatch(match.value.match_id, config.stratzToken)
+        }
       } catch (e) {
         lookupError.value = 'STRATZ 数据获取失败：' + (e instanceof Error ? e.message : String(e))
       }
@@ -323,6 +343,7 @@ function clearMatch(): void {
   lookupStratz.value = null
   lookupError.value = ''
   matchError.value = ''
+  matchNotice.value = ''
   focusSlot.value = null
   matchup.value = { ...emptyMatchup }
   dockOpen.value = false
@@ -795,7 +816,7 @@ function openResultTimeline(): void {
 }
 
 function setView(key: string): void {
-  activeView.value = key === 'history' ? 'history' : 'assistant'
+  activeView.value = key === 'history' ? 'history' : key === 'about' ? 'about' : 'assistant'
 }
 </script>
 
@@ -870,6 +891,8 @@ function setView(key: string): void {
             :names="names"
             :loading="loadingMatch"
             :error="matchError"
+            :notice="matchNotice"
+            :has-backup="Boolean(config.stratzToken.trim())"
             :lookup-note="lookupNote"
             :focus-slot="focusSlot"
             :busy="status === 'loading' || status === 'streaming'"
@@ -914,6 +937,7 @@ function setView(key: string): void {
           @open-timeline="openTimelineHistory"
         />
 
+        <AboutView v-else-if="activeView === 'about'" @back="activeView = 'assistant'" />
         <SettingsView v-else @back="activeView = 'assistant'" />
       </div>
 

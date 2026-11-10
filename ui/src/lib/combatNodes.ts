@@ -26,6 +26,11 @@ export interface CombatHero {
   heroId: number
   heroName: string
   playerName: string
+  /** 统计里是否包含德鲁伊小熊（熊灵）的伤害/技能/物品 */
+  includesBear: boolean
+  /** 合成行：德鲁伊的小熊 */
+  isBear?: boolean
+  ownerSlot?: number | null
   side: Side
   kills: number
   assists: number
@@ -109,9 +114,7 @@ function damageType(value: number): DamageType {
 }
 
 function normalizedUnit(unit: string): string {
-  const value = (unit || '').toLowerCase()
-  if (value.includes('lone_druid_bear')) return 'npc_dota_hero_lone_druid'
-  return value
+  return (unit || '').toLowerCase()
 }
 
 function sourceType(source: string, damageType: number, category: number): 'basic' | 'ability' | 'item' | 'other' {
@@ -161,6 +164,9 @@ function emptyHero(
     slot,
     heroId,
     heroName: named?.cn || named?.en || unitName(replayPlayer?.hero, names) || `英雄 ${heroId}`,
+    includesBear: false,
+    isBear: false,
+    ownerSlot: null,
     playerName: player?.personaname || player?.name || replayPlayer?.name || `玩家 ${slot + 1}`,
     side: replayPlayer?.team === 3 || player?.isRadiant === false ? 'dire' : 'radiant',
     kills: 0,
@@ -220,6 +226,27 @@ export function buildCombatNodes(
     unitToSlot.set(normalizedUnit(player.hero), player.slot)
     slotToReplay.set(player.slot, player)
   }
+  const loneDruidSlot = players.find(
+    (player) => normalizedUnit(player.hero) === 'npc_dota_hero_lone_druid'
+  )?.slot
+  const isBearUnit = (unit: string): boolean => /^npc_dota_(?:hero_)?lone_druid_bear\d*$/.test(unit)
+  const attackEvents = replay.attacks ?? []
+  const bearAttackTimes = attackEvents.filter((entry) => entry.k === 'bear').map((entry) => entry.t)
+  const ldHeroAttackTimes = attackEvents
+    .filter((entry) => entry.k === 'hero' && entry.p === loneDruidSlot)
+    .map((entry) => entry.t)
+  const nearAttack = (times: number[], t: number): boolean =>
+    times.some((at) => Math.abs(at - t) <= 0.5)
+
+  /** 攻击方：熊灵归到德鲁伊身上（击杀/伤害/技能/物品与小熊同步）。 */
+  const attackerSlotOf = (unit: string): number | undefined => {
+    const direct = unitToSlot.get(unit)
+    if (direct != null) return direct
+    if (loneDruidSlot != null && isBearUnit(unit)) return loneDruidSlot
+    return undefined
+  }
+  /** 受击方：熊灵不是英雄，不按德鲁伊的死亡/承伤统计。 */
+  const victimSlotOf = (unit: string): number | undefined => unitToSlot.get(unit)
   const focusUnit = normalizedUnit(replay.focus?.unit ?? '')
   const focusSlot = unitToSlot.get(focusUnit)
   if (focusSlot == null) return []
@@ -229,9 +256,12 @@ export function buildCombatNodes(
   const deaths = events.filter((event) => event[1] === 'DEATH')
   const focusAnchors: Seed[] = deaths
     .map((event) => {
-      const attackerSlot = unitToSlot.get(normalizedUnit(event[2]))
-      const targetSlot = unitToSlot.get(normalizedUnit(event[3]))
-      const assists = Array.isArray(event[10]) ? event[10] : []
+      const attackerSlot = attackerSlotOf(normalizedUnit(event[2]))
+      const targetSlot = victimSlotOf(normalizedUnit(event[3]))
+      // 回放死亡事件的 assist 列表会把击杀者也列进去，统计时排除击杀者与死者
+      const assists = (Array.isArray(event[10]) ? event[10] : []).filter(
+        (slot) => slot !== attackerSlot && slot !== targetSlot
+      )
       const involved =
         attackerSlot === focusSlot ||
         targetSlot === focusSlot ||
@@ -279,9 +309,9 @@ export function buildCombatNodes(
     const start = Math.max(0, group[0].t - WINDOW_BEFORE)
     const end = group[group.length - 1].t + WINDOW_AFTER
     const focusRole: FocusRole =
-      group.some((seed) => seed.event[2] && unitToSlot.get(normalizedUnit(seed.event[2])) === focusSlot)
+      group.some((seed) => seed.event[2] && attackerSlotOf(normalizedUnit(seed.event[2])) === focusSlot)
         ? 'kill'
-        : group.some((seed) => seed.event[3] && unitToSlot.get(normalizedUnit(seed.event[3])) === focusSlot)
+        : group.some((seed) => seed.event[3] && victimSlotOf(normalizedUnit(seed.event[3])) === focusSlot)
           ? 'death'
           : 'assist'
 
@@ -298,8 +328,8 @@ export function buildCombatNodes(
     while (changed) {
       changed = false
       for (const event of windowEvents) {
-        const actor = unitToSlot.get(normalizedUnit(event[2]))
-        const target = unitToSlot.get(normalizedUnit(event[3]))
+        const actor = attackerSlotOf(normalizedUnit(event[2]))
+        const target = victimSlotOf(normalizedUnit(event[3]))
         if (actor != null && seedParticipants.has(actor) && target != null && !seedParticipants.has(target)) {
           seedParticipants.add(target)
           changed = true
@@ -315,6 +345,28 @@ export function buildCombatNodes(
     for (const slot of seedParticipants) {
       const player = match.players[slot]
       heroes.set(slot, emptyHero(slot, player, slotToReplay.get(slot), names))
+    }
+
+    const bearSlot = loneDruidSlot != null ? 1000 + loneDruidSlot : null
+    let bearRow: CombatHero | null = null
+    if (bearSlot != null && loneDruidSlot != null && heroes.has(loneDruidSlot)) {
+      const bearActive = windowEvents.some(
+        (event) =>
+          isBearUnit(normalizedUnit(event[2])) ||
+          isBearUnit(normalizedUnit(event[3])) ||
+          String(event[4] || '').toLowerCase().includes('lone_druid_entangle')
+      )
+      if (loneDruidSlot === focusSlot || bearActive) {
+        const heroRow = heroes.get(loneDruidSlot) as CombatHero
+        bearRow = emptyHero(bearSlot, match.players[loneDruidSlot], slotToReplay.get(loneDruidSlot), names)
+        bearRow.heroId = heroRow.heroId
+        bearRow.heroName = '熊灵'
+        bearRow.playerName = '德鲁伊的小熊'
+        bearRow.side = heroRow.side
+        bearRow.isBear = true
+        bearRow.ownerSlot = loneDruidSlot
+        heroes.set(bearSlot, bearRow)
+      }
     }
 
     const incomingMap = new Map<string, IncomingDamage>()
@@ -337,24 +389,56 @@ export function buildCombatNodes(
 
     for (const event of windowEvents) {
       const kind = event[1]
-      const actorSlot = unitToSlot.get(normalizedUnit(event[2])) ?? null
-      const targetSlot = unitToSlot.get(normalizedUnit(event[3])) ?? null
+      const targetIsBear = event[3] ? isBearUnit(normalizedUnit(event[3])) : false
+      const actorSlot = attackerSlotOf(normalizedUnit(event[2])) ?? null
+      const targetSlot = victimSlotOf(normalizedUnit(event[3])) ?? null
       const actor = getHero(actorSlot)
       const target = getHero(targetSlot)
+      const inflictorLower = String(event[4] || '').toLowerCase()
+      const bearSource = inflictorLower.includes('lone_druid_entangle')
+      let actorIsBear = event[2] ? isBearUnit(normalizedUnit(event[2])) : false
+      if (actorSlot != null && loneDruidSlot != null && actorSlot === loneDruidSlot) {
+        if (bearSource) {
+          actorIsBear = true
+        } else if (
+          kind !== 'ABILITY' &&
+          nearAttack(bearAttackTimes, event[0]) &&
+          !nearAttack(ldHeroAttackTimes, event[0])
+        ) {
+          actorIsBear = true
+        }
+      }
+      if (actorIsBear && actor) actor.includesBear = true
+      const displayActor = actorIsBear ? bearRow : actor
+      const displayActorSlot = actorIsBear ? bearSlot : actorSlot
+      const actorUnit = event[2] ? normalizedUnit(event[2]) : ''
+      const targetUnit = event[3] ? normalizedUnit(event[3]) : ''
       const inflictor = event[4] || ''
       const value = Math.max(0, event[5] || 0)
       const type = damageType(event[6])
       const category = event[14] ?? 0
       const damageSource = event[15] || ''
-      const actorUnit = event[2] ? normalizedUnit(event[2]) : ''
-      const targetUnit = event[3] ? normalizedUnit(event[3]) : ''
-      const actorText = actor?.heroName ?? unitName(actorUnit, names)
-      const targetText = target?.heroName ?? unitName(targetUnit, names)
+      const actorText = displayActor?.heroName ?? unitName(actorUnit, names)
+      const targetText = targetIsBear ? '熊灵' : target?.heroName ?? unitName(targetUnit, names)
       const actorInNode = actorSlot != null && heroes.has(actorSlot)
       const targetInNode = targetSlot != null && heroes.has(targetSlot)
       if (kind !== 'DEATH' && !actorInNode && !targetInNode) continue
 
       if (kind === 'DEATH') {
+        if (targetIsBear) {
+          if (bearRow) bearRow.deaths += 1
+          timeline.push({
+            t: event[0],
+            kind,
+            actorSlot: displayActorSlot,
+            actorHero: actorText,
+            targetSlot: -1,
+            targetHero: '熊灵',
+            label: displayActor ? `${displayActor.heroName} 击杀熊灵` : '熊灵阵亡',
+            value: 0
+          })
+          continue
+        }
         if (targetSlot != null) {
           const victim = getHero(targetSlot)
           if (victim) {
@@ -364,7 +448,9 @@ export function buildCombatNodes(
         }
         const killer = actorSlot != null ? getHero(actorSlot) : null
         if (killer) killer.kills += 1
-        const assists = Array.isArray(event[10]) ? event[10] : []
+        const assists = (Array.isArray(event[10]) ? event[10] : []).filter(
+          (slot) => slot !== actorSlot && slot !== targetSlot
+        )
         for (const slot of assists) {
           const helper = getHero(slot)
           if (helper) helper.assists += 1
@@ -380,11 +466,11 @@ export function buildCombatNodes(
         timeline.push({
           t: event[0],
           kind,
-          actorSlot,
+          actorSlot: displayActorSlot,
           actorHero: actorText,
           targetSlot,
           targetHero: targetText,
-          label: actor ? `${actor.heroName} 击杀 ${targetText}` : `${targetText} 阵亡`,
+          label: displayActor ? `${displayActor.heroName} 击杀 ${targetText}` : `${targetText} 阵亡`,
           value: 0
         })
         continue
@@ -413,17 +499,29 @@ export function buildCombatNodes(
             actor.basicDamage += value
           }
         }
+        if (actorIsBear && bearRow) {
+          bearRow.damage[type] += value
+          bearRow.damage.total += value
+          if (sourceType(resolvedSource, event[6], category) === 'basic') {
+            bearRow.basicHits += 1
+            bearRow.basicDamage += value
+          }
+        }
         if (target) {
           target.taken[type] += value
           target.taken.total += value
         }
-        if (targetSlot === focusSlot && actorSlot != null) {
+        if (targetIsBear && bearRow) {
+          bearRow.taken[type] += value
+          bearRow.taken.total += value
+        }
+        if (targetSlot === focusSlot && displayActorSlot != null) {
           const label = sourceLabel(resolvedSource, names, event[6], category, actorUnit)
-          const key = `${actorSlot}|${resolvedSource}|${type}`
+          const key = `${displayActorSlot}|${resolvedSource}|${type}`
           const hit = incomingMap.get(key) ?? {
-            actorSlot,
+            actorSlot: displayActorSlot,
             actorHero: actorText,
-            actorName: actor?.playerName ?? '',
+            actorName: displayActor?.playerName ?? '',
             source: label,
             sourceType: sourceType(resolvedSource, event[6], category),
             damageType: type,
@@ -437,7 +535,7 @@ export function buildCombatNodes(
         timeline.push({
           t: event[0],
           kind,
-          actorSlot,
+          actorSlot: displayActorSlot,
           actorHero: actorText,
           targetSlot,
           targetHero: targetText,
@@ -463,10 +561,14 @@ export function buildCombatNodes(
           if (kind === 'ABILITY') addAbility(actor, sourceKey, sourceText)
           else addItem(actor, sourceKey, sourceText)
         }
+        if (actorIsBear && bearRow) {
+          if (kind === 'ABILITY') addAbility(bearRow, sourceKey, sourceText)
+          else addItem(bearRow, sourceKey, sourceText)
+        }
         timeline.push({
           t: event[0],
           kind,
-          actorSlot,
+          actorSlot: displayActorSlot,
           actorHero: actorText,
           targetSlot,
           targetHero: targetText,
@@ -481,10 +583,11 @@ export function buildCombatNodes(
 
       if (kind === 'HEAL') {
         if (actor) actor.healing += value
+        if (actorIsBear && bearRow) bearRow.healing += value
         timeline.push({
           t: event[0],
           kind,
-          actorSlot,
+          actorSlot: displayActorSlot,
           actorHero: actorText,
           targetSlot,
           targetHero: targetText,
@@ -494,7 +597,16 @@ export function buildCombatNodes(
       }
     }
 
+    if (bearRow) {
+      const ld = heroes.get(loneDruidSlot as number)
+      if (ld) {
+        bearRow.kills = ld.kills
+        bearRow.assists = ld.assists
+      }
+    }
+
     for (const [slot, hero] of heroes) {
+      if (hero.isBear) continue
       const rows = (samplesBySlot.get(slot) ?? []).sort((a, b) => a[0] - b[0])
       if (!rows.length) continue
       const before = [...rows].reverse().find((row) => row[0] <= start) ?? rows[0]
@@ -533,16 +645,19 @@ export function buildCombatNodes(
     }
 
     const participants = [...heroes.values()]
+    const heroCount = participants.filter((hero) => !hero.isBear).length
     const focus = heroes.get(focusSlot) ?? null
-    const focusKills = focus ? group.filter((seed) => seed.event[2] && unitToSlot.get(normalizedUnit(seed.event[2])) === focusSlot).length : 0
+    const focusKills = focus
+      ? group.filter((seed) => seed.event[2] && attackerSlotOf(normalizedUnit(seed.event[2])) === focusSlot).length
+      : 0
     const nodeType: CombatNodeType =
       focusKills >= 2
         ? 'multi'
         : focusRole === 'assist'
           ? 'assist'
-          : participants.length <= 2
+          : heroCount <= 2
             ? 'solo'
-            : participants.length >= 6
+            : heroCount >= 6
               ? 'teamfight'
               : 'skirmish'
     const killsRadiant = radiantDeaths.dire
