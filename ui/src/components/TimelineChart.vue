@@ -138,6 +138,7 @@ function externalTooltip(context: { chart: Chart; tooltip: TooltipModel<'line'> 
       const avatar = document.createElement('img')
       avatar.className = 'tip-avatar'
       avatar.src = series.img
+      if (series.imgFallback) avatar.dataset.fallback = series.imgFallback
       avatar.alt = ''
       avatar.draggable = false
       avatar.addEventListener('error', () => {

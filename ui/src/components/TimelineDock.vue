@@ -209,6 +209,8 @@ const alignPairTab = (): void => {
 }
 
 const heroImage = (player: TimelinePlayer): string => props.heroes?.get(player.heroId)?.img ?? ''
+const heroImageFallback = (player: TimelinePlayer): string =>
+  props.heroes?.get(player.heroId)?.fallbacks ?? ''
 const heroName = (player: TimelinePlayer): string =>
   props.names?.heroById.get(player.heroId)?.cn ?? '未知英雄'
 
@@ -218,6 +220,7 @@ const heroOptions = computed(() =>
     label: heroName(player),
     meta: positionLabel(player.position) || (player.isRadiant ? '天辉' : '夜魇'),
     avatar: heroImage(player),
+    avatarFallback: heroImageFallback(player),
     side: player.isRadiant ? ('radiant' as const) : ('dire' as const)
   }))
 )
@@ -232,6 +235,7 @@ const chartSeries = computed<ChartSeries[]>(() =>
       label: heroName(player),
       color: player.isFocus ? COLORS[0] : COLORS[(index % (COLORS.length - 1)) + 1],
       img: heroImage(player),
+      imgFallback: heroImageFallback(player),
       values: points.map((point) => point[metric.value]),
       stepSec: player.finePoints?.length ? player.chartStepSec : 60
     }
@@ -520,7 +524,12 @@ onBeforeUnmount(() => {
                 :title="`切换到 ${heroName(mate)} 的时间轴`"
                 @click="selectHero(mate)"
               >
-                <img v-if="heroImage(mate)" :src="heroImage(mate)" alt="" />
+                <img
+                  v-if="heroImage(mate)"
+                  :src="heroImage(mate)"
+                  :data-fallback="heroImageFallback(mate)"
+                  alt=""
+                />
                 <span>{{ heroName(mate) }}</span>
               </button>
             </div>
@@ -536,7 +545,12 @@ onBeforeUnmount(() => {
                 :title="`切换到 ${heroName(rival)} 的时间轴`"
                 @click="selectHero(rival)"
               >
-                <img v-if="heroImage(rival)" :src="heroImage(rival)" alt="" />
+                <img
+                  v-if="heroImage(rival)"
+                  :src="heroImage(rival)"
+                  :data-fallback="heroImageFallback(rival)"
+                  alt=""
+                />
                 <span>{{ heroName(rival) }}</span>
               </button>
             </div>
@@ -603,7 +617,7 @@ onBeforeUnmount(() => {
                   :disabled="player.slot === focus?.slot"
                   @click="toggleCustom('ally', player)"
                 >
-                  <img v-if="heroImage(player)" :src="heroImage(player)" alt="" />
+                  <img v-if="heroImage(player)" :src="heroImage(player)" :data-fallback="heroImageFallback(player)" alt="" />
                   <span>{{ heroName(player) }}</span>
                   <em v-if="player.slot === focus?.slot">对象</em>
                 </button>
@@ -621,7 +635,7 @@ onBeforeUnmount(() => {
                   :class="{ on: customEnemies.includes(player.slot) }"
                   @click="toggleCustom('enemy', player)"
                 >
-                  <img v-if="heroImage(player)" :src="heroImage(player)" alt="" />
+                  <img v-if="heroImage(player)" :src="heroImage(player)" :data-fallback="heroImageFallback(player)" alt="" />
                   <span>{{ heroName(player) }}</span>
                 </button>
               </div>
@@ -823,6 +837,7 @@ onBeforeUnmount(() => {
           <CombatNodePanel
             v-if="model.combatNodes.length"
             :nodes="model.combatNodes"
+            :heroes="heroes"
           />
           <TeamfightPanel v-else :fights="model.teamfights" :names="names" />
         </div>

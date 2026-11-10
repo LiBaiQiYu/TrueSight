@@ -1,16 +1,19 @@
 import type { NamesIndex } from './names'
 import type { HeroInfo } from './heroes'
-
-const CDN = 'https://cdn.cloudflare.steamstatic.com'
-const HERO_ICON = '/apps/dota2/images/dota_react/heroes/icons'
-const ITEM_ICON = '/apps/dota2/images/dota_react/items'
-const ABILITY_ICON = '/apps/dota2/images/dota_react/abilities'
+import {
+  abilityFallbacks,
+  itemFallbacks,
+  localAbilityIcon,
+  localHeroIcon,
+  localItemIcon,
+  remoteHeroIcon
+} from './assets'
 
 interface Term {
   cn: string
   en: string
   icon: string
-  /** 图标 404 时退回英雄头像（主要给先天技能用） */
+  /** 图标加载失败时的回退链（`|` 分隔，全局 error 监听器依次重试） */
   fallback?: string
   /** 物品内部 key，用于修复“中文_mask”这类混合串 */
   key?: string
@@ -43,15 +46,6 @@ function escapeRe(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-function heroSlug(key: string): string {
-  return key.replace(/^npc_dota_hero_/, '')
-}
-
-function cleanIcon(path: string | undefined): string {
-  if (!path) return ''
-  return path.replace(/\?.*$/, '')
-}
-
 /**
  * 用现有中文名称表构建「英文/中文 → 中文名 + 图标」的匹配器。
  * 只收长度 ≥2 的中文名、≥3 的英文名，避免单字误伤。
@@ -69,7 +63,12 @@ export function buildNameTerms(
   const heroIcon = (heroId: number): string => {
     const hero = names.heroById.get(heroId)
     if (!hero) return ''
-    return heroes?.get(heroId)?.img || `${CDN}${HERO_ICON}/${heroSlug(hero.key)}.png`
+    return localHeroIcon(hero.key)
+  }
+
+  const heroFallback = (heroId: number): string => {
+    const hero = names.heroById.get(heroId)
+    return hero ? remoteHeroIcon(hero.key) : ''
   }
 
   const add = (
@@ -98,16 +97,15 @@ export function buildNameTerms(
   }
 
   for (const hero of names.heroById.values()) {
-    add(hero.cn, hero.en, heroIcon(hero.id))
+    add(hero.cn, hero.en, heroIcon(hero.id), { fallback: heroFallback(hero.id) })
   }
   for (const item of names.itemById.values()) {
     // 中立装备的“强化词条”（神秘/迅捷/壮实…）不是可购买道具，不参与图标匹配
     if (item.key.startsWith('item_enhancement')) continue
     if ((item.category || '') === '强化') continue
-    const icon = item.icon
-      ? `${CDN}${cleanIcon(item.icon)}`
-      : `${CDN}${ITEM_ICON}/${item.key.replace(/^item_/, '')}.png`
+    const icon = localItemIcon(item.key, item.icon)
     const term = add(item.cn, item.en, icon, {
+      fallback: itemFallbacks(item.key, item.icon),
       key: item.key,
       shortItem: (item.cn || '').trim().length === 2
     })
@@ -118,10 +116,10 @@ export function buildNameTerms(
     const cn = (ability.cn || '').trim()
     const en = (ability.en || '').trim()
     if (inMatch) {
-      const path = cleanIcon(ability.img) || `${ABILITY_ICON}/${ability.key}.png`
-      add(cn, en, `${CDN}${path}`, {
+      const hero = names.heroById.get(ability.hero_id)
+      add(cn, en, localAbilityIcon(ability.key), {
         withCnKey: !ABILITY_STOPWORDS.has(cn),
-        fallback: heroIcon(ability.hero_id),
+        fallback: abilityFallbacks(ability.key, ability.img, hero?.key),
         key: ability.key
       })
     } else if (cn.length >= 2 && en.length >= 3 && /[a-z]/i.test(en)) {
@@ -152,11 +150,8 @@ export function buildNameTerms(
 
 function richTerm(term: Term): string {
   if (!term.icon) return term.cn
-  const fallback = term.fallback
-  const onerror = fallback
-    ? `if(this.dataset.fb){this.remove()}else{this.dataset.fb='1';this.src='${fallback}'}`
-    : 'this.remove()'
-  return `<span class="rich-term"><img src="${term.icon}" alt="" loading="lazy" onerror="${onerror}" />${term.cn}</span>`
+  const fallback = term.fallback ? ` data-fallback="${term.fallback}"` : ''
+  return `<span class="rich-term"><img src="${term.icon}" alt="" loading="lazy"${fallback} onerror="this.remove()" />${term.cn}</span>`
 }
 
 /** 修复模型偶发的“贤者面_mask”这类「中文 + 内部 key 后缀」混合串。 */

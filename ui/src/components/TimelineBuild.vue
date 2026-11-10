@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 import type { NamesIndex } from '../lib/names'
 import { acquiredUpgrades, pointAtDetailed, type TimelinePlayer, type Upgrade } from '../lib/timeline'
 import type { TipContent } from '../lib/tooltip'
+import { abilityFallbacks, localAbilityIcon } from '../lib/assets'
 
 const props = defineProps<{
   player: TimelinePlayer
@@ -16,14 +17,20 @@ const acquiredKeys = computed(() => new Set(acquired.value.map((upgrade) => upgr
 /** 已点的加点按“第几个点”高亮，避免同一技能的其他等级也被点亮 */
 const acquiredOrders = computed(() => new Set(acquired.value.map((upgrade) => upgrade.order)))
 
-const CDN = 'https://cdn.cloudflare.steamstatic.com'
-function abilityIcon(key: string): string {
-  return `${CDN}/apps/dota2/images/dota_react/abilities/${key}.png`
-}
-
 function hideBroken(event: Event): void {
   const target = event.target as HTMLImageElement | null
   if (target) target.style.visibility = 'hidden'
+}
+
+function abilityIcon(key: string): string {
+  return localAbilityIcon(key)
+}
+
+function abilityIconFallback(key: string): string {
+  const ability = props.names?.abilityByKey.get(key)
+  if (!ability) return ''
+  const hero = props.names?.heroById.get(ability.hero_id)
+  return abilityFallbacks(key, ability.img, hero?.key)
 }
 
 const counts = computed(() => {
@@ -131,6 +138,10 @@ function upgradeUltimate(upgrade: { key: string; kind: string }): boolean {
 
 function upgradeIcon(upgrade: { key: string; kind: string }): string {
   return upgrade.kind === 'ability' ? abilityIcon(upgrade.key) : ''
+}
+
+function upgradeIconFallback(upgrade: { key: string; kind: string }): string {
+  return upgrade.kind === 'ability' ? abilityIconFallback(upgrade.key) : ''
 }
 
 function upgradeGlyph(upgrade: { kind: string; label: string }): string {
@@ -275,7 +286,7 @@ function short(text: string, max = 12): string {
       >
         <span class="ability-icon">
           <span class="icon-fallback">{{ ability.fallback }}</span>
-          <img :src="ability.icon" alt="" loading="lazy" @error="hideBroken" />
+          <img :src="ability.icon" :data-fallback="abilityIconFallback(ability.key)" alt="" loading="lazy" @error="hideBroken" />
         </span>
         <span class="ability-meta">
           <span class="nm">
@@ -303,7 +314,7 @@ function short(text: string, max = 12): string {
       >
         <span v-if="upgradeIcon(upgrade)" class="chip-icon">
           <span class="icon-fallback">{{ upgradeGlyph(upgrade) }}</span>
-          <img :src="upgradeIcon(upgrade)" alt="" loading="lazy" @error="hideBroken" />
+          <img :src="upgradeIcon(upgrade)" :data-fallback="upgradeIconFallback(upgrade)" alt="" loading="lazy" @error="hideBroken" />
         </span>
         <span v-else class="chip-glyph">{{ upgradeGlyph(upgrade) }}</span>
       </span>

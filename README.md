@@ -307,16 +307,25 @@ dota-chat/
 ## 名称与图标数据
 
 - 英雄 / 技能 / 天赋 / 装备中文名：Dota 2 官方 datafeed + OpenDota 常量；
-- 图标：Steam 官方 CDN（`cdn.cloudflare.steamstatic.com`）；
+- 图标：已抓取到项目内 `ui/public/assets/`（英雄头像、英雄小图标、技能图标、装备图标），页面默认只读本地文件，不依赖第三方图片 CDN；缺失文件才回退到 Steam 官方 CDN；
 - 图纸统一使用官方 `recipe.png`；
-- 缺失的官方图标按英雄头像或占位图回退；
+- 少数先天技能官方 CDN 没有独立图标，用对应英雄小图标占位；
 - 新天赋若 datafeed/OpenDota 尚未收录，在 `tools/names/build.py` 的 `MANUAL_TALENTS` 中补充。
 
-重新生成：
+重新生成名称表：
 
 ```powershell
 cd ui
 npm run names
+```
+
+下载/更新图标资源：
+
+```powershell
+runtime\python\python.exe -X utf8 tools\assets\fetch_images.py
+# 强制重新下载、或只更新某一类
+runtime\python\python.exe -X utf8 tools\assets\fetch_images.py --force
+runtime\python\python.exe -X utf8 tools\assets\fetch_images.py --only heroes
 ```
 
 刷新源数据：
@@ -396,6 +405,7 @@ powershell -ExecutionPolicy Bypass -File tools/memory/install.ps1
 - [时间轴弹窗](docs/timeline-dock.md)
 - [时间轴图表](docs/timeline-chart.md)
 - [装备与图标数据](docs/item-catalog.md)
+- [图片资源本地化](docs/images.md)
 - [背包模型](docs/item-inventory.md)
 - [团战分析](docs/teamfights.md)
 - [战斗节点设计](docs/combat-nodes.md)

@@ -7,6 +7,7 @@ export interface HeroOption {
   label: string
   meta?: string
   avatar?: string
+  avatarFallback?: string
   side?: 'radiant' | 'dire'
   disabled?: boolean
 }
@@ -116,7 +117,13 @@ onBeforeUnmount(() => {
       aria-haspopup="listbox"
       @click.stop="toggle"
     >
-      <img v-if="selected?.avatar" class="hs-avatar" :src="selected.avatar" alt="" />
+      <img
+        v-if="selected?.avatar"
+        class="hs-avatar"
+        :src="selected.avatar"
+        :data-fallback="selected.avatarFallback"
+        alt=""
+      />
       <span class="hs-text">
         <b>{{ selected?.label || placeholder }}</b>
         <small>{{ selected?.meta || '点击切换' }}</small>
@@ -154,7 +161,12 @@ onBeforeUnmount(() => {
               :aria-selected="option.value === modelValue"
               @click="choose(option)"
             >
-              <img v-if="option.avatar" :src="option.avatar" alt="" />
+              <img
+                v-if="option.avatar"
+                :src="option.avatar"
+                :data-fallback="option.avatarFallback"
+                alt=""
+              />
               <span class="hs-option-text">
                 <b>{{ option.label }}</b>
                 <small>{{ option.meta || '' }}</small>

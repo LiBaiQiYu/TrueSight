@@ -31,6 +31,7 @@ const style = computed(() => ({ width: `${props.size}px`, height: `${props.size}
     <img
       v-if="hero && !failed"
       :src="hero.img"
+      :data-fallback="hero.fallbacks"
       :alt="hero.localized"
       loading="eager"
       referrerpolicy="no-referrer"

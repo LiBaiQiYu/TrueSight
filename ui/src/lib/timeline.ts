@@ -13,6 +13,8 @@ export interface ChartSeries {
   color: string
   /** 英雄头像（用于图表浮窗） */
   img: string
+  /** 头像加载失败时的 CDN 回退链 */
+  imgFallback?: string
   values: Array<number | null>
   /** 采样间隔（秒）：回放 5 秒，OpenDota 60 秒 */
   stepSec: number

@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import type { HeroInfo } from '../lib/heroes'
 import type { NamesIndex } from '../lib/names'
 import { itemName as formatItemName } from '../lib/labels'
+import { itemFallbacks, localItemIcon } from '../lib/assets'
 import {
   formatClock,
   inventoryAt,
@@ -24,17 +25,22 @@ const props = defineProps<{
 
 const emit = defineEmits<{ (event: 'seek', sec: number): void }>()
 
-const CDN = 'https://cdn.cloudflare.steamstatic.com'
-
 function heroImage(player: TimelinePlayer): string {
   return props.heroes?.get(player.heroId)?.img ?? ''
 }
 
+function heroImageFallback(player: TimelinePlayer): string {
+  return props.heroes?.get(player.heroId)?.fallbacks ?? ''
+}
+
 function itemIcon(key: string): string {
   const item = props.names?.itemByKey.get(key) ?? props.names?.itemByKey.get(key.replace(/^item_/, ''))
-  if (item?.icon) return `${CDN}${item.icon}`
-  const iconKey = item?.key_od ?? item?.key?.replace(/^item_/, '') ?? key.replace(/^item_/, '')
-  return `${CDN}/apps/dota2/images/dota_react/items/${iconKey}.png`
+  return localItemIcon(item?.key ?? key, item?.icon)
+}
+
+function itemIconFallback(key: string): string {
+  const item = props.names?.itemByKey.get(key) ?? props.names?.itemByKey.get(key.replace(/^item_/, ''))
+  return itemFallbacks(item?.key ?? key, item?.icon)
 }
 
 function itemName(key: string): string {
@@ -358,7 +364,7 @@ const bagSets = computed(() => {
   <div class="items" :class="{ single: players.length === 1 }">
     <div v-for="player in players" :key="player.slot" class="row" :class="{ focus: player.isFocus }">
       <div class="who">
-        <img v-if="heroImage(player)" class="avatar" :src="heroImage(player)" alt="" loading="lazy" />
+        <img v-if="heroImage(player)" class="avatar" :src="heroImage(player)" :data-fallback="heroImageFallback(player)" alt="" loading="lazy" />
         <span class="name">{{ names?.heroById.get(player.heroId)?.cn ?? '未知英雄' }}</span>
         <span class="badge" :class="player.isRadiant ? 'radiant' : 'dire'">
           {{ player.isRadiant ? '天辉' : '夜魇' }}
@@ -383,7 +389,7 @@ const bagSets = computed(() => {
                 v-tip="purchaseTip(component)"
                 @click.stop="emit('seek', component.sec)"
               >
-                <img :src="itemIcon(component.key)" alt="" loading="lazy" @error="hideBroken" />
+                <img :src="itemIcon(component.key)" :data-fallback="itemIconFallback(component.key)" alt="" loading="lazy" @error="hideBroken" />
               </span>
               <span class="arrow">›</span>
               <span
@@ -391,7 +397,7 @@ const bagSets = computed(() => {
                 v-tip="purchaseTip(node.purchase)"
                 @click.stop="emit('seek', node.purchase.sec)"
               >
-                <img :src="itemIcon(node.purchase.key)" alt="" loading="lazy" @error="hideBroken" />
+                <img :src="itemIcon(node.purchase.key)" :data-fallback="itemIconFallback(node.purchase.key)" alt="" loading="lazy" @error="hideBroken" />
               </span>
             </span>
           </span>
@@ -411,7 +417,7 @@ const bagSets = computed(() => {
             v-tip="purchaseTip(node.purchase, node.count)"
             @click.stop="emit('seek', node.sec)"
           >
-            <img :src="itemIcon(node.purchase.key)" alt="" loading="lazy" @error="hideBroken" />
+            <img :src="itemIcon(node.purchase.key)" :data-fallback="itemIconFallback(node.purchase.key)" alt="" loading="lazy" @error="hideBroken" />
             <em v-if="node.count > 1" class="count">{{ node.count }}</em>
           </span>
         </template>
@@ -433,7 +439,7 @@ const bagSets = computed(() => {
                 :class="{ filled: entry }"
                 v-tip="entry ? bagTip(entry) : null"
               >
-                <img v-if="entry" :src="itemIcon(entry.key)" alt="" loading="lazy" @error="hideBroken" />
+                <img v-if="entry" :src="itemIcon(entry.key)" :data-fallback="itemIconFallback(entry.key)" alt="" loading="lazy" @error="hideBroken" />
               </span>
             </div>
           </div>
@@ -445,7 +451,7 @@ const bagSets = computed(() => {
                 :class="{ filled: set.bag.neutral }"
                 v-tip="set.bag.neutral ? bagTip(set.bag.neutral) : null"
               >
-                <img v-if="set.bag.neutral" :src="itemIcon(set.bag.neutral.key)" alt="" loading="lazy" @error="hideBroken" />
+                <img v-if="set.bag.neutral" :src="itemIcon(set.bag.neutral.key)" :data-fallback="itemIconFallback(set.bag.neutral.key)" alt="" loading="lazy" @error="hideBroken" />
               </span>
             </div>
           </div>
@@ -459,7 +465,7 @@ const bagSets = computed(() => {
                 :class="{ filled: entry }"
                 v-tip="entry ? bagTip(entry) : null"
               >
-                <img v-if="entry" :src="itemIcon(entry.key)" alt="" loading="lazy" @error="hideBroken" />
+                <img v-if="entry" :src="itemIcon(entry.key)" :data-fallback="itemIconFallback(entry.key)" alt="" loading="lazy" @error="hideBroken" />
               </span>
             </div>
           </div>

@@ -17,6 +17,8 @@ TrueSight（`dota-chat`）是一个 Dota 2 对局分析工具：
 | --- | --- |
 | `ui/src/` | 前端源码（App、Timeline、ResultCard、Settings 等） |
 | `ui/scripts/build-names.mjs` | 压缩名称库，生成前端静态 JSON |
+| `ui/public/assets/` | 本地英雄头像/图标、技能图标、装备图标（提交仓库） |
+| `tools/assets/fetch_images.py` | 从官方 CDN 批量抓取并校验图片资源 |
 | `server.py` | 本地 HTTP 服务、API 代理、解析任务 |
 | `java/MatchJsonMain.java` | 回放解析器（schema 10） |
 | `data/names/` | 名称源数据（英雄/技能/天赋/装备） |

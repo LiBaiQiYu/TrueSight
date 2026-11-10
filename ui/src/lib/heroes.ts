@@ -1,23 +1,17 @@
+import { heroFallbacks, localHeroPortrait } from './assets'
+
 export interface HeroInfo {
   id: number
   name: string
   localized: string
+  /** 本地英雄头像（ui/public/assets/heroes/<slug>.png） */
   img: string
+  /** 图片加载失败时按顺序回退的地址（CDN 头像/图标） */
+  fallbacks?: string
 }
 
-const CDN = 'https://cdn.cloudflare.steamstatic.com'
 let cache: Map<number, HeroInfo> | null = null
 let pending: Promise<Map<number, HeroInfo>> | null = null
-
-export function heroImage(img: string | undefined): string {
-  if (!img) return ''
-  if (img.startsWith('http')) return img
-  return CDN + img
-}
-
-export function fallbackImage(slug: string): string {
-  return `${CDN}/apps/dota2/images/dota_react/heroes/icons/${slug}.png`
-}
 
 export async function loadHeroes(): Promise<Map<number, HeroInfo>> {
   if (cache) return cache
@@ -33,12 +27,12 @@ export async function loadHeroes(): Promise<Map<number, HeroInfo>> {
     }>
     const map = new Map<number, HeroInfo>()
     for (const h of list) {
-      const slug = h.name.replace(/^npc_dota_hero_/, '')
       map.set(h.id, {
         id: h.id,
         name: h.name,
         localized: h.localized_name,
-        img: h.img ? heroImage(h.img) : fallbackImage(slug)
+        img: localHeroPortrait(h.name),
+        fallbacks: heroFallbacks(h.name)
       })
     }
     cache = map
