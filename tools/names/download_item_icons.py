@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""下载全部装备图标到本地（可选）。
+"""已废弃：请使用 tools/assets/fetch_images.py。
 
-前端默认直接使用 Steam 官方 CDN 的图标地址（见 ui/public/names/items.json 的 icon 字段）；
-如果希望离线可用、或避免 CDN 访问不稳定，可以运行本脚本把 545 件装备的图标缓存到
-ui/public/items/icons/ 下，并生成 manifest.json 供页面按 key 取图。
+新版脚本统一抓取英雄头像/小图标、技能图标和装备图标到 ui/public/assets/，
+前端默认读取本地文件。本脚本仅保留作历史参考，输出目录 ui/public/items/icons 已不再被前端使用。
 
 用法（项目根目录）：
     runtime\\python\\python.exe -X utf8 tools\\names\\download_item_icons.py
