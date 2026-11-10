@@ -249,7 +249,18 @@ class Handler(BaseHTTPRequestHandler):
         rel_posix = rel.replace('\\', '/')
         cache_control = 'no-store'
         etag = None
-        if rel_posix.startswith(('assets/heroes/', 'assets/abilities/', 'assets/items/')):
+        if rel_posix == 'assets/manifest.json':
+            # 图标快照信息会随版本更新，「关于」页需要立刻读到新值
+            cache_control = 'no-cache'
+            etag = '"%x-%x"' % (int(os.path.getmtime(candidate)), len(body))
+            incoming = (self.headers.get('If-None-Match') or '').split(',')[0].strip().strip('"')
+            if incoming and incoming == etag.strip('"'):
+                self.send_response(304)
+                self.send_header('ETag', etag)
+                self.send_header('Cache-Control', cache_control)
+                self.end_headers()
+                return
+        elif rel_posix.startswith(('assets/heroes/', 'assets/abilities/', 'assets/items/')):
             # 图片按文件名直接访问，没有内容哈希；给一天缓存，避免更新后长期读到旧图
             cache_control = 'public, max-age=86400'
         elif rel_posix.startswith('assets/'):

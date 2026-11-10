@@ -1,11 +1,27 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import AppIcon from './AppIcon.vue'
 import BrandMark from './BrandMark.vue'
 import { ACKNOWLEDGMENTS, APP_VERSION, CHANGELOG, SECURITY_NOTES } from '../lib/about'
 
 const emit = defineEmits<{ (e: 'back'): void }>()
 const showLog = ref(false)
+const assetSnapshot = ref<{ date: string; count: number } | null>(null)
+
+onMounted(async () => {
+  try {
+    const base = import.meta.env.BASE_URL || './'
+    const res = await fetch(`${base}assets/manifest.json`)
+    if (!res.ok) return
+    const data = (await res.json()) as { generated_at?: string; files?: number }
+    assetSnapshot.value = {
+      date: (data.generated_at || '').slice(0, 10),
+      count: data.files ?? 0
+    }
+  } catch {
+    /* 图标快照信息缺失不影响页面 */
+  }
+})
 </script>
 
 <template>
@@ -70,6 +86,28 @@ const showLog = ref(false)
             <p>{{ note.body }}</p>
           </div>
         </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <span class="panel-icon"><AppIcon name="info" :size="15" /></span>
+        <div>
+          <h2>版权说明</h2>
+          <p>游戏名称与美术资源归 Valve Corporation 所有。</p>
+        </div>
+      </div>
+      <div class="copyright">
+        <p>
+          Dota 2 以及游戏内的英雄头像、技能图标、装备图标等美术资源，版权归
+          Valve Corporation 所有。TrueSight 仅将这些资源用于本机的对局分析与展示，
+          与 Valve Corporation 没有隶属、赞助或合作关系。
+        </p>
+        <p v-if="assetSnapshot">
+          当前图标快照：{{ assetSnapshot.date }} · {{ assetSnapshot.count }} 个文件。
+          图片会随游戏版本更新或新增；本地缺失时会回退到 Valve 官方 CDN，不影响分析。
+        </p>
+        <p v-else>图片会随游戏版本更新或新增；本地缺失时会回退到 Valve 官方 CDN，不影响分析。</p>
       </div>
     </section>
 
@@ -325,6 +363,23 @@ const showLog = ref(false)
 
 .links-panel {
   margin-bottom: 0;
+}
+
+.copyright {
+  display: grid;
+  gap: 7px;
+  color: var(--text-dim);
+  font-size: 11.5px;
+  line-height: 1.75;
+}
+
+.copyright p {
+  margin: 0;
+}
+
+.copyright p:last-child {
+  color: var(--text-mute);
+  font-size: 11px;
 }
 
 .links {

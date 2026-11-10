@@ -34,6 +34,9 @@ runtime\python\python.exe -X utf8 tools\assets\fetch_images.py --force
 runtime\python\python.exe -X utf8 tools\assets\fetch_images.py --only portraits
 runtime\python\python.exe -X utf8 tools\assets\fetch_images.py --only abilities
 runtime\python\python.exe -X utf8 tools\assets\fetch_images.py --only items
+
+# 名称表删除了旧技能/装备后，清理不再引用的旧图
+runtime\python\python.exe -X utf8 tools\assets\fetch_images.py --prune
 ```
 
 脚本会校验 PNG 头、跳过已存在文件，并在 `ui/public/assets/manifest.json` 记录结果。Dota 版本更新后建议：
@@ -61,4 +64,8 @@ runtime\python\python.exe -X utf8 tools\assets\fetch_images.py
 
 ## 版权
 
-图片资源来自 Valve 官方 Dota 2 CDN，仅用于本项目的对局分析展示；请勿将这些资源单独打包分发或用于商业用途。
+图片资源来自 Valve 官方 Dota 2 CDN，版权归 Valve Corporation 所有，仅用于本项目的对局分析展示；请勿将这些资源单独打包分发或用于商业用途。
+
+客户端「关于」页（`ui/src/components/AboutView.vue`）与官网 footer 均保留版权说明；「关于」页还会从 `manifest.json` 读取当前快照日期与文件数。
+
+版本更新与资源变更的长期记录见 [`memory/dota-images.md`](../memory/dota-images.md)。

@@ -310,6 +310,7 @@ dota-chat/
 - 图标：已抓取到项目内 `ui/public/assets/`（英雄头像、英雄小图标、技能图标、装备图标），页面默认只读本地文件，不依赖第三方图片 CDN；缺失文件才回退到 Steam 官方 CDN；
 - 图纸统一使用官方 `recipe.png`；
 - 少数先天技能官方 CDN 没有独立图标，用对应英雄小图标占位；
+- 图片版权归 Valve Corporation 所有，仅用于本项目的对局分析展示；更新流程与快照记录见 [docs/images.md](docs/images.md) 和 [memory/dota-images.md](memory/dota-images.md)；
 - 新天赋若 datafeed/OpenDota 尚未收录，在 `tools/names/build.py` 的 `MANUAL_TALENTS` 中补充。
 
 重新生成名称表：

@@ -1416,6 +1416,14 @@ button {
   font-size: 8px;
 }
 
+.footer-legal {
+  flex: 1 0 100%;
+  margin: 0;
+  color: var(--muted-light);
+  font-size: 10px;
+  line-height: 1.6;
+}
+
 /* Standard theme */
 
 [data-theme='standard'] {

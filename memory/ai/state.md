@@ -2,50 +2,74 @@
 
 > 由 `.githooks/pre-commit` 调用 `tools/memory/update.py` 自动生成；请勿手改。
 
-- 更新时间：2026-11-10T11:44:23+08:00
+- 更新时间：2026-11-10T11:54:28+08:00
 - 分支：main
 - 项目版本：0.1.0
 
 ## 本次提交（暂存）
 
 ```text
+M	README.md
+M	docs/images.md
 M	memory/ai/changelog.md
+M	memory/ai/context.md
+M	memory/ai/decisions.md
+A	memory/dota-images.md
+M	server.py
 M	tools/assets/fetch_images.py
-A	ui/public/assets/abilities/ability_capture.png
-A	ui/public/assets/abilities/ancient_apparition_ice_blast_release.png
 M	ui/public/assets/manifest.json
+M	ui/src/components/AboutView.vue
+M	ui/src/lib/about.ts
+M	website/index.html
+M	website/styles.css
 ```
 
 ### 变更统计
 
 ```text
-memory/ai/changelog.md                                  |   2 +-
- tools/assets/fetch_images.py                            |   8 ++++++++
- ui/public/assets/abilities/ability_capture.png          | Bin 0 -> 30878 bytes
- .../abilities/ancient_apparition_ice_blast_release.png  | Bin 0 -> 35104 bytes
- ui/public/assets/manifest.json                          |   8 ++++----
- 5 files changed, 13 insertions(+), 5 deletions(-)
+README.md                       |  1 +
+ docs/images.md                  |  9 ++++++-
+ memory/ai/changelog.md          |  1 +
+ memory/ai/context.md            |  1 +
+ memory/ai/decisions.md          |  2 ++
+ memory/dota-images.md           | 59 +++++++++++++++++++++++++++++++++++++++++
+ server.py                       | 13 ++++++++-
+ tools/assets/fetch_images.py    | 21 +++++++++++++--
+ ui/public/assets/manifest.json  |  7 ++---
+ ui/src/components/AboutView.vue | 57 ++++++++++++++++++++++++++++++++++++++-
+ ui/src/lib/about.ts             |  1 +
+ website/index.html              |  1 +
+ website/styles.css              |  8 ++++++
+ 13 files changed, 173 insertions(+), 8 deletions(-)
 ```
 
 ## 工作区未提交
 
 ```text
+M  README.md
+M  docs/images.md
 M  memory/ai/changelog.md
+M  memory/ai/context.md
+M  memory/ai/decisions.md
  M memory/ai/state.md
+A  memory/dota-images.md
+M  server.py
 M  tools/assets/fetch_images.py
-A  ui/public/assets/abilities/ability_capture.png
-A  ui/public/assets/abilities/ancient_apparition_ice_blast_release.png
 M  ui/public/assets/manifest.json
+M  ui/src/components/AboutView.vue
+M  ui/src/lib/about.ts
+M  website/index.html
+M  website/styles.css
 ```
 
 ## 最近提交
 
 ```text
-34473f6 (HEAD -> main, origin/main, origin/HEAD) docs: mark legacy item icon downloader obsolete
+fbea76a (HEAD -> main, origin/main, origin/HEAD) feat: add icons for capture and ice blast release
+34473f6 docs: mark legacy item icon downloader obsolete
 6fbdb6c docs: update download sizes for bundled images
 29dee80 fix: cache bundled images for one day instead of immutable
 c546b55 feat: bundle Dota hero, ability and item images locally
-2467d23 feat: add about page, bear combat nodes and cache clearing
 ```
 
 ---

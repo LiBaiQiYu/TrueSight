@@ -1,10 +1,11 @@
 {
-  "generated_at": "2026-11-10T11:44:10+0800",
+  "generated_at": "2026-11-10T11:52:26+0800",
   "source": "https://cdn.cloudflare.steamstatic.com",
   "files": 1407,
-  "downloaded": 2,
-  "skipped": 1405,
+  "downloaded": 0,
+  "skipped": 1407,
   "hero_icon_placeholders": 0,
+  "pruned": 0,
   "total_bytes": 45806306,
   "failures": {}
 }

@@ -141,7 +141,12 @@ def main():
     parser.add_argument('--force', action='store_true')
     parser.add_argument('--workers', type=int, default=24)
     parser.add_argument('--limit', type=int, default=0)
+    parser.add_argument('--prune', action='store_true', help='删除当前名称表已不再引用的旧图片')
     args = parser.parse_args()
+    if args.prune and args.only:
+        raise SystemExit('--prune 只能和完整下载一起使用（不要加 --only）')
+    if args.prune and args.limit:
+        raise SystemExit('--prune 不能和 --limit 一起使用')
 
     tasks = build_tasks(args.only)
     items = sorted(tasks.items())
@@ -173,6 +178,17 @@ def main():
 
     downloaded = sum(1 for msg in results.values() if msg == 'ok')
     skipped = sum(1 for msg in results.values() if msg == 'skip')
+    pruned = []
+    if args.prune:
+        expected = {os.path.normpath(os.path.join(OUT_DIR, rel)) for rel in tasks}
+        for base, _, files in os.walk(OUT_DIR):
+            for name in files:
+                if not name.endswith('.png'):
+                    continue
+                path = os.path.normpath(os.path.join(base, name))
+                if path not in expected:
+                    os.remove(path)
+                    pruned.append(os.path.relpath(path, OUT_DIR).replace(os.sep, '/'))
     total = sum(
         os.path.getsize(os.path.join(OUT_DIR, rel))
         for rel in results
@@ -186,6 +202,7 @@ def main():
         'downloaded': downloaded,
         'skipped': skipped,
         'hero_icon_placeholders': len(copied),
+        'pruned': len(pruned),
         'total_bytes': total,
         'failures': failed,
     }
@@ -193,8 +210,8 @@ def main():
     with open(os.path.join(OUT_DIR, 'manifest.json'), 'w', encoding='utf-8') as f:
         json.dump(manifest, f, ensure_ascii=False, indent=2)
 
-    print('资源 %d 个：新下载 %d，已存在 %d，头像占位 %d，失败 %d，合计 %.1f MB' % (
-        len(results), downloaded, skipped, len(copied), len(failed), total / 1024 / 1024))
+    print('资源 %d 个：新下载 %d，已存在 %d，头像占位 %d，清理旧图 %d，失败 %d，合计 %.1f MB' % (
+        len(results), downloaded, skipped, len(copied), len(pruned), len(failed), total / 1024 / 1024))
     for rel, msg in list(failed.items())[:20]:
         print('  失败:', rel, msg)
     return 1 if failed else 0

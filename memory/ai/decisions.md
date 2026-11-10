@@ -6,6 +6,8 @@
 - 本地文件缺失时按 `data-fallback` 顺序回退官方 CDN；回退链结束后才隐藏或显示占位；
 - 名称表变更后用 `tools/assets/fetch_images.py` 重新下载；该脚本也负责为没有官方图标的先天技能复制英雄小图标占位；
 - 图标随 `ui/dist` 打包进桌面客户端，安装包体积因此增加约 44 MB，这是接受的产品成本。
+- 图片版权归 Valve Corporation；「关于」页和官网 footer 必须保留版权说明，不得删除。
+- 图片会随游戏版本变化/新增；`memory/dota-images.md` 记录当前快照与更新流程，Dota 更新后必须重新跑 `tools/assets/fetch_images.py` 并更新快照记录，必要时用 `--prune` 清理旧图。
 
 ## 2026-11-09 比赛查询备用源
 
