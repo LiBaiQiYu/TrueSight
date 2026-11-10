@@ -22,13 +22,13 @@
 
 TrueSight 是一个本地运行的 Dota 2 对局分析工具，将 **OpenDota / STRATZ 公开数据**、**本地 Clarity 回放解析** 与 **AI 复盘** 整合在同一套界面中。
 
-它既能快速生成整场概览，也能展开逐分钟时间轴，查看出装路线、真实背包、技能加点、天赋选择、对位换血与战斗节点。所有 API Key 只保存在浏览器本地，由本地服务转发请求，不进入前端静态资源或代码仓库。
+它既能快速生成整场概览，也能展开逐分钟时间轴，查看出装路线、真实背包、技能加点、天赋选择、对位换血与战斗节点。所有 API Key 只保存在浏览器本地，由本地服务转发请求，不进入前端静态资源或代码仓库。英雄头像、技能图标与装备图标已内置在项目中，不依赖第三方图片 CDN。
 
 <p align="center">
-  <img src="docs/readme-home.png" alt="TrueSight 主界面" width="100%" />
+  <img src="docs/readme-home.png" alt="TrueSight 主界面（标准主题 · 浅色）" width="100%" />
 </p>
 
-<p align="center"><em>主界面：比赛查询、选手选择、分析深度、数据源与对位入口</em></p>
+<p align="center"><em>主界面：比赛查询、选手选择、分析深度、数据源与对位入口（标准主题 · 浅色）</em></p>
 
 ## 目录
 
@@ -52,7 +52,7 @@ TrueSight 是一个本地运行的 Dota 2 对局分析工具，将 **OpenDota / 
 
 - 粗略分析：基于 OpenDota / STRATZ 的分钟级数据；
 - 高级分析：本地 Clarity 解析录像，提供 5 秒级经济、技能、装备与战斗日志；
-- 支持 OpenCode Go、MiniMax、DeepSeek、小米 MiMo、OpenAI 等 OpenAI 兼容服务，以及自定义模型接口；
+- 支持 OpenCode Go、MiniMax、DeepSeek、OpenAI / Claude / Codex API、小米 MiMo 等 OpenAI 兼容服务，以及自定义模型接口；
 - 自动注入双方阵容、KDA、经济曲线、出装、技能与关键事件；
 - 支持停止分析、保留已生成内容。
 
@@ -60,6 +60,8 @@ TrueSight 是一个本地运行的 Dota 2 对局分析工具，将 **OpenDota / 
 
 - 英雄、装备、消耗品、技能自动匹配中文官方名；
 - 结果正文按 `[图标]名称` 渲染，阅读时可直接识别；
+- 英雄头像、技能图标、装备图标全部内置在 `ui/public/assets/`，断网也可正常显示；
+- 图片版权归 Valve Corporation 所有，「关于」页与官网 footer 均有说明；
 - 技能图标只显示图片，不在图标上叠加等级数字；
 - 未知名称保留原文，不伪造数据。
 
@@ -101,6 +103,8 @@ TrueSight 是一个本地运行的 Dota 2 对局分析工具，将 **OpenDota / 
 - TrueSight / 标准双主题；
 - 深色 / 浅色模式；
 - 统一的时间轴弹窗、结果卡片、设置页视觉规范；
+- 「关于」页包含版本号、更新日志、开源鸣谢、安全说明与 Valve 图片版权说明；
+- 设置页可清理回放解析缓存与临时文件，保留录像、Key、设置与历史记录；
 - TrueSight 水晶 logo、favicon、PWA 图标。
 
 ## 界面预览
@@ -108,26 +112,18 @@ TrueSight 是一个本地运行的 Dota 2 对局分析工具，将 **OpenDota / 
 ### 时间轴
 
 <p align="center">
-  <img src="docs/readme-timeline.png" alt="时间轴" width="100%" />
+  <img src="docs/readme-timeline.png" alt="时间轴（标准主题 · 浅色）" width="100%" />
 </p>
 
-<p align="center"><em>经济曲线、出装路线、本体/小熊背包与技能加点</em></p>
-
-### 技能与天赋
-
-<p align="center">
-  <img src="docs/readme-talents.png" alt="技能与天赋" width="62%" />
-</p>
-
-<p align="center"><em>技能加点序列、本体/小熊双天赋树与可延后补选提示</em></p>
+<p align="center"><em>经济曲线、出装路线、真实背包、技能加点与天赋选择（标准主题 · 浅色）</em></p>
 
 ### 战斗节点
 
 <p align="center">
-  <img src="docs/readme-teamfights.png" alt="战斗节点" width="100%" />
+  <img src="docs/readme-teamfights.png" alt="战斗节点（标准主题 · 浅色）" width="100%" />
 </p>
 
-<p align="center"><em>参团玩家、伤害/治疗/经济/经验、关键技能，以及未参团玩家的位置与原因</em></p>
+<p align="center"><em>参团英雄、承伤来源、技能与装备、HP/MP/经济/经验，以及 0.1 秒精度的战斗时间线</em></p>
 
 ## 系统架构
 
@@ -137,14 +133,16 @@ flowchart LR
   B <--> C["OpenDota / STRATZ<br/>公开数据"]
   B <--> D["Clarity 回放解析<br/>java/MatchJsonMain.java"]
   D --> E["回放 .dem"]
-  B <--> F["LLM Provider<br/>OpenCode / MiniMax / DeepSeek / MiMo / Custom"]
+  B <--> F["LLM Provider<br/>OpenCode / MiniMax / DeepSeek / Claude / Codex / MiMo / Custom"]
   A --> G["静态名称库<br/>ui/public/names"]
+  A --> I["本地图片资源<br/>ui/public/assets"]
   B --> H["AI 记忆库<br/>memory/ai"]
 ```
 
 - 浏览器只访问本地服务，不直接跨域请求第三方 API；
 - 回放解析和 AI 请求都由 `server.py` 统一代理；
-- 名称库优先生成静态 JSON，加载快、可离线缓存。
+- 名称库优先生成静态 JSON，加载快、可离线缓存；
+- 英雄头像、技能与装备图标随前端构建进入 `ui/dist/assets`，桌面客户端已内置，不依赖图片 CDN。
 
 ## 快速开始
 
@@ -238,13 +236,20 @@ npm install
 npm run dev
 ```
 
-打包 Portable 客户端：
+打包客户端：
 
 ```powershell
-npm run dist
+npm run dist            # 便携版 TrueSight-Portable-0.1.0-x64.exe（约 185 MB）
+npm run dist:installer  # 安装版 TrueSight-Setup-0.1.0-x64.exe（约 202 MB）
 ```
 
-产物在 `desktop/release/`。桌面模式使用随机本地端口，数据写入 `%APPDATA%\TrueSight\data`，不会与 Web 模式的 8077 冲突。
+产物在 `desktop/release/`，已内置 Python、Java 21、Clarity 与全部英雄 / 技能 / 装备图标。桌面模式使用随机本地端口，数据写入 `%APPDATA%\TrueSight\data`，不会与 Web 模式的 8077 冲突。
+
+打包后如遇沙箱产物低完整性导致无法启动，可执行：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\desktop\fix-integrity.ps1
+```
 
 详细说明见 [`desktop/README.md`](desktop/README.md)。
 
@@ -260,11 +265,14 @@ javac --release 21 -encoding UTF-8 -cp "classes;lib/*" -d classes java\MatchJson
 
 | 配置 | 说明 |
 | --- | --- |
-| AI 提供商 | OpenCode Go / MiniMax / DeepSeek / OpenAI / 小米 MiMo / 自定义 |
+| AI 提供商 | OpenCode Go / MiniMax / DeepSeek / OpenAI / Claude / Codex API / 小米 MiMo / 自定义 |
 | API Key | 仅保存在浏览器 `localStorage` |
 | Base URL | 默认使用提供商官方地址，可自定义；自定义模型必填 |
 | 模型 | 由提供商模型列表或内置模型提供；自定义模型手动填写 |
-| 推理强度 | low / medium / high / xhigh / max；DeepSeek、MiMo 不传档位 |
+| 推理强度 | low / medium / high / xhigh / max / ultra，也可自定义任意档位；DeepSeek、MiMo 不传档位 |
+| STRATZ Token | 可选，用于精确位置与角色数据 |
+| 数据源 | 自动 / 仅 OpenDota / 仅 STRATZ / 双源 |
+| 主题 | TrueSight / 标准；深色 / 浅色 |
 
 自定义模型支持：
 
@@ -275,9 +283,6 @@ javac --release 21 -encoding UTF-8 -cp "classes;lib/*" -d classes java\MatchJson
 可填写 Provider ID、显示名称、API 地址、协议、API Key、模型 ID、模型目录和推理档位。目录为空时不显示模型，但手填的模型 ID 仍会直接发送。获取模型目录时会尝试读取 `capabilities.reasoning.effort`、`reasoning.effort` 或 `thinkingLevelMap`，自动填充 `low / medium / high / xhigh / max / ultra` 等档位；推理档位使用标签编辑，点选预设或输入逗号/回车生成标签，点 × 移除，留空则不发送 `reasoning_effort`。
 
 > Claude Code / Codex 的订阅登录与 API Key 是两套机制；当前支持的是 API Key 与自定义协议接口，不包含订阅 OAuth/CLI 登录。
-| STRATZ Token | 可选，用于精确位置与角色数据 |
-| 数据源 | 自动 / 仅 OpenDota / 仅 STRATZ / 双源 |
-| 主题 | TrueSight / 标准；深色 / 浅色 |
 
 > API Key 不会写入仓库、日志或前端构建产物。
 
@@ -286,18 +291,21 @@ javac --release 21 -encoding UTF-8 -cp "classes;lib/*" -d classes java\MatchJson
 ```text
 dota-chat/
 ├─ ui/                        Vue 前端
-│  ├─ src/components/         时间轴、结果卡、比赛卡、设置、战斗节点面板
-│  ├─ src/lib/                数据模型、提示词、时间轴/战斗节点/名称逻辑
+│  ├─ src/components/         时间轴、结果卡、比赛卡、设置、关于、战斗节点面板
+│  ├─ src/lib/                数据模型、提示词、时间轴/战斗节点/名称与图片资源
+│  ├─ src/lib/assets.ts       本地图片 URL 与 CDN 回退链
 │  ├─ scripts/build-names.mjs 名称库压缩
-│  └─ public/                 品牌、favicon、静态名称库
-├─ server.py                  本地 HTTP 服务 / API 代理 / 解析任务
+│  └─ public/                 品牌、favicon、静态名称库、本地图片资源
+├─ server.py                  本地 HTTP 服务 / API 代理 / 解析任务 / 缓存清理
 ├─ java/MatchJsonMain.java    Clarity 回放导出器
 ├─ data/names/                英雄、技能、天赋、装备源数据
 ├─ tools/names/               名称抓取、构建、审计
+├─ tools/assets/              英雄头像、技能与装备图标抓取
 ├─ tools/memory/              记忆快照与 Git hook 安装
 ├─ tools/setup.ps1            Python / Java / Clarity 一键准备
 ├─ memory/ai/                 AI 开发记忆
-├─ website/                   官网静态站点
+├─ memory/dota-images.md      图片快照、版权与更新流程
+├─ website/                   官网静态站点（Apple 产品页风格，深浅双主题）
 ├─ desktop/                   Electron 桌面客户端
 ├─ docs/                      设计与功能文档、截图
 ├─ .githooks/                 提交 / 推送钩子
@@ -308,6 +316,7 @@ dota-chat/
 
 - 英雄 / 技能 / 天赋 / 装备中文名：Dota 2 官方 datafeed + OpenDota 常量；
 - 图标：已抓取到项目内 `ui/public/assets/`（英雄头像、英雄小图标、技能图标、装备图标），页面默认只读本地文件，不依赖第三方图片 CDN；缺失文件才回退到 Steam 官方 CDN；
+- 当前快照：2026-11-10，1407 个 PNG、约 43.7 MB；`ui/public/assets/manifest.json` 记录生成时间、文件数与失败列表，「关于」页会读取显示；
 - 图纸统一使用官方 `recipe.png`；
 - 少数先天技能官方 CDN 没有独立图标，用对应英雄小图标占位；
 - 图片版权归 Valve Corporation 所有，仅用于本项目的对局分析展示；更新流程与快照记录见 [docs/images.md](docs/images.md) 和 [memory/dota-images.md](memory/dota-images.md)；
@@ -320,13 +329,15 @@ cd ui
 npm run names
 ```
 
-下载/更新图标资源：
+下载 / 更新图标资源：
 
 ```powershell
 runtime\python\python.exe -X utf8 tools\assets\fetch_images.py
 # 强制重新下载、或只更新某一类
 runtime\python\python.exe -X utf8 tools\assets\fetch_images.py --force
 runtime\python\python.exe -X utf8 tools\assets\fetch_images.py --only heroes
+# 名称表删除旧技能/装备后，清理不再引用的旧图
+runtime\python\python.exe -X utf8 tools\assets\fetch_images.py --prune
 ```
 
 刷新源数据：
@@ -338,9 +349,21 @@ python tools/names/build.py
 
 ## 官网
 
-项目官网为桌面客户端官网，源码位于 [`website/`](website/README.md)，包含客户端功能展示、界面预览、安装版/便携版下载和图文使用说明。官网支持 **TrueSight / 标准** 双主题切换。
+项目官网源码位于 [`website/`](website/README.md)，采用 Apple 产品页风格：大标题、全宽界面截图、克制的留白与深浅两套主题。
 
-安装包与便携版由 Cloudflare R2 的 `truesight-downloads` bucket 提供，Worker 通过 `DOWNLOADS` 绑定输出 `/downloads/*`。新增版本时需同步修改 `website/index.html`、`cloudflare/worker.js` 白名单，上传 R2 后重新部署。
+- **标准（浅色）**：浅色页面 + 蓝色强调色，Hero 为浅灰渐变；
+- **TrueSight（深色）**：深色页面 + 绿色强调色，Hero 为黑色；
+- 界面截图使用客户端标准主题，浅色/深色两套随站点主题自动切换；
+- 页面包含概览、时间轴、战斗节点、AI 复盘、隐私、下载、技术规格与 FAQ；
+- 安装包与便携版由 Cloudflare R2 的 `truesight-downloads` bucket 提供，Worker 通过 `DOWNLOADS` 绑定输出 `/downloads/*`。
+
+新增版本时需同步修改 `website/index.html` 中的版本号/大小、`cloudflare/worker.js` 的下载白名单，上传 R2 后重新部署：
+
+```powershell
+npx wrangler r2 object put "truesight-downloads/TrueSight-Setup-0.1.0-x64.exe" --file "desktop\release\TrueSight-Setup-0.1.0-x64.exe" --remote
+npx wrangler r2 object put "truesight-downloads/TrueSight-Portable-0.1.0-x64.exe" --file "desktop\release\TrueSight-Portable-0.1.0-x64.exe" --remote
+npx wrangler deploy
+```
 
 本地预览：
 
@@ -348,13 +371,7 @@ python tools/names/build.py
 python -m http.server 4173 --directory website
 ```
 
-打开 `http://127.0.0.1:4173/`。
-
-部署到 Cloudflare Workers：
-
-```powershell
-npx wrangler deploy
-```
+打开 `http://127.0.0.1:4173/`。本地预览时 `/downloads/*` 会 404，线上由 Worker 的 R2 绑定提供。
 
 配置文件为 [`wrangler.jsonc`](wrangler.jsonc)，静态资源绑定 `website/`。
 
@@ -386,7 +403,7 @@ powershell -ExecutionPolicy Bypass -File tools/memory/install.ps1
 
 ## 隐私与安全
 
-- 所有第三方请求由本地 `server.py` 转发；
+- 所有第三方请求由本地 `server.py` 转发；英雄头像、技能与装备图标默认读取本地文件，只有资源缺失时才回退 Steam 官方 CDN；
 - API Key / STRATZ Token 仅保存在浏览器 `localStorage`；
 - `.env`、日志、缓存、录像、运行时与依赖目录均已加入 `.gitignore`；
 - 仓库不包含任何 API Key、Token、账号密码或私钥；
@@ -399,7 +416,8 @@ powershell -ExecutionPolicy Bypass -File tools/memory/install.ps1
 - 全球技能白名单为手动维护，新版本技能需要补充；
 - 基础模式没有回放事件，战斗节点仅支持旧版 OpenDota 团战回退；
 - 部分新天赋 / 装备在 OpenDota、官方 datafeed 中可能滞后，需要人工补充；
-- 当前主要面向 Windows 本地运行，其他平台需要自行调整启动脚本。
+- 当前主要面向 Windows 本地运行，其他平台需要自行调整启动脚本；
+- 官网截图需随界面更新同步重拍浅色/深色两套，详见 [website/README.md](website/README.md)。
 
 ## 文档
 
@@ -410,6 +428,7 @@ powershell -ExecutionPolicy Bypass -File tools/memory/install.ps1
 - [背包模型](docs/item-inventory.md)
 - [团战分析](docs/teamfights.md)
 - [战斗节点设计](docs/combat-nodes.md)
+- [官网维护与截图规范](website/README.md)
 - [AI 记忆库](memory/ai/README.md)
 
 ---
