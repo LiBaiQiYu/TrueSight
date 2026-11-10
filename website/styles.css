@@ -819,7 +819,7 @@ html[data-theme="truesight"] .pill-quiet:hover {
 }
 
 .download-card .pill-full {
-  margin-top: auto;
+  margin-top: 30px;
 }
 
 .tech-specs {
