@@ -1,132 +1,114 @@
-document.documentElement.classList.add('js');
+(function () {
+  'use strict'
 
-const header = document.querySelector('.site-header');
-const menuToggle = document.querySelector('.menu-toggle');
-const nav = document.getElementById('main-nav');
-const themeButtons = [...document.querySelectorAll('[data-theme-choice]')];
-const themeColor = document.querySelector('meta[name="theme-color"]');
+  var root = document.documentElement
+  var THEME_KEY = 'truesight.site.theme'
+  var THEMES = ['standard', 'truesight']
 
-function applySiteTheme(theme, persist) {
-  const next = theme === 'standard' ? 'standard' : 'truesight'
-  document.documentElement.dataset.theme = next
-  themeButtons.forEach((button) => {
-    button.setAttribute('aria-pressed', String(button.dataset.themeChoice === next))
-  })
-  if (themeColor) themeColor.setAttribute('content', next === 'standard' ? '#f4f7fb' : '#f6fbf8')
-  if (persist) {
+  function savedTheme() {
     try {
-      localStorage.setItem('truesight.site.theme', next)
+      var value = localStorage.getItem(THEME_KEY)
+      return THEMES.indexOf(value) >= 0 ? value : 'standard'
     } catch (error) {
-      /* localStorage may be unavailable */
+      return 'standard'
     }
   }
-}
 
-applySiteTheme(document.documentElement.dataset.theme || 'truesight', false)
-
-themeButtons.forEach((button) => {
-  button.addEventListener('click', () => applySiteTheme(button.dataset.themeChoice, true))
-})
-
-window.addEventListener('storage', (event) => {
-  if (event.key !== 'truesight.site.theme') return
-  applySiteTheme(event.newValue || 'truesight', false)
-})
-
-function syncHeader() {
-  if (!header) return;
-  header.classList.toggle('is-scrolled', window.scrollY > 8);
-}
-
-syncHeader();
-window.addEventListener('scroll', syncHeader, { passive: true });
-
-if (menuToggle && nav) {
-  menuToggle.addEventListener('click', () => {
-    const open = document.body.classList.toggle('nav-open');
-    menuToggle.setAttribute('aria-expanded', String(open));
-  });
-
-  nav.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', () => {
-      document.body.classList.remove('nav-open');
-      menuToggle.setAttribute('aria-expanded', 'false');
-    });
-  });
-}
-
-const copyButtons = document.querySelectorAll('[data-copy]');
-
-async function copyText(text) {
-  if (navigator.clipboard && window.isSecureContext) {
-    await navigator.clipboard.writeText(text);
-    return;
-  }
-  const area = document.createElement('textarea');
-  area.value = text;
-  area.style.position = 'fixed';
-  area.style.opacity = '0';
-  document.body.appendChild(area);
-  area.select();
-  document.execCommand('copy');
-  area.remove();
-}
-
-copyButtons.forEach((button) => {
-  button.addEventListener('click', async () => {
-    const text = button.getAttribute('data-copy') || '';
-    const previous = button.textContent;
+  function applyTheme(theme) {
+    root.dataset.theme = theme
     try {
-      await copyText(text);
-      button.textContent = '已复制';
-      button.classList.add('copied');
-      window.setTimeout(() => {
-        button.textContent = previous;
-        button.classList.remove('copied');
-      }, 1400);
-    } catch {
-      button.textContent = '复制失败';
-      window.setTimeout(() => {
-        button.textContent = previous;
-      }, 1400);
+      localStorage.setItem(THEME_KEY, theme)
+    } catch (error) {
+      /* 隐私模式下忽略 */
     }
-  });
-});
+    var toggle = document.getElementById('theme-toggle')
+    if (toggle) {
+      var next = theme === 'standard' ? '深色（TrueSight）' : '浅色（标准）'
+      toggle.setAttribute('aria-label', '切换到' + next)
+      toggle.setAttribute('title', '切换到' + next)
+    }
+    var meta = document.querySelector('meta[name="theme-color"]')
+    if (meta) meta.setAttribute('content', theme === 'standard' ? '#000000' : '#0a0a0c')
+  }
 
-const revealItems = document.querySelectorAll('.reveal');
+  applyTheme(savedTheme())
 
-if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        const delay = Number(entry.target.getAttribute('data-delay') || 0);
-        window.setTimeout(() => entry.target.classList.add('is-visible'), delay);
-        observer.unobserve(entry.target);
-      });
-    },
-    { threshold: 0.12, rootMargin: '0px 0px -6% 0px' }
-  );
+  function init() {
+    applyTheme(savedTheme())
 
-  revealItems.forEach((item) => observer.observe(item));
-} else {
-  revealItems.forEach((item) => item.classList.add('is-visible'));
-}
+    var nav = document.getElementById('nav')
+    var hero = document.querySelector('.hero')
+    var menuBtn = document.getElementById('menu-btn')
+    var themeBtn = document.getElementById('theme-toggle')
+    var navLinks = document.getElementById('nav-links')
 
-const sections = [...document.querySelectorAll('main section[id]')];
-const navLinks = [...document.querySelectorAll('.main-nav a[href^="#"]')];
+    function onScroll() {
+      if (!nav) return
+      // 保持在黑色 Hero 上时导航保持深色；离开 Hero 后才切换为浅色玻璃
+      var limit = 24
+      if (hero) limit = hero.offsetTop + hero.offsetHeight - 56
+      var scrolled = window.scrollY > limit
+      nav.classList.toggle('is-scrolled', scrolled)
 
-if ('IntersectionObserver' in window && sections.length && navLinks.length) {
-  const sectionObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        navLinks.forEach((link) => {
-          link.classList.toggle('active', link.getAttribute('href') === `#${entry.target.id}`);
-        });
-      });
-    },
-    { rootMargin: '-35% 0px -55% 0px', threshold: 0 }
-  );
-  sections.forEach((section) => sectionObserver.observe(section));
-}
+      if (!scrolled) {
+        nav.classList.remove('is-dark')
+        return
+      }
+      // 黑色区块上使用深色玻璃，避免白条压在战斗节点上
+      var stack = document.elementsFromPoint(window.innerWidth / 2, 24) || []
+      var dark = false
+      for (var i = 0; i < stack.length; i += 1) {
+        var element = stack[i]
+        if (!element || !element.closest) continue
+        if (element.closest('.hero')) {
+          dark = true
+          break
+        }
+        var section = element.closest('.section')
+        if (section) {
+          dark = section.classList.contains('section-dark')
+          break
+        }
+      }
+      nav.classList.toggle('is-dark', dark)
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+
+    if (themeBtn) {
+      themeBtn.addEventListener('click', function () {
+        var current = root.dataset.theme === 'truesight' ? 'truesight' : 'standard'
+        applyTheme(current === 'standard' ? 'truesight' : 'standard')
+      })
+    }
+
+    if (menuBtn) {
+      menuBtn.addEventListener('click', function () {
+        var open = document.body.classList.toggle('nav-open')
+        menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false')
+      })
+    }
+
+    if (navLinks) {
+      navLinks.addEventListener('click', function (event) {
+        if (event.target.closest('a')) {
+          document.body.classList.remove('nav-open')
+          if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false')
+        }
+      })
+    }
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') {
+        document.body.classList.remove('nav-open')
+        if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false')
+      }
+    })
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init)
+  } else {
+    init()
+  }
+})()

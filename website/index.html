@@ -1,34 +1,32 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="standard">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TrueSight — Windows Dota 2 对局分析客户端</title>
     <meta
       name="description"
-      content="TrueSight 是一个 Windows 桌面客户端：内置 Python、Java 与 Clarity，下载安装即可使用。整合 OpenDota / STRATZ 数据、本地录像解析与 AI 复盘。"
+      content="TrueSight 是一个 Windows 桌面客户端：内置 Python、Java 与 Clarity，下载安装即可使用。整合 OpenDota / STRATZ 数据、本地录像解析、时间轴、战斗节点与 AI 复盘。"
     />
-    <meta name="theme-color" content="#f6fbf8" />
+    <meta name="theme-color" content="#000000" />
     <link rel="canonical" href="https://truesight.carloswhitea1e.workers.dev/" />
-    <link rel="preload" as="image" href="assets/home.png" />
+    <link rel="preload" as="image" href="assets/standard-analysis-light.png" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://truesight.carloswhitea1e.workers.dev/" />
     <meta property="og:site_name" content="TrueSight" />
     <meta property="og:title" content="TrueSight — Windows Dota 2 对局分析客户端" />
     <meta
       property="og:description"
-      content="下载即用的 Dota 2 复盘客户端：时间轴、出装、对位、团战与 AI 分析，全部在本地完成。"
+      content="下载即用的 Dota 2 复盘客户端：时间轴、出装、对位、战斗节点与 AI 分析，全部在本地完成。"
     />
-    <meta property="og:image" content="https://truesight.carloswhitea1e.workers.dev/assets/home.png" />
+    <meta property="og:image" content="https://truesight.carloswhitea1e.workers.dev/assets/standard-analysis-light.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/svg+xml" href="assets/truesight-mark.svg" />
     <script>
       try {
-        var siteTheme = localStorage.getItem('truesight.site.theme')
-        if (siteTheme === 'standard' || siteTheme === 'truesight') {
-          document.documentElement.dataset.theme = siteTheme
-        }
-      } catch (e) {}
+        var savedTheme = localStorage.getItem('truesight.site.theme')
+        document.documentElement.dataset.theme = savedTheme === 'truesight' ? 'truesight' : 'standard'
+      } catch (error) {}
     </script>
     <link rel="stylesheet" href="styles.css" />
     <script src="main.js" defer></script>
@@ -36,35 +34,34 @@
   <body>
     <a class="skip-link" href="#main">跳到主要内容</a>
 
-    <header class="site-header" id="top">
-      <div class="container header-inner">
+    <header class="nav" id="nav">
+      <div class="nav-inner">
         <a class="brand" href="#top" aria-label="TrueSight 首页">
-          <img class="brand-mark" src="assets/truesight-mark.svg" alt="" width="38" height="38" />
-          <span class="brand-text">
-            <strong>TrueSight</strong>
-            <small>DOTA 2 MATCH ANALYZER</small>
-          </span>
+          <img class="brand-mark" src="assets/truesight-mark.svg" alt="" width="34" height="34" />
+          <span class="brand-name">TrueSight</span>
         </a>
 
-        <nav class="main-nav" id="main-nav" aria-label="主导航">
-          <a href="#features">功能</a>
-          <a href="#preview">界面</a>
+        <nav class="nav-links" id="nav-links" aria-label="主导航">
+          <a href="#overview">概览</a>
+          <a href="#timeline">时间轴</a>
+          <a href="#combat">战斗节点</a>
+          <a href="#ai">AI 复盘</a>
           <a href="#download">下载</a>
-          <a href="#start">开始使用</a>
           <a href="#faq">常见问题</a>
-          <a class="nav-github" href="https://github.com/LiBaiQiYu/TrueSight" target="_blank" rel="noreferrer">
-            GitHub
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg>
-          </a>
         </nav>
 
-        <div class="header-actions">
-          <div class="theme-switch" role="group" aria-label="站点主题">
-            <button type="button" data-theme-choice="truesight" aria-pressed="true">TrueSight</button>
-            <button type="button" data-theme-choice="standard" aria-pressed="false">标准</button>
-          </div>
-          <a class="btn btn-small btn-primary" href="#download">下载客户端</a>
-          <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" aria-label="打开导航">
+        <div class="nav-actions">
+          <button class="icon-btn" id="theme-toggle" type="button" aria-label="切换深色 / 浅色">
+            <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="4.2" />
+              <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5 5l2.1 2.1M16.9 16.9 19 19M19 5l-2.1 2.1M7.1 16.9 5 19" />
+            </svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20 15.2A8.4 8.4 0 0 1 8.8 4 8.5 8.5 0 1 0 20 15.2Z" />
+            </svg>
+          </button>
+          <a class="pill pill-small" href="#download">下载</a>
+          <button class="menu-btn" id="menu-btn" type="button" aria-label="打开导航" aria-expanded="false" aria-controls="nav-links">
             <span></span><span></span>
           </button>
         </div>
@@ -72,382 +69,315 @@
     </header>
 
     <main id="main">
-      <section class="hero">
-        <div class="hero-bg" aria-hidden="true"></div>
-        <div class="container hero-inner">
-          <div class="hero-copy reveal">
-            <p class="eyebrow"><span></span> WINDOWS DESKTOP · LOCAL-FIRST</p>
-            <div class="hero-badge"><strong>v0.1.0</strong><i></i><span>Windows 10 / 11 · x64</span></div>
-            <h1>把 Dota 2 复盘，<br /><em>装进一个客户端。</em></h1>
-            <p class="hero-lead">
-              TrueSight 桌面客户端内置 Python、Java 与 Clarity，下载安装即可开始。
-              OpenDota / STRATZ 数据、本地录像解析与 AI 复盘，全部在同一个界面完成。
-            </p>
-            <div class="hero-actions">
-              <a class="btn btn-primary btn-lg" href="#download">
-                下载 Windows 客户端
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m0 0 5-5m-5 5-5-5M5 20h14" /></svg>
-              </a>
-              <a class="btn btn-ghost btn-lg" href="#preview">查看界面</a>
+      <section class="hero" id="top">
+        <div class="hero-glow" aria-hidden="true"></div>
+        <div class="hero-inner">
+          <p class="eyebrow">TRUESIGHT · DOTA 2 MATCH ANALYZER</p>
+          <h1>看懂每一场。<br /><span>赢下下一场。</span></h1>
+          <p class="hero-lede">
+            Clarity 本地回放解析、逐分钟时间轴、以你为中心的战斗节点，以及真正引用录像事实的 AI 复盘。
+            所有数据留在你的电脑。
+          </p>
+          <div class="hero-actions">
+            <a class="pill pill-large" href="#download">
+              下载 for Windows
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m0 0 5-5m-5 5-5-5M5 20h14" /></svg>
+            </a>
+            <a class="text-link" href="#overview">了解 TrueSight <span>›</span></a>
+          </div>
+          <p class="hero-meta">v0.1.0 · Windows 10 / 11 x64 · 安装版 202 MB · 便携版 185 MB</p>
+        </div>
+
+        <div class="hero-shot">
+          <div class="window">
+            <div class="window-bar" aria-hidden="true">
+              <span class="dots"><i></i><i></i><i></i></span>
+              <span class="window-title">TrueSight · 比赛分析</span>
+              <span class="window-tag">LOCAL</span>
             </div>
-            <ul class="hero-points">
-              <li><span class="dot"></span>安装版 / 便携版</li>
-              <li><span class="dot"></span>无需单独配置 Python / Java</li>
-              <li><span class="dot"></span>API Key 仅保存在本地</li>
+            <img
+              src="assets/standard-analysis-light.png"
+              alt="TrueSight 客户端主界面：比赛查询、英雄选择与分析面板"
+              width="1600"
+              height="1000"
+              fetchpriority="high"
+            />
+          </div>
+          <p class="shot-caption">标准主题 · 浅色 · 实际界面截图</p>
+        </div>
+      </section>
+
+      <section class="section section-light" id="overview">
+        <div class="wrap">
+          <p class="kicker">OVERVIEW</p>
+          <h2 class="display">一场比赛，<br />拆成可以行动的细节。</h2>
+          <p class="lede">
+            从对线期的每一个补刀，到最后一波团战的每一次承伤。TrueSight 把录像和公开数据整理成一张可以追溯的证据链，
+            让复盘不再靠印象。
+          </p>
+          <div class="metrics">
+            <div class="metric">
+              <strong>5<span>s</span></strong>
+              <p>经济 / 经验 / 补刀采样</p>
+            </div>
+            <div class="metric">
+              <strong>1<span>s</span></strong>
+              <p>战斗 HP / MP / 金钱采样</p>
+            </div>
+            <div class="metric">
+              <strong>0.1<span>s</span></strong>
+              <p>战斗日志事件精度</p>
+            </div>
+            <div class="metric">
+              <strong>0</strong>
+              <p>数据上传到云端</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-light feature" id="timeline">
+        <div class="wrap feature-grid">
+          <div class="feature-copy">
+            <p class="kicker">MATCH TIMELINE</p>
+            <h2>从第 1 分钟，<br />看到最后一波团战。</h2>
+            <p class="feature-lede">
+              时间轴不是一张静态图表。拖动它，经济、经验、补刀、背包、技能加点和场上位置会同步回到那一刻。
+            </p>
+            <ul class="checks">
+              <li>5 秒级经济、经验、补刀与等级曲线</li>
+              <li>真实背包、合成配件与完整出装路线</li>
+              <li>技能加点、天赋选择与对位换血</li>
+              <li>直接切换到任意参战英雄的时间轴</li>
             </ul>
           </div>
-
-          <div class="hero-visual reveal" data-delay="120">
-            <div class="visual-orbit orbit-one" aria-hidden="true"></div>
-            <div class="visual-orbit orbit-two" aria-hidden="true"></div>
-            <div class="shot-window">
-              <div class="shot-bar">
-                <span class="shot-dots"><i></i><i></i><i></i></span>
-                <span>TrueSight · 比赛分析</span>
-                <span class="shot-live"><i></i>LOCAL</span>
-              </div>
-              <img src="assets/home.png" alt="TrueSight 客户端主界面：比赛查询与英雄选择" width="1600" height="1000" />
-            </div>
-            <div class="float-card float-card-a">
-              <span class="float-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h16M7 15l3-4 3 2 5-6" /></svg>
-              </span>
-              <span><strong>时间轴</strong><small>5 秒级经济与出装</small></span>
-            </div>
-            <div class="float-card float-card-b">
-              <span class="float-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4m0 10v4M3 12h4m10 0h4M6 6l3 3m6 6 3 3M18 6l-3 3M9 15l-3 3" /></svg>
-              </span>
-              <span><strong>AI 复盘</strong><small>多提供商与自定义模型</small></span>
-            </div>
-          </div>
-        </div>
-
-        <div class="container stats reveal" data-delay="200">
-          <div><strong>内置</strong><span>Python · Java · Clarity</span></div>
-          <div><strong>5s</strong><span>高级分析采样间隔</span></div>
-          <div><strong>6+</strong><span>AI 提供商与自定义接口</span></div>
-          <div><strong>0</strong><span>API Key 上传到服务器</span></div>
-        </div>
-      </section>
-
-      <section class="section" id="features">
-        <div class="container">
-          <div class="section-head reveal">
-            <p class="eyebrow"><span></span> WHAT YOU GET</p>
-            <h2>从安装到复盘，<br />一套完整的桌面工作流。</h2>
-            <p>不折腾运行环境，不再分别打开数据网站、录像工具和聊天窗口。TrueSight 把复盘需要的部分装进一个客户端。</p>
-          </div>
-
-          <div class="provider-chips reveal" data-delay="60" aria-label="支持的 AI 提供商">
-            <span>OpenCode Go</span>
-            <span>MiniMax</span>
-            <span>DeepSeek</span>
-            <span>OpenAI / Codex API</span>
-            <span>小米 MiMo</span>
-            <em>+ 自定义模型</em>
-          </div>
-
-          <div class="feature-grid">
-            <article class="feature-card reveal">
-              <span class="feature-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2" /><path d="M8 21h8M12 17v4" /></svg>
-              </span>
-              <h3>Windows 桌面客户端</h3>
-              <p>安装版与便携版两种形态。Electron 窗口内置完整后端、JRE、Clarity 与前端，不需要另装 Python、Java 或 Node。</p>
-              <span class="feature-tag">Setup / Portable</span>
-            </article>
-
-            <article class="feature-card reveal" data-delay="60">
-              <span class="feature-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8L12 3Z" /><path d="m19 15 .8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z" /></svg>
-              </span>
-              <h3>AI 对局复盘</h3>
-              <p>支持 OpenCode Go、MiniMax、DeepSeek、OpenAI/Codex API、小米 MiMo，以及带 OpenAI Chat、Responses、Anthropic Messages 协议的自定义模型。</p>
-              <span class="feature-tag">Multi-provider</span>
-            </article>
-
-            <article class="feature-card reveal" data-delay="120">
-              <span class="feature-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h16M7 15l3-4 3 2 5-6" /><circle cx="18" cy="7" r="1.2" /></svg>
-              </span>
-              <h3>逐分钟时间轴</h3>
-              <p>经济、补刀、经验、等级与英雄伤害曲线；点击任意时间点，联动出装、技能、天赋和背包快照。</p>
-              <span class="feature-tag">5 秒采样</span>
-            </article>
-
-            <article class="feature-card reveal" data-delay="180">
-              <span class="feature-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20 20 4M7 4h5v5M17 20h-5v-5" /><path d="M5 14h4v4H5zM15 6h4v4h-4z" /></svg>
-              </span>
-              <h3>对位与阵容切换</h3>
-              <p>边路 2v2 / 2v3 完整显示，分析对象一键切换；对位可跟随分路自动调整，也可自定义保留。</p>
-              <span class="feature-tag">1v1 · 2v2 · 3v3</span>
-            </article>
-
-            <article class="feature-card reveal" data-delay="240">
-              <span class="feature-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7v5c0 5 3.4 8 8 9 4.6-1 8-4 8-9V7l-8-4Z" /><path d="m9 12 2 2 4-5" /></svg>
-              </span>
-              <h3>出装、背包与团战</h3>
-              <p>合成、卷轴、买卖与消耗按真实格位还原；团战结合伤害、治疗、增益、技能与战场距离，缺席原因清晰可见。</p>
-              <span class="feature-tag">Replay exact</span>
-            </article>
-
-            <article class="feature-card reveal" data-delay="300">
-              <span class="feature-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7v5c0 5 3.4 8 8 9 4.6-1 8-4 8-9V7l-8-4Z" /><path d="M12 8v5m0 3v.2" /></svg>
-              </span>
-              <h3>本地优先，数据可控</h3>
-              <p>前端只访问本机服务，第三方请求由内置 Python 代理；API Key 仅存于当前客户端，不写入日志、安装包或代码仓库。</p>
-              <span class="feature-tag">Privacy first</span>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="section section-tinted" id="preview">
-        <div class="container">
-          <div class="section-head reveal">
-            <p class="eyebrow"><span></span> INTERFACE</p>
-            <h2>信息密度很高，<br />阅读起来却很安静。</h2>
-            <p>统一的时间轴弹窗、对位头部、技能天赋和团战面板，让数据在同一种视觉语言里展开。</p>
-          </div>
-
-          <figure class="showcase-main reveal">
-            <div class="showcase-frame">
-              <img src="assets/timeline.png" alt="TrueSight 时间轴：经济曲线、出装路线、本体与小熊背包" width="1600" height="1300" loading="lazy" />
-            </div>
-            <figcaption>
-              <span class="caption-index">01</span>
-              <span><strong>完整时间轴</strong><small>出装、背包、技能与对位，围绕同一个时间游标联动。</small></span>
-            </figcaption>
+          <figure class="feature-visual">
+            <img
+              class="plain-shot"
+              src="assets/standard-timeline-dock.png"
+              alt="TrueSight 时间轴：经济曲线、出装路线、技能与天赋"
+              width="1488"
+              height="920"
+            />
+            <figcaption>标准主题 · 浅色 · 时间轴与出装路线</figcaption>
           </figure>
+        </div>
+      </section>
 
-          <div class="showcase-grid">
-            <figure class="showcase-small reveal" data-delay="80">
-              <div class="showcase-frame">
-                <img src="assets/talents-panel.png" alt="TrueSight 技能与天赋：本体与小熊双天赋树" width="1534" height="903" loading="lazy" />
-              </div>
-              <figcaption>
-                <span class="caption-index">02</span>
-                <span><strong>技能与天赋</strong><small>本体、小熊双天赋树，可延后补选。</small></span>
-              </figcaption>
-            </figure>
+      <section class="section section-dark feature feature-reverse" id="combat">
+        <div class="wrap feature-grid">
+          <div class="feature-copy">
+            <p class="kicker kicker-cool">COMBAT NODES</p>
+            <h2>每一次击杀，<br />都有前因后果。</h2>
+            <p class="feature-lede">
+              以你为圆心，自动切分单杀、小规模遭遇、团队团战和多杀。谁先手、谁补伤害、谁承受了最多技能，都在一条 0.1 秒精度的时间线上。
+            </p>
+            <ul class="checks checks-light">
+              <li>单杀 / 小规模 / 团战 / 多杀自动识别</li>
+              <li>承伤来源、技能、物品与伤害类型</li>
+              <li>参战英雄 HP / MP、金钱与经验变化</li>
+              <li>战斗节点的每一次击杀、助攻与阵亡</li>
+            </ul>
+          </div>
+          <figure class="feature-visual">
+            <img
+              class="plain-shot"
+              src="assets/standard-combat-dock.png"
+              alt="TrueSight 战斗节点：参战英雄、承伤来源与战斗时间线"
+              width="1488"
+              height="920"
+            />
+            <figcaption>标准主题 · 深色 · 战斗节点</figcaption>
+          </figure>
+        </div>
+      </section>
 
-            <figure class="showcase-small reveal" data-delay="160">
-              <div class="showcase-frame">
-                <img src="assets/teamfights.png" alt="TrueSight 团战分析：参团玩家与缺席原因" width="1600" height="1000" loading="lazy" />
-              </div>
-              <figcaption>
-                <span class="caption-index">03</span>
-                <span><strong>团战复盘</strong><small>参团者、伤害治疗、关键技能与缺席原因。</small></span>
-              </figcaption>
-            </figure>
+      <section class="section section-light feature" id="ai">
+        <div class="wrap feature-grid">
+          <div class="feature-copy">
+            <p class="kicker">AI COACH</p>
+            <h2>不是总结，<br />是教练级的复盘。</h2>
+            <p class="feature-lede">
+              AI 拿到的是这一场真实的录像数据：击杀时间线、出装、技能释放与伤害。先有事实，再谈判断。
+            </p>
+            <ul class="checks">
+              <li>本地 Clarity 录像作为事实基准</li>
+              <li>OpenDota / STRATZ / Clarity 多源交叉校验</li>
+              <li>OpenAI、Claude / Codex、DeepSeek、小米 MiMo 与自定义接口</li>
+              <li>API Key 只保存在浏览器本地，不写入日志或仓库</li>
+            </ul>
+          </div>
+          <figure class="feature-visual">
+            <img
+              class="plain-shot"
+              src="assets/standard-settings-light.png"
+              alt="TrueSight 设置页：模型服务、STRATZ Token、缓存与外观"
+              width="1600"
+              height="1000"
+            />
+            <figcaption>标准主题 · 浅色 · 模型服务设置</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section section-dark privacy">
+        <div class="wrap">
+          <p class="kicker kicker-cool">PRIVACY</p>
+          <h2 class="display">你的比赛，<br />只属于你。</h2>
+          <div class="privacy-grid">
+            <article>
+              <span class="privacy-num">01</span>
+              <h3>Key 不上云</h3>
+              <p>AI Key 与 STRATZ Token 保存在本机 localStorage，由本地服务转发请求。</p>
+            </article>
+            <article>
+              <span class="privacy-num">02</span>
+              <h3>录像不出门</h3>
+              <p>回放下载、Clarity 解析与缓存都在这台电脑完成，不经过任何服务器。</p>
+            </article>
+            <article>
+              <span class="privacy-num">03</span>
+              <h3>没有遥测</h3>
+              <p>没有账号系统、没有统计上报；删除缓存即可清理本地分析数据。</p>
+            </article>
           </div>
         </div>
       </section>
 
-      <section class="section download-section" id="download">
-        <div class="container">
-          <div class="download-panel reveal">
-            <div class="download-copy">
-              <p class="eyebrow eyebrow-light"><span></span> DOWNLOAD FOR WINDOWS</p>
-              <h2>下载 TrueSight 客户端。</h2>
-              <p>
-                选择安装版或便携版。安装后无需单独配置 Python、Java、Node 或 Clarity，
-                首次启动即可进入比赛分析。
-              </p>
-              <div class="download-actions">
-                <a class="btn btn-light btn-lg" href="/downloads/TrueSight-Setup-0.1.0-x64.exe" download>
-                  下载安装版
-                  <span class="btn-meta">202 MB</span>
-                </a>
-                <a class="btn btn-outline-light btn-lg" href="/downloads/TrueSight-Portable-0.1.0-x64.exe" download>
-                  便携版
-                  <span class="btn-meta">185 MB</span>
-                </a>
-              </div>
-              <div class="download-badges">
-                <span>v0.1.0</span>
-                <span>Windows 10 / 11 x64</span>
-                <span>无需管理员权限</span>
-              </div>
-              <p class="download-note">
-                当前构建未配置代码签名，Windows SmartScreen 可能提示“未知发布者”。选择“更多信息 → 仍要运行”即可。
-              </p>
-              <ul class="download-includes">
-                <li>Python / Java / Clarity 已内置</li>
-                <li>本地录像解析与 AI 复盘</li>
-                <li>安装版创建快捷方式</li>
-                <li>便携版无需写入安装目录</li>
-                <li>英雄 / 技能 / 装备图标已内置</li>
-              </ul>
-            </div>
+      <section class="section section-light download" id="download">
+        <div class="wrap">
+          <p class="kicker">DOWNLOAD</p>
+          <h2 class="display">下载 TrueSight。</h2>
+          <p class="lede">
+            选择安装版或便携版。Python、Java 21 与 Clarity 已内置，无需单独配置环境，安装后即可分析。
+          </p>
 
-            <div class="download-methods">
-              <div class="method-card method-recommended">
-                <span class="method-label">RECOMMENDED</span>
+          <div class="download-grid">
+            <article class="download-card">
+              <div class="download-head">
+                <span class="badge">推荐</span>
                 <h3>安装版</h3>
-                <p>固定安装到本机，创建开始菜单和桌面快捷方式，适合长期使用和自动更新。</p>
-                <ul class="download-meta">
-                  <li><span>文件</span><em>TrueSight-Setup-0.1.0-x64.exe</em></li>
-                  <li><span>大小</span><em>约 202 MB</em></li>
-                  <li><span>安装</span><em>当前用户 · 无需管理员</em></li>
-                </ul>
-                <a class="text-link" href="/downloads/TrueSight-Setup-0.1.0-x64.exe" download>下载安装版 <span>→</span></a>
+                <p>固定安装到当前用户，创建桌面与开始菜单快捷方式。</p>
               </div>
-
-              <div class="method-card">
-                <span class="method-label">PORTABLE</span>
-                <h3>便携版</h3>
-                <p>单个 exe，不写安装目录。首次运行会将后端准备到用户数据目录，之后直接启动。</p>
-                <ul class="download-meta">
-                  <li><span>文件</span><em>TrueSight-Portable-0.1.0-x64.exe</em></li>
-                  <li><span>大小</span><em>约 185 MB</em></li>
-                  <li><span>数据</span><em>%APPDATA%\TrueSight</em></li>
-                </ul>
-                <a class="text-link" href="/downloads/TrueSight-Portable-0.1.0-x64.exe" download>下载便携版 <span>→</span></a>
-              </div>
-
-              <div class="method-card">
-                <span class="method-label">DEVELOPER</span>
-                <h3>源码 / 旧版本</h3>
-                <p>开发者仍可使用原有 Web 模式：克隆仓库、运行 Clarity 环境并参与桌面端开发。</p>
-                <a class="text-link" href="https://github.com/LiBaiQiYu/TrueSight" target="_blank" rel="noreferrer">打开 GitHub <span>→</span></a>
-                <a class="text-link" href="https://github.com/LiBaiQiYu/TrueSight/releases" target="_blank" rel="noreferrer">查看 Releases <span>→</span></a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="start">
-        <div class="container start-layout">
-          <div class="start-intro reveal">
-            <p class="eyebrow"><span></span> GETTING STARTED</p>
-            <h2>下载、启动、开一局。</h2>
-            <p>不再需要先安装 Python 或 Java。客户端已经内置完整运行时与 Clarity 解析器。</p>
-
-            <div class="requirement-box">
-              <span class="requirement-title">运行环境</span>
-              <ul>
-                <li><span>Windows</span><em>10 / 11 · x64</em></li>
-                <li><span>运行时</span><em>已内置，无需安装</em></li>
-                <li><span>磁盘</span><em>约 500 MB</em></li>
-                <li><span>显卡</span><em>支持 D3D11 加速</em></li>
-                <li><span>网络</span><em>获取比赛与 AI 时需要</em></li>
+              <ul class="spec-list">
+                <li><span>版本</span><strong>0.1.0</strong></li>
+                <li><span>大小</span><strong>202 MB</strong></li>
+                <li><span>安装</span><strong>当前用户 · 无需管理员</strong></li>
               </ul>
-            </div>
-
-            <a class="text-link" href="https://github.com/LiBaiQiYu/TrueSight#readme" target="_blank" rel="noreferrer">开发者文档 <span>→</span></a>
-          </div>
-
-          <div class="steps">
-            <article class="step reveal">
-              <span class="step-number">01</span>
-              <div class="step-body">
-                <h3>下载并安装</h3>
-                <p>选择安装版，按向导完成安装；或直接运行便携版 exe。两个版本功能一致。</p>
-              </div>
+              <a class="pill pill-full" href="/downloads/TrueSight-Setup-0.1.0-x64.exe" download>
+                下载安装版
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m0 0 5-5m-5 5-5-5M5 20h14" /></svg>
+              </a>
             </article>
 
-            <article class="step reveal" data-delay="60">
-              <span class="step-number">02</span>
-              <div class="step-body">
-                <h3>启动客户端</h3>
-                <p>双击 TrueSight。内置 Python、Java、Clarity 与前端会自动启动，不需要命令行或环境变量。</p>
+            <article class="download-card">
+              <div class="download-head">
+                <span class="badge badge-quiet">便携</span>
+                <h3>便携版</h3>
+                <p>单个可执行文件，不写安装目录，适合多台电脑或移动硬盘。</p>
               </div>
-            </article>
-
-            <article class="step reveal" data-delay="120">
-              <span class="step-number">03</span>
-              <div class="step-body">
-                <h3>选择比赛与玩家</h3>
-                <p>输入比赛 ID，选择分析对象；需要更细的复盘时切换到「高级分析」，让本地 Clarity 解析录像。</p>
-              </div>
-            </article>
-
-            <article class="step reveal" data-delay="180">
-              <span class="step-number">04</span>
-              <div class="step-body">
-                <h3>配置 AI 并分析</h3>
-                <p>在设置页填写模型 API Key，选择提供商或自定义接口。Key 只保存在本地，由内置服务转发。</p>
-              </div>
+              <ul class="spec-list">
+                <li><span>版本</span><strong>0.1.0</strong></li>
+                <li><span>大小</span><strong>185 MB</strong></li>
+                <li><span>安装</span><strong>免安装 · 解压即用</strong></li>
+              </ul>
+              <a class="pill pill-full pill-quiet" href="/downloads/TrueSight-Portable-0.1.0-x64.exe" download>
+                下载便携版
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v12m0 0 5-5m-5 5-5-5M5 20h14" /></svg>
+              </a>
             </article>
           </div>
+
+          <div class="tech-specs">
+            <h3>技术规格</h3>
+            <dl>
+              <div><dt>系统</dt><dd>Windows 10 / 11（x64）</dd></div>
+              <div><dt>运行时</dt><dd>Python 3、Java 21、Clarity 5 已内置</dd></div>
+              <div><dt>磁盘</dt><dd>约 500 MB（含运行时与缓存）</dd></div>
+              <div><dt>数据</dt><dd>本地保存，设置页可清理解析缓存</dd></div>
+              <div><dt>网络</dt><dd>仅在查询比赛、下载回放与调用 AI 时联网</dd></div>
+              <div><dt>主题</dt><dd>TrueSight / 标准，深色与浅色</dd></div>
+            </dl>
+          </div>
+
+          <p class="note">
+            当前构建未配置代码签名，Windows SmartScreen 可能提示“未知发布者”。选择“更多信息 → 仍要运行”即可。
+            需要 Windows 10 1809 或更高版本。
+          </p>
         </div>
       </section>
 
-      <section class="section section-tinted" id="faq">
-        <div class="container faq-layout">
-          <div class="section-head reveal">
-            <p class="eyebrow"><span></span> FAQ</p>
-            <h2>下载之前，<br />你可能想知道。</h2>
-            <p>更多细节与命令说明，请查看仓库 README 与 docs。</p>
-            <a class="text-link" href="https://github.com/LiBaiQiYu/TrueSight#readme" target="_blank" rel="noreferrer">打开 README <span>→</span></a>
-          </div>
-
+      <section class="section section-light faq" id="faq">
+        <div class="wrap">
+          <p class="kicker">FAQ</p>
+          <h2 class="display">常见问题。</h2>
           <div class="faq-list">
-            <details class="faq-item reveal" open>
-              <summary>安装版和便携版有什么区别？<span></span></summary>
-              <p>功能一致。安装版会安装到本机并创建快捷方式；便携版是单个 exe，适合放 U 盘或临时使用。便携版首次启动会把后端准备到用户数据目录，因此第一次会稍慢。</p>
+            <details>
+              <summary>安装版和便携版怎么选？</summary>
+              <p>长期使用选安装版，会创建快捷方式；不想写安装目录、需要放到移动硬盘或多台电脑使用，选便携版。</p>
             </details>
-            <details class="faq-item reveal">
-              <summary>还需要自己安装 Python / Java / Clarity 吗？<span></span></summary>
-              <p>不需要。客户端已内置 Python、JRE 21、Clarity 与解析器。只有使用源码 Web 模式开发时才需要按 README 准备环境。</p>
+            <details>
+              <summary>需要单独安装 Python、Java 或 Clarity 吗？</summary>
+              <p>不需要。桌面客户端已经内置 Python、Java 21 与 Clarity，安装后直接启动即可。</p>
             </details>
-            <details class="faq-item reveal">
-              <summary>AI Key 支持哪些服务？<span></span></summary>
-              <p>支持 OpenCode Go、MiniMax、DeepSeek、OpenAI/Codex API、小米 MiMo，以及带 OpenAI Chat Completions、OpenAI Responses、Anthropic Messages 协议的自定义接口。Key 只保存在本地客户端。</p>
+            <details>
+              <summary>第一次高级分析为什么比较慢？</summary>
+              <p>高级分析需要下载回放并用 Clarity 本地解析，通常需要几分钟；同一场录像解析完成后会缓存，再次打开会很快。</p>
             </details>
-            <details class="faq-item reveal">
-              <summary>为什么 Windows 提示“未知发布者”？<span></span></summary>
-              <p>当前安装包尚未配置代码签名证书，Windows SmartScreen 会显示未知发布者。确认文件来自本页或 GitHub Releases 后，选择“更多信息 → 仍要运行”。</p>
+            <details>
+              <summary>API Key 和比赛数据存在哪里？</summary>
+              <p>Key 保存在浏览器 localStorage（<code>truesight.config.v1</code>），比赛数据与解析缓存保存在本机数据目录。设置页可清理缓存，不会删除 Key。</p>
             </details>
-            <details class="faq-item reveal">
-              <summary>支持 macOS / Linux 吗？<span></span></summary>
-              <p>当前客户端面向 Windows 10 / 11 x64。核心前端与 Python 服务可移植，但 Java 运行时、安装器和部分路径仍需按平台适配。</p>
+            <details>
+              <summary>如何更新到新版本？</summary>
+              <p>重新下载最新安装包覆盖安装即可；便携版直接替换 exe。设置与历史记录保存在用户数据目录，不会被覆盖。</p>
             </details>
-            <details class="faq-item reveal">
-              <summary>如何更新或卸载？<span></span></summary>
-              <p>下载新版本安装包覆盖安装即可。安装版可在 Windows「应用和功能」中卸载；便携版退出后删除 exe。用户数据位于 <code>%APPDATA%\TrueSight</code>。</p>
+            <details>
+              <summary>支持 macOS 或 Linux 吗？</summary>
+              <p>目前只提供 Windows 10 / 11 x64 客户端。源码可通过 Node 与 Python 手动运行，但未提供其他平台的安装包。</p>
+            </details>
+            <details>
+              <summary>游戏图片和数据的版权归谁？</summary>
+              <p>Dota 2 以及英雄头像、技能图标、装备图标等美术资源版权归 Valve Corporation 所有。TrueSight 仅用于本机对局分析展示，与 Valve 没有隶属或合作关系。</p>
             </details>
           </div>
         </div>
       </section>
     </main>
 
-    <footer class="site-footer">
-      <div class="container footer-inner">
+    <footer class="footer">
+      <div class="wrap footer-grid">
         <div class="footer-brand">
-          <img src="assets/truesight-mark.svg" alt="" width="28" height="28" />
-          <span><strong>TrueSight</strong><small>DOTA 2 MATCH ANALYZER</small></span>
+          <img src="assets/truesight-mark.svg" alt="" width="30" height="30" />
+          <div>
+            <strong>TrueSight</strong>
+            <p>用 AI 洞察每一场 Dota 2 比赛。本地运行，数据可控。</p>
+          </div>
         </div>
-        <p class="footer-note">用 AI 洞察每一场 Dota 2 比赛。本地运行，数据可控。</p>
         <div class="footer-links">
-          <a href="https://github.com/LiBaiQiYu/TrueSight" target="_blank" rel="noreferrer">GitHub</a>
-          <a href="https://github.com/LiBaiQiYu/TrueSight#readme" target="_blank" rel="noreferrer">README</a>
-          <a href="https://github.com/LiBaiQiYu/TrueSight/issues" target="_blank" rel="noreferrer">Issues</a>
-          <a href="#top">回到顶部</a>
+          <div>
+            <h4>产品</h4>
+            <a href="#download">下载</a>
+            <a href="#timeline">时间轴</a>
+            <a href="#combat">战斗节点</a>
+          </div>
+          <div>
+            <h4>资源</h4>
+            <a href="https://github.com/LiBaiQiYu/TrueSight" target="_blank" rel="noreferrer">GitHub</a>
+            <a href="https://github.com/LiBaiQiYu/TrueSight/issues" target="_blank" rel="noreferrer">问题反馈</a>
+            <a href="#faq">常见问题</a>
+          </div>
+          <div>
+            <h4>关于</h4>
+            <a href="https://cwa1e.top" target="_blank" rel="noreferrer">开发者</a>
+            <a href="https://www.opendota.com/" target="_blank" rel="noreferrer">OpenDota</a>
+            <a href="https://stratz.com/" target="_blank" rel="noreferrer">STRATZ</a>
+          </div>
         </div>
       </div>
-      <div class="container footer-meta">
-        <p class="footer-dev">
-          <span>DEVELOPER</span>
-          <strong>CarlosWhite_A1E</strong>
-          <a href="https://cwa1e.top" target="_blank" rel="noreferrer">cwa1e.top</a>
-        </p>
-        <p class="footer-powered">
-          <span>POWERED BY</span>
-          <a href="https://www.opendota.com/" target="_blank" rel="noreferrer">OpenDota</a>
-          <b>·</b>
-          <a href="https://stratz.com/" target="_blank" rel="noreferrer">STRATZ</a>
-          <b>·</b>
-          <a href="https://github.com/skadistats/clarity" target="_blank" rel="noreferrer">Clarity</a>
-        </p>
-        <p class="footer-copy">© 2026 TrueSight</p>
-        <p class="footer-legal">Dota 2 及游戏内美术资源版权归 Valve Corporation 所有，本项目与 Valve 无关联。</p>
+      <div class="wrap footer-legal">
+        <p>© 2026 TrueSight · 开发者 CarlosWhite_A1E</p>
+        <p>Dota 2 及游戏内美术资源版权归 Valve Corporation 所有，本项目与 Valve 无关联。</p>
       </div>
     </footer>
   </body>
