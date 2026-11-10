@@ -28,6 +28,12 @@ ITEM_ICON = '/apps/dota2/images/dota_react/items'
 UA = 'Mozilla/5.0 (TrueSight asset cache)'
 PNG_SIGNATURE = b'\x89PNG\r\n\x1a\n'
 
+# 名称表里没有、但战斗日志会用到且官方 CDN 有独立图标的技能
+EXTRA_ABILITY_PATHS = {
+    'ability_capture': ABILITY_ICON + '/ability_capture.png',
+    'ancient_apparition_ice_blast_release': ABILITY_ICON + '/ancient_apparition_ice_blast_release.png',
+}
+
 
 def load_names(name):
     path = os.path.join(NAMES_DIR, '%s.json' % name)
@@ -58,6 +64,8 @@ def build_tasks(only):
             if not key:
                 continue
             path = row.get('img') or '%s/%s.png' % (ABILITY_ICON, key)
+            tasks['abilities/%s.png' % key] = path
+        for key, path in EXTRA_ABILITY_PATHS.items():
             tasks['abilities/%s.png' % key] = path
     if only in ('', 'items'):
         for row in load_names('items'):

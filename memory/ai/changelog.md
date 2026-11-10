@@ -4,7 +4,7 @@
 
 ## 2026-11-10
 
-- 图片资源本地化：英雄头像/小图标、技能图标、装备图标共 1405 个文件（约 43.6 MB）抓取到 `ui/public/assets/`，前端默认只读本地文件；新增 `tools/assets/fetch_images.py` 负责下载/校验/先天技能占位；本地缺失时按 `data-fallback` 回退官方 CDN。
+- 图片资源本地化：英雄头像/小图标、技能图标、装备图标共 1407 个文件（约 43.7 MB）抓取到 `ui/public/assets/`，前端默认只读本地文件；新增 `tools/assets/fetch_images.py` 负责下载/校验/先天技能占位；本地缺失时按 `data-fallback` 回退官方 CDN。
 
 ## 2026-11-09
 
