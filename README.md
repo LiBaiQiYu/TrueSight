@@ -1,435 +1,451 @@
 <p align="center">
-  <img src="ui/public/brand/truesight-logo.png" width="200" alt="TrueSight" />
+  <img src="ui/public/brand/truesight-logo.png" width="180" alt="TrueSight" />
 </p>
 
 <h1 align="center">TrueSight</h1>
 
 <p align="center">
-  <strong>DOTA 2 MATCH ANALYZER</strong><br />
-  用 AI 洞察每一场 Dota 2 比赛
+  <strong>Dota 2 Match Analyzer</strong><br />
+  Local replay parsing, match timeline, combat nodes and AI-assisted review.
+</p>
+
+<p align="center">
+  <a href="README.md">English</a> ·
+  <a href="README.zh-CN.md">简体中文</a>
 </p>
 
 <p align="center">
   <img alt="Vue" src="https://img.shields.io/badge/Vue-3.5-42b883?style=flat-square&logo=vuedotjs&logoColor=white" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.9-3178c6?style=flat-square&logo=typescript&logoColor=white" />
   <img alt="Vite" src="https://img.shields.io/badge/Vite-8-646cff?style=flat-square&logo=vite&logoColor=white" />
-  <img alt="Python" src="https://img.shields.io/badge/Python-3-3776ab?style=flat-square&logo=python&logoColor=white" />
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.10+-3776ab?style=flat-square&logo=python&logoColor=white" />
   <img alt="Java" src="https://img.shields.io/badge/Java-21-e76f00?style=flat-square&logo=openjdk&logoColor=white" />
-  <img alt="Platform" src="https://img.shields.io/badge/Platform-Windows-0078d4?style=flat-square&logo=windows&logoColor=white" />
+  <img alt="Electron" src="https://img.shields.io/badge/Electron-44-47848f?style=flat-square&logo=electron&logoColor=white" />
+  <img alt="Platform" src="https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011-0078d4?style=flat-square&logo=windows&logoColor=white" />
+  <img alt="License" src="https://img.shields.io/badge/License-UNLICENSED-red?style=flat-square" />
 </p>
 
 ---
 
-TrueSight 是一个本地运行的 Dota 2 对局分析工具，将 **OpenDota / STRATZ 公开数据**、**本地 Clarity 回放解析** 与 **AI 复盘** 整合在同一套界面中。
+**TrueSight** is a local-first Dota 2 match analysis app for Windows. It combines **OpenDota / STRATZ public data**, **local Clarity replay parsing**, and **LLM-assisted review** in a single interface.
 
-它既能快速生成整场概览，也能展开逐分钟时间轴，查看出装路线、真实背包、技能加点、天赋选择、对位换血与战斗节点。所有 API Key 只保存在浏览器本地，由本地服务转发请求，不进入前端静态资源或代码仓库。英雄头像、技能图标与装备图标已内置在项目中，不依赖第三方图片 CDN。
-
-<p align="center">
-  <img src="docs/readme-home.png" alt="TrueSight 主界面（标准主题 · 浅色）" width="100%" />
-</p>
-
-<p align="center"><em>主界面：比赛查询、选手选择、分析深度、数据源与对位入口（标准主题 · 浅色）</em></p>
-
-## 目录
-
-- [核心能力](#核心能力)
-- [界面预览](#界面预览)
-- [系统架构](#系统架构)
-- [快速开始](#快速开始)
-- [桌面客户端](#桌面客户端electron可选)
-- [配置说明](#配置说明)
-- [项目结构](#项目结构)
-- [官网](#官网)
-- [名称与图标数据](#名称与图标数据)
-- [AI 记忆与多设备同步](#ai-记忆与多设备同步)
-- [隐私与安全](#隐私与安全)
-- [已知限制](#已知限制)
-- [文档](#文档)
-
-## 核心能力
-
-### AI 对局分析
-
-- 粗略分析：基于 OpenDota / STRATZ 的分钟级数据；
-- 高级分析：本地 Clarity 解析录像，提供 5 秒级经济、技能、装备与战斗日志；
-- 支持 OpenCode Go、MiniMax、DeepSeek、OpenAI / Claude / Codex API、小米 MiMo 等 OpenAI 兼容服务，以及自定义模型接口；
-- 自动注入双方阵容、KDA、经济曲线、出装、技能与关键事件；
-- 支持停止分析、保留已生成内容。
-
-### AI 结果中的名称与图标
-
-- 英雄、装备、消耗品、技能自动匹配中文官方名；
-- 结果正文按 `[图标]名称` 渲染，阅读时可直接识别；
-- 英雄头像、技能图标、装备图标全部内置在 `ui/public/assets/`，断网也可正常显示；
-- 图片版权归 Valve Corporation 所有，「关于」页与官网 footer 均有说明；
-- 技能图标只显示图片，不在图标上叠加等级数字；
-- 未知名称保留原文，不伪造数据。
-
-### 时间轴与出装
-
-- 5 秒级经济 / 补刀 / 经验 / 等级 / 英雄伤害曲线；
-- 出装路线按真实购买、合成、卖出与消耗还原；
-- 卷轴按 `mergedInto` 合并到成品，不再依赖购买时间窗口；
-- 时间轴顶部展示完整对位阵容：边路 2v2 / 2v3（自定义）不再只显示敌方；
-- 分析对象可从全部 10 名英雄中切换，并高亮标出；
-- 分析对象下拉按天辉/夜魇分组，显示头像、名称、位置与选中勾选；
-- 切换分析对象时，对位范围会按该英雄的分路自动调整；
-- 「自动对位」开关与主界面「对位分析」勾选同步：勾选时切换对象自动按分路重建对位，取消时保留上次对位选择；
-- 顶部「1v1 / 优势路 2v2 / 劣势路 2v2 / 自定义」可快速切换对位范围；
-- 自定义对位支持最多 3 名我方（含分析对象）与 3 名敌方；
-- 6 格装备栏 + 1 格打野装备 + 3 格背包实时快照；
-- 小熊背包仅在分析德鲁伊本人时显示，其他英雄不会混入小熊数据；
-- 真假眼拆分为独立记录，可堆叠消耗品按 FIFO 归属；
-- 同一录像后台解析全部英雄，切换分析对象无需重新分析；
-- 已有录像解析缓存时，选择英雄并处于高级分析会直接显示时间轴按钮，无需重新跑 AI。
-
-### 对位与战斗节点
-
-- 对位 2v2 前 10 分钟：HP/MP、技能释放次数、补给、真假眼、击杀与死亡；
-- 战斗节点分析：击杀 / 助攻 / 阵亡相关的单杀、小规模与团战；包含技能、普攻、伤害类型、HP/MP、金钱、经验与承伤来源；
-- 即使没有造成英雄伤害，只要技能、治疗、护盾、增益或控制参与了节点，也计入参战英雄；
-- 参团要求结合战场距离，全球伤害与全球治疗技能单独放行；
-- 战场中心使用伤害玩家位置中位数，避免全屏技能玩家带偏。
-
-### 德鲁伊双天赋树
-
-- 本体 8 条天赋（4 层 × 2）；
-- 小熊 8 条独立天赋（4 层 × 2）；
-- 天赋区域可在「本体 / 小熊」之间切换；
-- 两个天赋点独立，可延后补选。
-
-### 主题与品牌
-
-- TrueSight / 标准双主题；
-- 深色 / 浅色模式；
-- 统一的时间轴弹窗、结果卡片、设置页视觉规范；
-- 「关于」页包含版本号、更新日志、开源鸣谢、安全说明与 Valve 图片版权说明；
-- 设置页可清理回放解析缓存与临时文件，保留录像、Key、设置与历史记录；
-- TrueSight 水晶 logo、favicon、PWA 图标。
-
-## 界面预览
-
-### 时间轴
+Use it for a quick match overview or a minute-by-minute deep dive: item builds, real inventories, ability builds, talents, lane matchups, combat nodes, and AI coaching grounded in actual replay events. API keys stay in your browser's `localStorage`; replays and analysis data never leave your machine.
 
 <p align="center">
-  <img src="docs/readme-timeline.png" alt="时间轴（标准主题 · 浅色）" width="100%" />
+  <img src="docs/readme-home.png" alt="TrueSight main interface (Standard theme, light)" width="100%" />
 </p>
 
-<p align="center"><em>经济曲线、出装路线、真实背包、技能加点与天赋选择（标准主题 · 浅色）</em></p>
+<p align="center"><em>Main interface: match lookup, player selection, analysis depth, data sources, and matchup presets (Standard theme, light).</em></p>
 
-### 战斗节点
+## Table of Contents
+
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Requirements](#requirements)
+- [Getting Started](#getting-started)
+- [Desktop Client](#desktop-client)
+- [Configuration](#configuration)
+- [Data and Assets](#data-and-assets)
+- [Project Structure](#project-structure)
+- [Website](#website)
+- [Privacy and Security](#privacy-and-security)
+- [Limitations](#limitations)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgements](#acknowledgements)
+
+## Features
+
+### AI match review
+
+- **Rough analysis** based on minute-level OpenDota / STRATZ data.
+- **Advanced analysis** powered by a local Clarity replay parse with 5-second economy samples, ability casts, item purchases, and combat events.
+- Supports **OpenCode Go, MiniMax, DeepSeek, OpenAI / Claude / Codex API, Xiaomi MiMo**, and any custom OpenAI-compatible or Anthropic-compatible endpoint.
+- Injects both lineups, KDA, economy curves, item builds, abilities, and key events into the prompt.
+- Streaming output with stop/resume; generated content is preserved when a request is cancelled.
+
+### Match timeline and builds
+
+- 5-second economy, last-hit, XP, level, and hero-damage curves.
+- Item builds reconstructed from real purchases, combines, sells, and consumables.
+- Recipes are merged into their finished items rather than inferred from purchase timing.
+- Full matchup roster at the top: safe-lane and off-lane 2v2 / 2v3, not just the enemy side.
+- Switch the analyzed player among all 10 heroes; the dropdown groups players by Radiant / Dire with portraits, names, positions, and selection state.
+- Matchup presets follow the selected player's lane; the automatic-matchup switch stays in sync with the main form.
+- Custom matchups support up to 3 allies (including the analyzed player) and 3 enemies.
+- Real 6-slot inventory + neutral item slot + 3-slot backpack snapshots.
+- Lone Druid's bear inventory is shown only when analyzing Lone Druid himself.
+- Observer and Sentry wards are tracked separately; stackable consumables use FIFO attribution.
+- All heroes in a replay are pre-parsed in the background, so switching players does not re-download or re-parse.
+- When a replay cache exists, the timeline opens directly without another AI request.
+
+### Combat nodes
+
+- Focused on the analyzed player: kills, assists, and deaths are grouped into **solo kills, skirmishes, teamfights, and multi-kills**.
+- Each node includes abilities, basic attacks, damage types, HP/MP, gold, XP, deaths, incoming damage, and its source.
+- Heroes who cast a relevant ability, heal, shield, buff, or disable are counted as participants even if they dealt no hero damage.
+- Participation uses battlefield distance; global damage and global healing abilities are whitelisted.
+- The battlefield center uses the median position of damage dealers to avoid being dragged away by global casters.
+- The combat timeline uses `MM:SS.mmm` precision (0.1 s in the underlying replay events).
+
+### Lane matchups
+
+- First-10-minute matchup data: HP/MP, ability casts, consumables, wards, kills, and deaths.
+- Works for 1v1, safe-lane 2v2, off-lane 2v2, and custom 2–3 player pairs.
+
+### Themes and desktop experience
+
+- **TrueSight** (dark, green accent) and **Standard** (light, blue accent) themes; both support light and dark modes.
+- The About page includes the version, changelog, open-source acknowledgements, security notes, and Valve asset attribution.
+- Settings include a cache cleaner that removes replay parse JSON and temporary files while keeping replays, API keys, settings, and history.
+- Crystal logo, favicon, and PWA icons.
+
+### Local-first assets
+
+- Hero portraits, hero icons, ability icons, and item icons are bundled in `ui/public/assets/`.
+- The UI reads local files first and only falls back to the Steam CDN when a file is missing.
+- Image assets are downloaded from Valve's official CDN and are copyrighted by Valve Corporation.
+
+## Screenshots
+
+### Timeline
 
 <p align="center">
-  <img src="docs/readme-teamfights.png" alt="战斗节点（标准主题 · 浅色）" width="100%" />
+  <img src="docs/readme-timeline.png" alt="Match timeline (Standard theme, light)" width="100%" />
 </p>
 
-<p align="center"><em>参团英雄、承伤来源、技能与装备、HP/MP/经济/经验，以及 0.1 秒精度的战斗时间线</em></p>
+<p align="center"><em>Economy curves, item build path, real inventory, ability build, and talents (Standard theme, light).</em></p>
 
-## 系统架构
+### Combat nodes
+
+<p align="center">
+  <img src="docs/readme-teamfights.png" alt="Combat nodes (Standard theme, light)" width="100%" />
+</p>
+
+<p align="center"><em>Participants, incoming damage sources, abilities and items, HP/MP, economy, and a 0.1-second combat timeline.</em></p>
+
+## Tech Stack
+
+| Layer | Technology |
+| --- | --- |
+| Frontend | Vue 3.5, TypeScript 5.9, Vite 8, Chart.js 4 |
+| Local server | Python 3 standard library (HTTP + SSE) |
+| Replay parser | Java 21 + Clarity 5.0.1, exported to schema 10 JSON |
+| Desktop shell | Electron 44, electron-builder (NSIS + portable) |
+| Website | Static HTML / CSS / JS, Cloudflare Workers + R2 |
+| Public data | OpenDota, STRATZ, Valve Dota 2 datafeed |
+| AI providers | OpenAI Chat Completions, OpenAI Responses, Anthropic Messages |
+
+## Architecture
 
 ```mermaid
 flowchart LR
-  A["Vue 3 前端<br/>ui/"] <-->|HTTP / SSE| B["本地 Python 服务<br/>server.py"]
-  B <--> C["OpenDota / STRATZ<br/>公开数据"]
-  B <--> D["Clarity 回放解析<br/>java/MatchJsonMain.java"]
-  D --> E["回放 .dem"]
-  B <--> F["LLM Provider<br/>OpenCode / MiniMax / DeepSeek / Claude / Codex / MiMo / Custom"]
-  A --> G["静态名称库<br/>ui/public/names"]
-  A --> I["本地图片资源<br/>ui/public/assets"]
-  B --> H["AI 记忆库<br/>memory/ai"]
+  A["Vue 3 frontend<br/>ui/"] <-->|HTTP / SSE| B["Local Python server<br/>server.py"]
+  B <--> C["OpenDota / STRATZ<br/>public APIs"]
+  B <--> D["Clarity replay parser<br/>java/MatchJsonMain.java"]
+  D --> E[".dem replay"]
+  B <--> F["LLM providers<br/>OpenCode / MiniMax / DeepSeek / Claude / Codex / MiMo / Custom"]
+  A --> G["Static names<br/>ui/public/names"]
+  A --> I["Local images<br/>ui/public/assets"]
+  B --> H["AI memory<br/>memory/ai"]
 ```
 
-- 浏览器只访问本地服务，不直接跨域请求第三方 API；
-- 回放解析和 AI 请求都由 `server.py` 统一代理；
-- 名称库优先生成静态 JSON，加载快、可离线缓存；
-- 英雄头像、技能与装备图标随前端构建进入 `ui/dist/assets`，桌面客户端已内置，不依赖图片 CDN。
+- The browser talks only to the local server; third-party APIs are proxied by `server.py`.
+- Replay downloads, parsing, and AI requests are handled locally.
+- The names index and image assets are static, so the UI works offline once a match has been loaded.
 
-## 快速开始
+## Requirements
 
-### 环境要求
-
-| 依赖 | 版本 | 用途 |
+| Dependency | Version | Purpose |
 | --- | --- | --- |
-| Windows | 10 / 11 | 当前主要运行环境 |
-| Python | 3.10+ | 本地服务；仅标准库，无需 pip 依赖 |
-| Node.js | 20+ | 前端开发与构建 |
-| Java | 21 | 高级分析 / 回放解析 |
-| Clarity | `lib/*.jar` + `classes/` | 回放解析运行时 |
+| Windows | 10 / 11 (x64) | Primary runtime |
+| Python | 3.10+ | Local server; standard library only, no pip packages |
+| Node.js | 20+ | Frontend development and build |
+| Java | 21 | Advanced analysis / replay parsing |
+| Clarity | `lib/*.jar` + `classes/` | Replay parser runtime |
 
-> `runtime/`、`jre/`、`lib/`、`classes/`、`replays/`、`.cache/`、`ui/node_modules/`、`ui/dist/` 不进入 Git，需要在目标机器自行准备或重新构建。
+> `runtime/`, `jre/`, `lib/`, `classes/`, `replays/`, `.cache/`, `ui/node_modules/`, and `ui/dist/` are intentionally not committed. Use the setup script or the desktop installer to prepare them.
 
-### 一键准备运行环境（推荐）
+## Getting Started
+
+### 1. One-command setup (recommended)
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools\setup.ps1
 ```
 
-脚本会自动完成：
+The script:
 
-1. 检查 Python 3.10+（项目只使用标准库，不需要 `pip install`）；
-2. 检查 Java 21+ 与 `javac`；
-3. 默认拉取 `../clarity` 最新代码并重新构建；
-4. 把 Clarity 与依赖 jar 复制到 `lib/`；
-5. 编译 `java/MatchJsonMain.java` 到 `classes/`；
-6. 验证 Java 类路径与导出器可启动。
+1. Checks Python 3.10+ (no `pip install` needed).
+2. Checks Java 21+ and `javac`.
+3. Clones/updates `../clarity` and rebuilds it by default.
+4. Copies Clarity and dependency JARs into `lib/`.
+5. Compiles `java/MatchJsonMain.java` into `classes/`.
+6. Verifies the Java classpath and exporter startup.
 
-> Dota 录像协议会随游戏更新，因此 Clarity 不锁旧版本，setup 默认跟随最新代码。
-
-可选参数：
+Optional flags:
 
 ```powershell
-# 不自动克隆 Clarity
+# Do not clone Clarity automatically
 powershell -File tools\setup.ps1 -NoClone
 
-# 只检查 Python / Java，跳过 Clarity
+# Only check Python / Java, skip Clarity
 powershell -File tools\setup.ps1 -SkipClarity
 
-# 保留当前 ../clarity，不拉取最新代码
+# Keep the current ../clarity checkout
 powershell -File tools\setup.ps1 -NoUpdateClarity
 ```
 
-### 构建与启动
+> Dota 2's replay protocol changes with game updates, so Clarity is intentionally not pinned to an old revision.
+
+### 2. Build and run
 
 ```powershell
-# 1. 安装并构建前端
-cd ui
-npm install
-npm run build
-
-# 2. 回到项目根目录启动（默认 8077，自动打开浏览器）
-cd ..
-.\start.bat
-```
-
-指定端口：
-
-```powershell
-.\start.bat 8080
-```
-
-### 开发模式
-
-```powershell
-# 终端 1：本地服务
-.\start.bat
-
-# 终端 2：Vite 开发服务器（5180，API 代理到 8077）
-cd ui
-npm run dev
-```
-
-### 桌面客户端（Electron，可选）
-
-Web 模式保持不变。桌面模式共用同一套 `ui/`、`server.py`、Clarity 与运行时：
-
-```powershell
-# 首次准备环境并构建前端
-powershell -ExecutionPolicy Bypass -File tools\setup.ps1
 cd ui
 npm install
 npm run build
 cd ..
 
-# 启动桌面开发模式
-cd desktop
-npm install
+.\start.bat          # defaults to http://127.0.0.1:8077
+.\start.bat 8080     # custom port
+```
+
+### 3. Development mode
+
+```powershell
+# Terminal 1: local server
+.\start.bat
+
+# Terminal 2: Vite dev server (5180, API proxied to 8077)
+cd ui
 npm run dev
 ```
 
-打包客户端：
-
-```powershell
-npm run dist            # 便携版 TrueSight-Portable-0.1.0-x64.exe（约 185 MB）
-npm run dist:installer  # 安装版 TrueSight-Setup-0.1.0-x64.exe（约 202 MB）
-```
-
-产物在 `desktop/release/`，已内置 Python、Java 21、Clarity 与全部英雄 / 技能 / 装备图标。桌面模式使用随机本地端口，数据写入 `%APPDATA%\TrueSight\data`，不会与 Web 模式的 8077 冲突。
-
-打包后如遇沙箱产物低完整性导致无法启动，可执行：
-
-```powershell
-powershell -ExecutionPolicy Bypass -File tools\desktop\fix-integrity.ps1
-```
-
-详细说明见 [`desktop/README.md`](desktop/README.md)。
-
-### 重新构建解析器
+### 4. Rebuild the parser
 
 ```powershell
 javac --release 21 -encoding UTF-8 -cp "classes;lib/*" -d classes java\MatchJsonMain.java
 ```
 
-## 配置说明
+## Desktop Client
 
-启动后打开左下角「设置」：
+The web mode remains available. The desktop client reuses the same `ui/`, `server.py`, Clarity, and runtime, and bundles everything into a Windows app.
 
-| 配置 | 说明 |
+### Development
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\setup.ps1
+cd ui
+npm install
+npm run build
+cd ..
+
+cd desktop
+npm install
+npm run dev
+```
+
+### Packaging
+
+```powershell
+cd desktop
+npm run dist            # Portable: TrueSight-Portable-0.1.0-x64.exe (~185 MB)
+npm run dist:installer  # Setup:    TrueSight-Setup-0.1.0-x64.exe (~202 MB)
+```
+
+Artifacts are written to `desktop/release/`. The app bundles Python, Java 21, Clarity, and all hero / ability / item images. It uses a random loopback port and stores data in `%APPDATA%\TrueSight\data`, so it can run alongside the web mode on port 8077.
+
+If packaged files end up with low mandatory integrity in a sandboxed environment, run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\desktop\fix-integrity.ps1
+```
+
+See [`desktop/README.md`](desktop/README.md) for details.
+
+## Configuration
+
+Open **Settings** in the lower-left corner.
+
+| Setting | Description |
 | --- | --- |
-| AI 提供商 | OpenCode Go / MiniMax / DeepSeek / OpenAI / Claude / Codex API / 小米 MiMo / 自定义 |
-| API Key | 仅保存在浏览器 `localStorage` |
-| Base URL | 默认使用提供商官方地址，可自定义；自定义模型必填 |
-| 模型 | 由提供商模型列表或内置模型提供；自定义模型手动填写 |
-| 推理强度 | low / medium / high / xhigh / max / ultra，也可自定义任意档位；DeepSeek、MiMo 不传档位 |
-| STRATZ Token | 可选，用于精确位置与角色数据 |
-| 数据源 | 自动 / 仅 OpenDota / 仅 STRATZ / 双源 |
-| 主题 | TrueSight / 标准；深色 / 浅色 |
+| AI provider | OpenCode Go / MiniMax / DeepSeek / OpenAI / Claude / Codex API / Xiaomi MiMo / Custom |
+| API key | Stored only in browser `localStorage` |
+| Base URL | Provider default, editable; required for custom providers |
+| Model | Loaded from the provider catalog or entered manually |
+| Reasoning effort | low / medium / high / xhigh / max / ultra, or any custom value; DeepSeek and MiMo do not receive the field |
+| STRATZ token | Optional; enables precise positions and roles |
+| Data source | Auto / OpenDota only / STRATZ only / Both |
+| Theme | TrueSight / Standard; light / dark |
 
-自定义模型支持：
+### Custom providers
+
+Custom providers support:
 
 - `OpenAI Chat Completions`
 - `OpenAI Responses`
 - `Anthropic Messages`
 
-可填写 Provider ID、显示名称、API 地址、协议、API Key、模型 ID、模型目录和推理档位。目录为空时不显示模型，但手填的模型 ID 仍会直接发送。获取模型目录时会尝试读取 `capabilities.reasoning.effort`、`reasoning.effort` 或 `thinkingLevelMap`，自动填充 `low / medium / high / xhigh / max / ultra` 等档位；推理档位使用标签编辑，点选预设或输入逗号/回车生成标签，点 × 移除，留空则不发送 `reasoning_effort`。
+You can set the provider ID, display name, API URL, protocol, API key, model ID, model catalog, and reasoning levels. When the catalog is empty, manually entered model IDs are still sent. When fetching a catalog, TrueSight reads `capabilities.reasoning.effort`, `reasoning.effort`, or `thinkingLevelMap` to populate levels such as `low / medium / high / xhigh / max / ultra`. Reasoning levels use a tag editor: click a preset, or type a value and press comma/Enter; click × to remove; leave it empty to omit `reasoning_effort`.
 
-> Claude Code / Codex 的订阅登录与 API Key 是两套机制；当前支持的是 API Key 与自定义协议接口，不包含订阅 OAuth/CLI 登录。
+> Claude Code / Codex subscription login and API keys are different mechanisms. TrueSight supports API keys and custom protocol endpoints; it does not implement subscription OAuth or CLI login.
 
-> API Key 不会写入仓库、日志或前端构建产物。
+## Data and Assets
 
-## 项目结构
+### Public data
 
-```text
-dota-chat/
-├─ ui/                        Vue 前端
-│  ├─ src/components/         时间轴、结果卡、比赛卡、设置、关于、战斗节点面板
-│  ├─ src/lib/                数据模型、提示词、时间轴/战斗节点/名称与图片资源
-│  ├─ src/lib/assets.ts       本地图片 URL 与 CDN 回退链
-│  ├─ scripts/build-names.mjs 名称库压缩
-│  └─ public/                 品牌、favicon、静态名称库、本地图片资源
-├─ server.py                  本地 HTTP 服务 / API 代理 / 解析任务 / 缓存清理
-├─ java/MatchJsonMain.java    Clarity 回放导出器
-├─ data/names/                英雄、技能、天赋、装备源数据
-├─ tools/names/               名称抓取、构建、审计
-├─ tools/assets/              英雄头像、技能与装备图标抓取
-├─ tools/memory/              记忆快照与 Git hook 安装
-├─ tools/setup.ps1            Python / Java / Clarity 一键准备
-├─ memory/ai/                 AI 开发记忆
-├─ memory/dota-images.md      图片快照、版权与更新流程
-├─ website/                   官网静态站点（Apple 产品页风格，深浅双主题）
-├─ desktop/                   Electron 桌面客户端
-├─ docs/                      设计与功能文档、截图
-├─ .githooks/                 提交 / 推送钩子
-└─ start.bat                  Windows 启动脚本
-```
+- Match, player, and item data: OpenDota and STRATZ.
+- Replay events: Clarity (`java/MatchJsonMain.java`, schema 10).
+- Names: Valve Dota 2 datafeed + OpenDota constants.
 
-## 名称与图标数据
+### Local images
 
-- 英雄 / 技能 / 天赋 / 装备中文名：Dota 2 官方 datafeed + OpenDota 常量；
-- 图标：已抓取到项目内 `ui/public/assets/`（英雄头像、英雄小图标、技能图标、装备图标），页面默认只读本地文件，不依赖第三方图片 CDN；缺失文件才回退到 Steam 官方 CDN；
-- 当前快照：2026-11-10，1407 个 PNG、约 43.7 MB；`ui/public/assets/manifest.json` 记录生成时间、文件数与失败列表，「关于」页会读取显示；
-- 图纸统一使用官方 `recipe.png`；
-- 少数先天技能官方 CDN 没有独立图标，用对应英雄小图标占位；
-- 图片版权归 Valve Corporation 所有，仅用于本项目的对局分析展示；更新流程与快照记录见 [docs/images.md](docs/images.md) 和 [memory/dota-images.md](memory/dota-images.md)；
-- 新天赋若 datafeed/OpenDota 尚未收录，在 `tools/names/build.py` 的 `MANUAL_TALENTS` 中补充。
+- Location: `ui/public/assets/` (hero portraits, hero icons, ability icons, item icons).
+- Current snapshot: 2026-11-10, **1407 PNG files, ~43.7 MB**.
+- `ui/public/assets/manifest.json` records the generation time, file count, and failures; the About page displays it.
+- All recipes share `recipe.png`.
+- A few innate abilities have no official CDN icon; the corresponding hero icon is used as a placeholder.
+- Images are © Valve Corporation and are used only for local match analysis and display.
 
-重新生成名称表：
+Regenerate names:
 
 ```powershell
 cd ui
 npm run names
 ```
 
-下载 / 更新图标资源：
+Download or update images:
 
 ```powershell
 runtime\python\python.exe -X utf8 tools\assets\fetch_images.py
-# 强制重新下载、或只更新某一类
 runtime\python\python.exe -X utf8 tools\assets\fetch_images.py --force
 runtime\python\python.exe -X utf8 tools\assets\fetch_images.py --only heroes
-# 名称表删除旧技能/装备后，清理不再引用的旧图
+# Remove images no longer referenced by the names index
 runtime\python\python.exe -X utf8 tools\assets\fetch_images.py --prune
 ```
 
-刷新源数据：
+Refresh source name data:
 
 ```powershell
 python tools/names/fetch_raw.py
 python tools/names/build.py
 ```
 
-## 官网
+See [docs/images.md](docs/images.md) and [memory/dota-images.md](memory/dota-images.md) for the update workflow.
 
-项目官网源码位于 [`website/`](website/README.md)，采用 Apple 产品页风格：大标题、全宽界面截图、克制的留白与深浅两套主题。
+## Project Structure
 
-- **标准（浅色）**：浅色页面 + 蓝色强调色，Hero 为浅灰渐变；
-- **TrueSight（深色）**：深色页面 + 绿色强调色，Hero 为黑色；
-- 界面截图使用客户端标准主题，浅色/深色两套随站点主题自动切换；
-- 页面包含概览、时间轴、战斗节点、AI 复盘、隐私、下载、技术规格与 FAQ；
-- 安装包与便携版由 Cloudflare R2 的 `truesight-downloads` bucket 提供，Worker 通过 `DOWNLOADS` 绑定输出 `/downloads/*`。
-
-新增版本时需同步修改 `website/index.html` 中的版本号/大小、`cloudflare/worker.js` 的下载白名单，上传 R2 后重新部署：
-
-```powershell
-npx wrangler r2 object put "truesight-downloads/TrueSight-Setup-0.1.0-x64.exe" --file "desktop\release\TrueSight-Setup-0.1.0-x64.exe" --remote
-npx wrangler r2 object put "truesight-downloads/TrueSight-Portable-0.1.0-x64.exe" --file "desktop\release\TrueSight-Portable-0.1.0-x64.exe" --remote
-npx wrangler deploy
+```text
+dota-chat/
+├─ ui/                        Vue frontend
+│  ├─ src/components/         timeline, result card, match card, settings, about, combat nodes
+│  ├─ src/lib/                data models, prompts, timeline / combat nodes / names
+│  ├─ src/lib/assets.ts       local image URLs and CDN fallback chain
+│  ├─ scripts/build-names.mjs names index builder
+│  └─ public/                 brand, favicon, names, local image assets
+├─ server.py                  local HTTP server, API proxy, parse jobs, cache cleanup
+├─ java/MatchJsonMain.java    Clarity replay exporter
+├─ data/names/                hero / ability / talent / item source data
+├─ tools/names/               name fetching, building, auditing
+├─ tools/assets/              hero, ability, and item image fetcher
+├─ tools/memory/              memory snapshot and Git hook installer
+├─ tools/setup.ps1            one-command Python / Java / Clarity setup
+├─ memory/ai/                 AI development memory
+├─ memory/dota-images.md      image snapshot, copyright, update workflow
+├─ website/                   static website (Apple-style, light/dark)
+├─ desktop/                   Electron desktop client
+├─ docs/                      design and feature documentation, screenshots
+├─ .githooks/                 commit / push hooks
+└─ start.bat                  Windows launcher
 ```
 
-本地预览：
+## Website
+
+The website source lives in [`website/`](website/README.md) and follows an Apple product-page style: large typography, full-width UI screenshots, generous spacing, and light/dark themes.
+
+- **Standard (light):** light page, blue accent, light hero gradient.
+- **TrueSight (dark):** dark page, green accent, black hero.
+- Interface screenshots use the client's Standard theme and switch automatically with the site theme.
+- Sections: overview, timeline, combat nodes, AI review, privacy, download, specs, and FAQ.
+- Downloads are served by Cloudflare R2 through the Worker's `DOWNLOADS` binding.
+
+Preview locally:
 
 ```powershell
 python -m http.server 4173 --directory website
 ```
 
-打开 `http://127.0.0.1:4173/`。本地预览时 `/downloads/*` 会 404，线上由 Worker 的 R2 绑定提供。
+Open `http://127.0.0.1:4173/`. `/downloads/*` returns 404 locally; the live site serves files from R2.
 
-配置文件为 [`wrangler.jsonc`](wrangler.jsonc)，静态资源绑定 `website/`。
-
-线上地址：<https://truesight.carloswhitea1e.workers.dev/>
-
-## AI 记忆与多设备同步
-
-仓库内保存了可持续同步的 AI 开发记忆：
-
-| 文件 | 内容 |
-| --- | --- |
-| [memory/ai/context.md](memory/ai/context.md) | 架构、命令、运行约束 |
-| [memory/ai/decisions.md](memory/ai/decisions.md) | 长期设计决策 |
-| [memory/ai/changelog.md](memory/ai/changelog.md) | 近期变更 |
-| [memory/ai/state.md](memory/ai/state.md) | 每次提交自动生成的快照 |
-
-首次克隆后执行一次：
+Deploy:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File tools/memory/install.ps1
+npx wrangler deploy
 ```
 
-之后：
+Live site: <https://truesight.carloswhitea1e.workers.dev/>
 
-- `git commit` 前自动运行 `tools/memory/update.py`；
-- 自动更新并暂存 `memory/ai/state.md`；
-- `git push` 前检查当前 HEAD 是否包含记忆快照；
-- 其他设备拉取后即可获得最新上下文。
+## Privacy and Security
 
-## 隐私与安全
+- All third-party requests are proxied by the local `server.py`.
+- API keys and STRATZ tokens are stored only in browser `localStorage`.
+- Replays, parse results, and analysis history stay on the local machine.
+- `.env`, logs, caches, replays, runtimes, and dependency directories are git-ignored.
+- The repository contains no API keys, tokens, passwords, or private keys.
+- Image assets default to local files and only fall back to the official Valve CDN when a file is missing.
 
-- 所有第三方请求由本地 `server.py` 转发；英雄头像、技能与装备图标默认读取本地文件，只有资源缺失时才回退 Steam 官方 CDN；
-- API Key / STRATZ Token 仅保存在浏览器 `localStorage`；
-- `.env`、日志、缓存、录像、运行时与依赖目录均已加入 `.gitignore`；
-- 仓库不包含任何 API Key、Token、账号密码或私钥；
-- 提交前可使用 `git status` 与 `git diff --cached` 复核。
+## Limitations
 
-## 已知限制
+- Advanced analysis requires Java 21 and Clarity; the first run may take a few minutes.
+- Wards placed in fog of war can appear with a delay; ward type is calibrated from placement order.
+- The global ability whitelist is maintained manually and needs updates for new patches.
+- Basic mode has no replay events; combat nodes rely on the legacy OpenDota teamfight fallback.
+- Some new talents or items may lag behind in OpenDota or the official datafeed and need manual additions.
+- The app currently targets Windows; other platforms require adapting the launcher and packaging.
+- Website screenshots must be re-captured in both light and dark versions when the UI changes.
 
-- 高级分析依赖 Java 21 + Clarity jar，首次使用需要准备运行时；
-- 守卫在战争迷雾中可能延迟出现，真假眼类型按插眼顺序校准；
-- 全球技能白名单为手动维护，新版本技能需要补充；
-- 基础模式没有回放事件，战斗节点仅支持旧版 OpenDota 团战回退；
-- 部分新天赋 / 装备在 OpenDota、官方 datafeed 中可能滞后，需要人工补充；
-- 当前主要面向 Windows 本地运行，其他平台需要自行调整启动脚本；
-- 官网截图需随界面更新同步重拍浅色/深色两套，详见 [website/README.md](website/README.md)。
+## Documentation
 
-## 文档
+Most in-repository documentation is written in Chinese.
 
-- [时间轴弹窗](docs/timeline-dock.md)
-- [时间轴图表](docs/timeline-chart.md)
-- [装备与图标数据](docs/item-catalog.md)
-- [图片资源本地化](docs/images.md)
-- [背包模型](docs/item-inventory.md)
-- [团战分析](docs/teamfights.md)
-- [战斗节点设计](docs/combat-nodes.md)
-- [官网维护与截图规范](website/README.md)
-- [AI 记忆库](memory/ai/README.md)
+- [Timeline dock](docs/timeline-dock.md)
+- [Timeline chart](docs/timeline-chart.md)
+- [Items and icons](docs/item-catalog.md)
+- [Local image assets](docs/images.md)
+- [Inventory model](docs/item-inventory.md)
+- [Teamfight analysis](docs/teamfights.md)
+- [Combat node design](docs/combat-nodes.md)
+- [Website and screenshot guidelines](website/README.md)
+- [AI memory](memory/ai/README.md)
+
+## Contributing
+
+Issues and pull requests are welcome.
+
+1. Open an issue for bugs or feature proposals; include the match ID, a screenshot, and the relevant log excerpt when possible.
+2. Keep changes focused; avoid committing generated assets unless the change intentionally updates them.
+3. Run the frontend checks before submitting:
+
+```powershell
+cd ui
+npm run typecheck
+npm run build
+```
+
+4. Include manual verification steps in the pull request description. There is currently no automated test suite.
+
+## License
+
+This project is currently **unlicensed (`UNLICENSED`)**. The source code is publicly visible for reference and issue tracking, but no permission is granted to copy, modify, or redistribute it without the author's prior consent.
+
+Dota 2 and its in-game artwork, including hero portraits, ability icons, and item icons, are © Valve Corporation. TrueSight is not affiliated with or endorsed by Valve.
+
+## Acknowledgements
+
+[OpenDota](https://www.opendota.com/) · [STRATZ](https://stratz.com/) · [Clarity](https://github.com/skadistats/clarity) · [Vue.js](https://vuejs.org/) · [Vite](https://vite.dev/) · [Chart.js](https://www.chartjs.org/) · [Electron](https://www.electronjs.org/) · [TypeScript](https://www.typescriptlang.org/) · [fastutil](https://fastutil.di.unimi.it/) · [snappy-java](https://github.com/xerial/snappy-java)
 
 ---
 
