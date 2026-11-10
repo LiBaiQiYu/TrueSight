@@ -249,7 +249,10 @@ class Handler(BaseHTTPRequestHandler):
         rel_posix = rel.replace('\\', '/')
         cache_control = 'no-store'
         etag = None
-        if rel_posix.startswith('assets/'):
+        if rel_posix.startswith(('assets/heroes/', 'assets/abilities/', 'assets/items/')):
+            # 图片按文件名直接访问，没有内容哈希；给一天缓存，避免更新后长期读到旧图
+            cache_control = 'public, max-age=86400'
+        elif rel_posix.startswith('assets/'):
             cache_control = 'public, max-age=31536000, immutable'
         elif rel_posix.startswith('names/'):
             cache_control = 'no-cache'
