@@ -2,6 +2,14 @@
 
 按时间倒序；每次功能/修复完成后在顶部追加一条。自动快照见 `state.md`。
 
+## 2026-11-11
+
+- 本地运行环境：安装前端依赖并构建 `ui/dist`，用官方名称流程生成缺失的 `data/names/heroes.json`（127 个英雄中文名与原生技能），已验证首页、OpenDota 比赛查询（9027308611）和中文名称加载。
+- `npm install` 修正 `ui/package-lock.json`：包名同步为 `truesight-ui`，补上原锁文件缺失的 `chart.js` 依赖。
+- 上游 `b4b43e9` 已把 `data/names/heroes.json` 纳入版本库（忽略规则收窄为 `/heroes.json`），本地生成内容与上游一致。
+- 开发环境高级分析恢复：使用本机 JDK 21（`JAVA_HOME`，PATH 默认仍是 Java 26）克隆并构建 sibling `../clarity`（53e60b1 / 5.0.1），生成 `lib/` 5 个 jar 与 `classes/MatchJsonMain.class`；用回放 8963173951 验证 `/api/parse`、缓存接口与时间轴 UI（schema 10，10265 条战斗事件）。
+- 战斗节点击杀者标识：分析对象阵亡时，节点标题显示「击杀者」，并在「谁伤害了分析对象」表内给击杀者行加标签；击杀者为非英雄单位/召唤物或未计入承伤表时，在表下注明。已用 8963173951 的阵亡节点验证（巫妖击杀）。
+
 ## 2026-11-10
 
 - 补齐缺失的源数据：data/names/heroes.json 此前被根 .gitignore 的 heroes.json 误伤，从未提交；改为只忽略根目录缓存 /heroes.json 后纳入版本控制。

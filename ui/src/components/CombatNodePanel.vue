@@ -13,7 +13,8 @@ import type {
   CombatNode,
   CombatNodeType,
   DamageBreakdown,
-  FocusRole
+  FocusRole,
+  IncomingDamage
 } from '../lib/combatNodes'
 
 const props = defineProps<{
@@ -58,6 +59,40 @@ const filterCounts = computed<Record<NodeFilter, number>>(() => {
 })
 
 const current = computed<CombatNode | null>(() => filteredNodes.value[selected.value] ?? null)
+
+/** 分析对象在当前节点内的阵亡记录（不含熊灵阵亡）。 */
+const focusKill = computed(() => {
+  const node = current.value
+  if (!node) return null
+  const deaths = node.deaths.filter((death) => death.targetSlot === node.focusSlot)
+  if (!deaths.length) return null
+  const names: string[] = []
+  const slots = new Set<number>()
+  for (const death of deaths) {
+    const name = death.killerHero || '未知'
+    if (!names.includes(name)) names.push(name)
+    if (death.killerSlot != null) slots.add(death.killerSlot)
+  }
+  return {
+    names,
+    slots,
+    inTable: node.incoming.some((row) => slots.has(row.actorSlot))
+  }
+})
+
+const focusKillerText = computed(() => focusKill.value?.names.join('、') ?? '')
+
+function isKillerRow(row: IncomingDamage): boolean {
+  return Boolean(focusKill.value?.slots.has(row.actorSlot))
+}
+
+const focusKillerNote = computed(() => {
+  const info = focusKill.value
+  if (!info || info.inTable) return ''
+  return info.slots.size
+    ? '击杀者未在承伤表中记录到伤害'
+    : '击杀者为非英雄单位或召唤物，未计入承伤表'
+})
 
 function setFilter(next: NodeFilter): void {
   filter.value = next
@@ -316,6 +351,9 @@ function mpText(hero: CombatHero): string {
           <div class="cn-sub">
             {{ typeLabel(current.type) }} · 分析对象{{ roleLabel(current.focusRole) }} ·
             {{ heroCount(current) }} 人参战 · {{ current.deaths.length }} 次阵亡
+            <span v-if="focusKill" class="cn-killer-inline">
+              击杀者 <b>{{ focusKillerText }}</b>
+            </span>
           </div>
         </div>
         <span class="cn-result-badge" :class="current.result">{{ resultLabel(current.result) }}</span>
@@ -412,7 +450,11 @@ function mpText(hero: CombatHero): string {
                       @error="hideIcon"
                     />
                     <HeroAvatar v-else :hero="heroInfoBySlot(row.actorSlot)" :size="20" />
-                    <div>{{ row.actorHero }}<small>{{ row.actorName }}</small></div>
+                    <div>
+                      {{ row.actorHero }}
+                      <span v-if="isKillerRow(row)" class="cn-killer-tag">击杀者</span>
+                      <small>{{ row.actorName }}</small>
+                    </div>
                   </div>
                 </td>
                 <td>{{ row.source }}</td>
@@ -424,6 +466,7 @@ function mpText(hero: CombatHero): string {
           </table>
         </div>
         <p v-else class="cn-muted">没有记录到对分析对象的英雄伤害。</p>
+        <p v-if="focusKillerNote" class="cn-kill-note">击杀者：{{ focusKillerText }} · {{ focusKillerNote }}</p>
       </div>
 
       <div class="cn-block">
@@ -798,6 +841,35 @@ function mpText(hero: CombatHero): string {
   margin-top: 2px;
   color: var(--text-mute);
   font-size: 11.5px;
+}
+
+.cn-killer-inline {
+  margin-left: 8px;
+  padding-left: 8px;
+  border-left: 1px solid var(--line);
+  color: var(--dock-warn, #fbbf24);
+}
+
+.cn-killer-inline b {
+  font-weight: 600;
+}
+
+.cn-killer-tag {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--dock-warn-line, rgba(251, 191, 36, 0.28));
+  color: var(--dock-warn, #fbbf24);
+  font-size: 9.5px;
+  font-weight: 500;
+  vertical-align: 1px;
+}
+
+.cn-kill-note {
+  margin: 5px 0 0;
+  color: var(--dock-warn, #fbbf24);
+  font-size: 10.5px;
 }
 
 .cn-result-badge {
