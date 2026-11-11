@@ -80,7 +80,7 @@ javac --release 21 -encoding UTF-8 -cp "classes;lib/*" -d classes java\MatchJson
 
 - 官网为静态站，部署命令：`npx wrangler deploy`；下载文件由 R2 `truesight-downloads` 的 `DOWNLOADS` 绑定提供，本地预览 `/downloads/*` 会 404。
 - 本机 wrangler OAuth 过期时先执行 `npx wrangler login`（会打开浏览器确认）。
-- 本机 GitHub 直连可能解析到异常 IP；推送失败时使用系统代理 `127.0.0.1:7897`（仅当前设备，Clash/Mihomo）。
+- 本机 GitHub 直连可能解析到异常 IP；推送失败时使用系统代理（本机常见 `127.0.0.1:7890` 或 `7897`，以实际监听端口为准；仅当前设备，Clash/Mihomo）。
 - 部署后抽查线上 HTML/CSS 是否包含本次改动，避免浏览器缓存误判。
 
 ## Git / 多设备同步
