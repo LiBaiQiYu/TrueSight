@@ -59,6 +59,8 @@ python -m http.server 4173 --directory website
 
 R2 bucket：`truesight-downloads`，Worker 绑定：`DOWNLOADS`。
 
+页面下载链接会附加 `?v=YYYYMMDD`（如 `?v=20261111`）用于绕过浏览器缓存；Worker 按 pathname 匹配，查询参数不影响 R2 对象名。
+
 上传新版本：
 
 ```powershell

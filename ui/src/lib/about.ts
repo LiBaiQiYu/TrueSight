@@ -9,6 +9,14 @@ export interface ChangelogEntry {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     version: '0.1.0',
+    date: '2026-11-11',
+    items: [
+      '战斗节点：分析对象阵亡时，节点标题显示击杀者，并在「谁伤害了分析对象」表内给击杀者行加标签。',
+      '击杀者为小兵、防御塔、野怪或召唤物等未计入承伤表时，表下会单独注明。'
+    ]
+  },
+  {
+    version: '0.1.0',
     date: '2026-11-10',
     items: [
       '英雄、技能与装备图标改为内置本地资源（约 44 MB），不再依赖第三方图片 CDN；「关于」页注明图片版权归 Valve Corporation 所有。',
