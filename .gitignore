@@ -9,7 +9,7 @@ __pycache__/
 *.py[cod]
 server.log
 *.log
-heroes.json
+/heroes.json
 *.dem
 *.dem.bz2
 
