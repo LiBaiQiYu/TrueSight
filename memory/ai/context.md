@@ -7,10 +7,11 @@ TrueSight（`dota-chat`）是一个 Dota 2 对局分析工具：
 - 前端：Vue 3.5 + TypeScript + Vite 8，Chart.js 4；
 - 本地后端：Python 3 标准库 HTTP 服务（`server.py`），负责 OpenDota/STRATZ 代理、AI 流式代理、Clarity 录像解析任务；
 - 录像解析：Java + Clarity（`java/MatchJsonMain.java`，编译到 `classes/`）；
-- AI：OpenAI 兼容接口，支持 OpenCode Go、MiniMax、DeepSeek、OpenAI/Codex API、小米 MiMo 与自定义模型；
+- AI：OpenAI 兼容接口，支持 OpenCode Go、MiniMax、DeepSeek、OpenAI/Claude/Codex API、小米 MiMo 与自定义模型；
 - 静态名称库：`data/names/*.json` → 前端 `ui/public/names/*.json`。
 - 名称兜底：`ui/src/lib/labels.ts` 把回放内部类名（`npc_dota_*`、名称表缺失的技能/物品）统一转成中文或可读名，战斗节点与 AI 提示词共用。
 - 官网：Apple 产品页风格静态站；浅色标准主题（浅色页面、蓝色强调）与深色 TrueSight 主题（深色页面、绿色强调），截图按主题自动切换。
+- 文档：`README.md` 默认英文，`README.zh-CN.md` 为简体中文，两版顶部互相切换。
 
 ## 关键目录
 
@@ -56,6 +57,8 @@ npm run dev
 
 # 打包 Portable 客户端（需先构建 ui/dist）
 npm run dist
+# 打包 NSIS 安装版
+npm run dist:installer
 
 # 名称源数据（需要网络）
 python tools/names/fetch_raw.py
@@ -73,6 +76,13 @@ javac --release 21 -encoding UTF-8 -cp "classes;lib/*" -d classes java\MatchJson
 - 浏览器验证用临时 Chrome profile + CDP，结束后清理进程和 profile。
 - 不要把 `.cache/`、`replays/`、`runtime/`、`jre/`、`lib/`、`classes/`、`ui/node_modules/`、`ui/dist/` 提交进 Git。
 
+## 官网发布
+
+- 官网为静态站，部署命令：`npx wrangler deploy`；下载文件由 R2 `truesight-downloads` 的 `DOWNLOADS` 绑定提供，本地预览 `/downloads/*` 会 404。
+- 本机 wrangler OAuth 过期时先执行 `npx wrangler login`（会打开浏览器确认）。
+- 本机 GitHub 直连可能解析到异常 IP；推送失败时使用系统代理 `127.0.0.1:7897`（仅当前设备，Clash/Mihomo）。
+- 部署后抽查线上 HTML/CSS 是否包含本次改动，避免浏览器缓存误判。
+
 ## Git / 多设备同步
 
 - 仓库已初始化，默认分支 `main`；
@@ -86,8 +96,9 @@ javac --release 21 -encoding UTF-8 -cp "classes;lib/*" -d classes java\MatchJson
 - 本地 Clarity 更新至 `53e60b1`（`clarity-5.0.1.jar`，跟随 master；`lib/clarity.commit` 记录 commit）；
 - 回放解析 schema 10：战斗事件（伤害类型/助攻/技能/物品）、1 秒 HP/MP/金钱/经验采样、5 秒时间轴、守卫插眼、德鲁伊小熊背包；
 - 时间轴：出装路线、真假眼拆分、FIFO 消耗、卷轴合成、此刻背包、双天赋树；
-- 名称/图标：中文名称、Steam CDN 图标、Lone Druid 8 条小熊天赋（含通用天赋）；
+- 名称/图标：中文名称库 + `ui/public/assets` 本地图片（1407 个 / 43.7 MB，缺失时回退官方 CDN）；
 - 战斗节点：以分析对象击杀/助攻/阵亡为锚点，展示技能、普攻、伤害类型、资源变化与承伤来源；
+- 官网：Apple 风格深浅双主题，截图随站点主题切换；README 英文默认 + 中文切换；
 - 品牌：TrueSight 水晶 logo/favicon，主题支持 TrueSight/标准、深/浅色。
 
 ## 已知限制

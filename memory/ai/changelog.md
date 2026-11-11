@@ -4,6 +4,7 @@
 
 ## 2026-11-10
 
+- 官网下载卡排版修正：安装版 / 便携版按钮与规格列表之间增加 30px 间距，避免按钮和上方内容贴在一起。
 - 修正便携版描述：官网与中英文 README 明确便携版是「自解压单文件 exe」而非 zip 解压包，并解释它比安装版小是因为不含安装向导、卸载器与安装/升级组件；新增对应 FAQ。
 - README 重做为 GitHub 标准结构：默认英文 `README.md` + 中文 `README.zh-CN.md` 语言切换；补齐 Features、Screenshots、Tech Stack、Architecture、Requirements、Getting Started、Desktop Client、Configuration、Data & Assets、Project Structure、Website、Privacy、Limitations、Documentation、Contributing、License、Acknowledgements。
 - 更新 README：补充本地图片资源与 Valve 版权、标准主题截图、官网深浅主题与截图规范、桌面打包命令与安装包大小、配置表（Claude/Codex、任意推理档位）与项目结构；界面预览截图全部替换为标准主题浅色截图。
